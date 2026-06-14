@@ -23,7 +23,7 @@ The target kernel is exactly these six core skills:
 
 The kernel is future-facing. A target skill may be listed here before a matching
 `.agents/skills/<name>/` directory exists. Do not create new skill directories
-without a dedicated issue.
+without a dedicated Multica issue.
 
 ## Current-to-target migration notes
 
@@ -85,7 +85,7 @@ This routing document does not:
 - Start with the six kernel skills before proposing any new skill.
 - Prefer improving an existing transitional skill or this routing guide over
   adding a specialized skill for a one-off workflow.
-- Treat each merge or rename as a separate issue with explicit old-to-new
+- Treat each merge or rename as a dedicated Multica issue with explicit old-to-new
   routing notes.
 - Use a Multica issue ID in every branch and PR that changes skills or routing.
 - Keep each skill change small enough for human review, and explain the routing
