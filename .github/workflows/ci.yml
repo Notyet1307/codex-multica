@@ -23,8 +23,5 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Check agent template readiness
-        run: bash scripts/check-agent-ready.sh
-
-      - name: Lint shell scripts
-        run: bash -n scripts/*.sh
+      - name: Verify repository
+        run: make verify

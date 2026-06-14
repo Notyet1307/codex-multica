@@ -1,3 +1,5 @@
+# Disabled during dogfood while DeepSeek review is the active automated PR reviewer.
+# Restore after Codex review is selected as the primary PR review path.
 name: Codex pull request review
 
 on:

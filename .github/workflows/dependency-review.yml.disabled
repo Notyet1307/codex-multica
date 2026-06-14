@@ -1,3 +1,5 @@
+# Disabled during dogfood until GitHub Dependency Graph is enabled by a repository administrator.
+# Restore after Dependency Graph is available and dependency review noise is acceptable.
 name: Dependency review
 
 on:
