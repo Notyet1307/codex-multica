@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import json
 import os
+import re
 import sys
 import urllib.error
 import urllib.request
@@ -8,6 +9,8 @@ import urllib.request
 
 DEFAULT_API_URL = "https://api.deepseek.com/chat/completions"
 DEFAULT_MODEL = "deepseek-v4-flash"
+AI_REVIEW_MARKER = "<!-- ai-review:deepseek -->"
+PROVIDER_NAME = "DeepSeek"
 REVIEWER_SYSTEM_PROMPT = "You are a pragmatic senior code reviewer. Prioritize correctness, security, data loss, broken CI, and missing validation."
 
 
@@ -55,6 +58,83 @@ def extract_review(response):
         raise RuntimeError(f"DeepSeek API response did not include review content: {error}")
 
 
+def markdown_section(text, heading):
+    pattern = re.compile(
+        rf"^###\s+{re.escape(heading)}\s*$\n(?P<body>.*?)(?=^###\s+|\Z)",
+        re.IGNORECASE | re.MULTILINE | re.DOTALL,
+    )
+    match = pattern.search(text)
+    if not match:
+        return ""
+    return match.group("body").strip()
+
+
+def section_is_empty(section):
+    normalized = re.sub(r"[^a-z0-9/]+", " ", section.lower()).strip()
+    return normalized in {"", "none", "n/a", "no", "not applicable"}
+
+
+def count_blocking_findings(review):
+    section = markdown_section(review, "Blocking findings")
+    if not section or re.search(r"no\s+p0/p1\s+blocking\s+findings\s+found", section, re.IGNORECASE):
+        return 0
+
+    severity_lines = re.findall(r"^\s*-\s*Severity:\s*P[01]\b", section, re.IGNORECASE | re.MULTILINE)
+    if severity_lines:
+        return len(severity_lines)
+
+    bullet_lines = re.findall(r"^\s*[-*]\s+\S", section, re.MULTILINE)
+    return len(bullet_lines) if bullet_lines else 1
+
+
+def count_validation_gaps(review):
+    section = markdown_section(review, "Validation gaps")
+    if section_is_empty(section):
+        return 0
+
+    bullet_lines = re.findall(r"^\s*[-*]\s+\S", section, re.MULTILINE)
+    return len(bullet_lines) if bullet_lines else 1
+
+
+def security_review_required(review):
+    section = markdown_section(review, "Security notes")
+    if section_is_empty(section):
+        return False
+    if re.search(r"\b(no|none|not)\b.*\b(security|concern|required|risk|issue)s?\b", section, re.IGNORECASE):
+        return False
+    return bool(re.search(r"\b(required|review|risk|issue|auth|secret|token|permission|vulnerab)", section, re.IGNORECASE))
+
+
+def review_recommendation(blocking_findings, validation_gaps):
+    if blocking_findings:
+        return "Changes requested"
+    if validation_gaps:
+        return "Review required"
+    return "No P0/P1 blocking findings found"
+
+
+def format_review_body(review):
+    review = review.strip()
+    blocking_findings = count_blocking_findings(review)
+    validation_gaps = count_validation_gaps(review)
+    needs_security_review = security_review_required(review)
+    recommendation = review_recommendation(blocking_findings, validation_gaps)
+
+    summary = "\n".join(
+        [
+            "| Field | Value |",
+            "| --- | --- |",
+            f"| Provider | {PROVIDER_NAME} |",
+            f"| Recommendation | {recommendation} |",
+            f"| Blocking findings | {blocking_findings} |",
+            f"| Validation gaps | {validation_gaps} |",
+            f"| Security review required | {'Yes' if needs_security_review else 'No'} |",
+        ]
+    )
+
+    return f"{AI_REVIEW_MARKER}\n## DeepSeek PR Review\n\n{summary}\n\n{review}\n"
+
+
 def run(diff_path, prompt_path, output_path):
     api_key = os.environ.get("DEEPSEEK_API_KEY", "")
     if not api_key:
@@ -74,9 +154,7 @@ def run(diff_path, prompt_path, output_path):
     review = extract_review(response)
 
     with open(output_path, "w", encoding="utf-8") as file:
-        file.write("## DeepSeek PR Review\n\n")
-        file.write(review)
-        file.write("\n")
+        file.write(format_review_body(review))
 
 
 def self_test():
@@ -90,6 +168,25 @@ def self_test():
     assert "Review carefully." in payload["messages"][1]["content"]
     assert "```diff" in payload["messages"][1]["content"]
     assert extract_review({"choices": [{"message": {"content": "Looks good."}}]}) == "Looks good."
+    review_body = format_review_body(
+        """## Codex PR Review
+
+### Blocking findings
+
+No P0/P1 blocking findings found.
+
+### Validation gaps
+
+None.
+
+### Security notes
+
+No security-specific concerns.
+"""
+    )
+    assert review_body.startswith(f"{AI_REVIEW_MARKER}\n")
+    assert "| Provider | DeepSeek |" in review_body
+    assert "| Blocking findings | 0 |" in review_body
 
 
 def main():
