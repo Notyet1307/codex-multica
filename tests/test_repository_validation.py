@@ -60,48 +60,6 @@ agents:
             errors,
         )
 
-    def test_validate_multica_config_requires_scoper_spec_first_intake(self) -> None:
-        with tempfile.TemporaryDirectory() as tmp:
-            root = Path(tmp)
-            for skill_name in (
-                "issue-slicing",
-                "multica-issue-brief",
-                "spec-first-intake",
-            ):
-                write(
-                    root,
-                    f".agents/skills/{skill_name}/SKILL.md",
-                    f"---\nname: {skill_name}\ndescription: Existing skill.\n---\n",
-                )
-            write(root, "multica/agent-system-prompts/codex-scoper.md", "Prompt.\n")
-            write(
-                root,
-                "multica/agents.yaml",
-                """
-agents:
-  - name: codex-scoper
-    skills:
-      - issue-slicing
-      - multica-issue-brief
-    system_prompt_file: multica/agent-system-prompts/codex-scoper.md
-""",
-            )
-
-            errors = validation.validate_multica_config(root)
-
-        self.assertIn(
-            "codex-scoper should route intake through spec-first-intake",
-            errors,
-        )
-        self.assertIn(
-            "codex-scoper should not directly route to transitional skill issue-slicing",
-            errors,
-        )
-        self.assertIn(
-            "codex-scoper should not directly route to transitional skill multica-issue-brief",
-            errors,
-        )
-
     def test_validate_prompts_requires_content_and_response_expectation(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)

@@ -67,6 +67,11 @@ Stop and ask or route instead of implementing when:
 - Security, tenant isolation, PII, migrations with data-loss risk, or deployment decisions are involved.
 - The request conflicts with `AGENTS.md`, docs, or an existing decision record.
 - The work needs product direction, design acceptance, or architecture approval before coding.
+- The target skill name differs from exactly `spec-first-intake`.
+- The implementation would require deleting or renaming old skill directories.
+- The implementation would require changing files outside the explicitly allowed scope.
+- The implementation would add external tools, new workflow automation, scripts, hooks, installers, global state, or third-party dependencies.
+- The implementation would copy third-party skill files verbatim instead of adapting workflow ideas.
 
 ## Output
 

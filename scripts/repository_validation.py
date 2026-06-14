@@ -11,7 +11,6 @@ from typing import Iterable
 
 OUTPUT_EXPECTATION_PATTERN = re.compile(r"\b(return|output|respond|response|format)\b", re.IGNORECASE)
 DISABLED_REASON_PATTERN = re.compile(r"\b(disabled|parked|restore|enable|re-enable|reenable)\b", re.IGNORECASE)
-TRANSITIONAL_INTAKE_SKILLS = ("issue-slicing", "multica-issue-brief")
 
 
 def relative(path: Path, root: Path) -> str:
@@ -139,19 +138,9 @@ def validate_multica_config(root: Path) -> list[str]:
 
     for agent in agents:
         name = str(agent.get("name", "<unnamed>"))
-        skills = [str(skill) for skill in agent.get("skills", [])]
-        for skill in skills:
+        for skill in agent.get("skills", []):
             if str(skill) not in known_skills:
                 errors.append(f"{name} references missing skill {skill}")
-
-        if name == "codex-scoper":
-            if "spec-first-intake" not in skills:
-                errors.append("codex-scoper should route intake through spec-first-intake")
-            for transitional_skill in TRANSITIONAL_INTAKE_SKILLS:
-                if transitional_skill in skills:
-                    errors.append(
-                        f"codex-scoper should not directly route to transitional skill {transitional_skill}"
-                    )
 
         prompt_file = agent.get("system_prompt_file")
         if not prompt_file:

@@ -21,10 +21,10 @@
 
 - [ ] Add `codex-frontend` and `codex-backend` if the repo has clear frontend/backend ownership.
 - [ ] Import or attach skills:
-  - `spec-first-intake`
   - `tdd-vertical-slice`
   - `ci-failure-triage`
   - `security-pr-review`
+  - `issue-slicing`
   - `architecture-review`
   - `release-notes-drafter`
 - [ ] Create `AppDev Squad` with `codex-scoper` as leader.
