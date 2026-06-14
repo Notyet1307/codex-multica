@@ -30,6 +30,16 @@ Those pieces are future scope for turning this template into a full product star
 
 ## Dogfood loop
 
+The first successful dogfood loop has validated the current operating path:
+
+- `MUL-1` fixed CodeQL language selection for this dogfood repository.
+- The DeepSeek PR review workflow runs and posts comments.
+- `MUL-2` parked Dependency Review until GitHub Dependency Graph is enabled.
+- Multica routed work through `codex-scoper`, `codex-fullstack`, and `codex-test`.
+- GitHub PRs and checks are the merge gate.
+
+Use this checklist for the current issue -> PR -> checks -> merge -> close issue flow:
+
 1. Create a Multica issue using `multica/issue-template.md`.
 2. Include a `MUL-123` style issue ID in the branch and PR.
 3. Route unclear work to `codex-scoper`.
@@ -39,7 +49,14 @@ Those pieces are future scope for turning this template into a full product star
 7. Open a GitHub PR.
 8. Run CI and Codex review.
 9. Human reviews and merges.
-10. Patch `AGENTS.md`, `docs/agents/*.md`, or `.agents/skills/*` when an agent repeats a mistake.
+10. Close the Multica issue after the merged PR has satisfied the issue acceptance criteria.
+11. Patch `AGENTS.md`, `docs/agents/*.md`, or `.agents/skills/*` when an agent repeats a mistake.
+
+Current parked and future items:
+
+- Dependency Review remains disabled until a repository administrator enables GitHub Dependency Graph.
+- Product runtime directories remain future scope; this repository is still an agent operating template, not a frontend/backend runtime.
+- Branch protection is not enabled yet; humans still own final merge discipline.
 
 ## Recommended first rollout
 
