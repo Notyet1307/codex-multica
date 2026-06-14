@@ -1,3 +1,5 @@
+# Disabled during dogfood until security-labeled PR review is ready for routine use.
+# Restore when the repository has a stable product runtime and security review routing is enabled.
 name: Codex security review
 
 on:

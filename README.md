@@ -38,6 +38,14 @@ The first successful dogfood loop has validated the current operating path:
 - Multica routed work through `codex-scoper`, `codex-fullstack`, and `codex-test`.
 - GitHub PRs and checks are the merge gate.
 
+Run the standard local and CI verification entrypoint before opening or updating a PR:
+
+```bash
+make verify
+```
+
+`make verify` runs the agent readiness check, shell syntax checks, DeepSeek review self-test, unit tests for the repository validators, and structural validation for skills, Multica agent references, Codex prompts, workflows, and README key paths.
+
 Use this checklist for the current issue -> PR -> checks -> merge -> close issue flow:
 
 1. Create a Multica issue using `multica/issue-template.md`.
