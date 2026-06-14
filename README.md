@@ -13,7 +13,7 @@ This starter kit gives you a concrete operating model for using Multica as the t
 │   ├── ISSUE_TEMPLATE/                        # GitHub issue forms if you mirror work to GitHub
 │   ├── codex/prompts/                         # Prompts consumed by Codex GitHub Action
 │   ├── workflows/                             # CI, Codex review, CodeQL, dependency review
-│   ├── dependabot.yml                         # Dependency update configuration
+│   ├── dependabot.yml.disabled                # Parked dependency update configuration
 │   └── pull_request_template.md
 ├── docs/agents/                               # Review rules, domain language, triage labels, ADR format
 ├── multica/                                   # Agent, squad, autopilot, issue templates
@@ -54,6 +54,7 @@ Use this checklist for the current issue -> PR -> checks -> merge -> close issue
 
 Current parked and future items:
 
+- Dependabot remains disabled during dogfood. Restore it by renaming `.github/dependabot.yml.disabled` back to `.github/dependabot.yml` after this repository has a real dependency surface to update, GitHub Dependency Graph / Dependency Review are ready, and automated review checks are no longer known-noisy on Dependabot PRs.
 - Dependency Review remains disabled until a repository administrator enables GitHub Dependency Graph.
 - Product runtime directories remain future scope; this repository is still an agent operating template, not a frontend/backend runtime.
 - Branch protection is not enabled yet; humans still own final merge discipline.
@@ -67,7 +68,7 @@ Current parked and future items:
 5. Create the Multica agents listed in `multica/agents.yaml` and paste the matching system prompts from `multica/agent-system-prompts/`.
 6. Enable GitHub PR linking in Multica. Make every branch, PR title, or PR body include the Multica issue ID, such as `MUL-123`.
 7. Add `DEEPSEEK_API_KEY` as a GitHub Actions secret for DeepSeek-based PR review during dogfood. Do not store API keys or production secrets in `AGENTS.md`, Skill files, Multica descriptions, or committed config.
-8. Enable CI first, then Codex PR review, then GitHub Dependency graph, then dependency review, then CodeQL. The dependency review workflow is parked as `.github/workflows/dependency-review.yml.disabled` until a repository administrator enables `Settings` > `Advanced Security` > `Dependency Graph`.
+8. Enable CI first, then Codex PR review, then GitHub Dependency graph, then dependency review, then CodeQL, then Dependabot. The dependency review workflow is parked as `.github/workflows/dependency-review.yml.disabled` until a repository administrator enables `Settings` > `Advanced Security` > `Dependency Graph`; Dependabot is parked as `.github/dependabot.yml.disabled` until dependency update PRs have a real package/runtime surface and stable automated review checks.
 9. Start with low-risk issues for 1 week. Do not let agents merge code automatically.
 10. Every repeated agent mistake becomes a patch to `AGENTS.md`, `docs/agents/*.md`, or a Skill.
 
