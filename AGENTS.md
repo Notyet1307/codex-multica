@@ -6,59 +6,94 @@ This file is the durable operating manual for Codex and other coding agents work
 
 ## Project facts
 
-- Product: `<PRODUCT_NAME>`
-- Repository: `<REPO_NAME>`
-- Primary users: `<USER_TYPES>`
-- Runtime: `<NODE/PYTHON/JAVA/GO/etc>`
-- Package manager: `<pnpm/npm/yarn/poetry/uv/maven/gradle/go>`
+- Product: Codex + Multica Application Development Management Template
+- Repository: codex-multica
+- Primary users: engineering leads, solo builders, and teams using Codex with Multica and GitHub
+- Runtime: Markdown, YAML, Bash, GitHub Actions
+- Package manager: none
+- Product runtime: not applicable during dogfood phase
+- Future product starter scope: frontend, backend, database, auth, tests, deployment
 - Issue tracker: Multica. GitHub PRs must reference Multica issue IDs, for example `MUL-123`.
-- Production data classification: `<Public/Internal/Confidential/Regulated>`
+- Production data classification: Internal
 
 ## Repository layout
 
+Current dogfood layout:
+
 ```text
 <repo-root>/
-├── frontend/                 # UI app; pages, components, styles, frontend tests
-├── backend/                  # APIs, services, database access, backend tests
-├── packages/                 # Shared libraries or monorepo packages
-├── infra/                    # IaC, deployment, Docker, Kubernetes, Terraform
-├── docs/                     # User-facing and developer-facing documentation
-├── docs/agents/              # Agent operating rules and domain docs
-├── tests/                    # Cross-cutting integration/e2e tests
-└── .agents/skills/           # Repo-scoped agent skills
+├── AGENTS.md
+├── README.md
+├── 01-SETUP-CHECKLIST.md
+├── .agents/skills/
+├── .codex/
+├── .github/
+├── docs/agents/
+├── multica/
+└── scripts/
 ```
 
-If the actual layout differs, inspect the repository and update this section before doing substantive work.
+Future product starter layout, not active during dogfood:
+
+```text
+<repo-root>/
+├── apps/web/                 # planned frontend app
+├── apps/api/                 # planned backend API
+├── packages/db/              # planned database schema and migrations
+├── packages/auth/            # planned auth/session helpers
+├── packages/shared/          # planned shared types and utilities
+├── infra/                    # planned deployment and IaC
+└── tests/e2e/                # planned product-level tests
+```
+
+Do not create future product runtime directories during dogfood unless a Multica issue explicitly says this repository is entering the product starter phase.
 
 ## Commands
 
-Replace placeholders with real commands. Do not invent commands. If a command is missing, inspect `package.json`, `pyproject.toml`, `Makefile`, `README`, CI workflows, or equivalent.
-
 ```bash
 # Install dependencies
-<INSTALL_COMMAND>
+# No dependency installation is required.
 
 # Run unit tests
-<UNIT_TEST_COMMAND>
+bash scripts/check-agent-ready.sh
 
 # Run integration tests
-<INTEGRATION_TEST_COMMAND>
+# Not configured during dogfood phase.
 
 # Run e2e tests
-<E2E_TEST_COMMAND>
+# Not configured during dogfood phase.
 
-# Lint
-<LINT_COMMAND>
+# Lint shell scripts
+bash -n scripts/*.sh
 
 # Typecheck / compile
-<TYPECHECK_OR_COMPILE_COMMAND>
+# Not applicable; this repo contains Markdown, YAML, Bash, and GitHub Actions templates.
 
 # Build
-<BUILD_COMMAND>
+# Not applicable.
 
 # Run local app
-<DEV_SERVER_COMMAND>
+# Not applicable during dogfood phase.
 ```
+
+## Dogfood rules
+
+This repository is the pilot project for the Codex + Multica operating model.
+
+Use Multica issue IDs for all changes, including changes to this template itself. Example: `MUL-123`.
+
+Treat template changes as product changes:
+
+- Update `README.md` when rollout behavior changes.
+- Update `AGENTS.md` when agent operating rules change.
+- Update `docs/agents/*.md` when review, security, triage, or domain rules change.
+- Update `multica/*.yaml` when agent, squad, or autopilot configuration changes.
+- Update `.github/workflows/*.yml` when GitHub automation changes.
+- Update `scripts/*.sh` when readiness or validation behavior changes.
+
+Do not enable automatic merge. Human review is required for every PR.
+
+Do not create frontend, backend, database, auth, deployment, or product runtime directories during dogfood unless a Multica issue explicitly moves this repository into the product starter phase.
 
 ## Work intake rules
 

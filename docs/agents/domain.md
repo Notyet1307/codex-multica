@@ -1,23 +1,32 @@
 # Domain Language for Agents
 
-Use this file to keep product and engineering language consistent. Update it when a term becomes important to implementation, tests, issue titles, or PR descriptions.
+Use this file to keep product and engineering language consistent.
 
 ## Glossary
 
 | Term | Meaning | Avoid saying | Notes |
 |---|---|---|---|
-| `<CanonicalTerm>` | `<Definition>` | `<Ambiguous synonyms>` | `<Examples>` |
+| Template | This repository: the reusable Codex + Multica + GitHub operating model | boilerplate | Template changes affect future rollout quality. |
+| Dogfood | Using this repository as its own pilot project | self-test only | Dogfood work must go through Multica issues and PRs. |
+| Agent operating layer | Rules, skills, prompts, workflows, and routing for agent collaboration | app runtime | Current scope of this repo. |
+| Product starter | Future full-stack app template with frontend, backend, database, auth, tests, and deployment | current app | Future scope only during dogfood. |
+| Multica issue | The source of truth for requested work | GitHub issue as source of truth | GitHub may mirror or link work, but Multica owns intake. |
+| Agent | A configured Codex worker in Multica | bot | Agents have bounded roles and must not auto-merge. |
+| Squad | A Multica routing group led by `codex-scoper` | team | The squad routes issues to the narrowest competent owner. |
+| Autopilot | A Multica automation that creates or updates issues | cron job only | Prefer create-issue mode for auditability. |
+| Readiness check | `scripts/check-agent-ready.sh` | test suite | Verifies required template files exist and are usable. |
 
 ## Bounded contexts
 
 | Context | Owns | Does not own | Main directories |
 |---|---|---|---|
-| `<ContextName>` | `<Domain responsibilities>` | `<Out of scope>` | `<paths>` |
-
-## Cross-context relationships
-
-- `<ContextA> -> <ContextB>`: `<event/API/shared model>`
+| Agent operating rules | Durable instructions and review policy | Product runtime code | `AGENTS.md`, `docs/agents/` |
+| Multica configuration | Agents, squads, autopilots, issue templates | GitHub Actions execution | `multica/` |
+| GitHub automation | CI, Codex review, security review, dependency review | Multica routing policy | `.github/` |
+| Repo-scoped skills | Reusable agent workflows bundled with this template | Third-party skill source of truth | `.agents/skills/` |
+| Readiness scripts | Local validation helpers | Full CI simulation | `scripts/` |
+| Future product starter | Planned frontend, backend, database, auth, deployment, and tests | Current dogfood scope | `docs/product-starter-roadmap.md` |
 
 ## Decision log pointers
 
-ADRs live in `docs/adr/`. Use short ADRs. Record only decisions that future agents and engineers must remember.
+ADRs live in `docs/adr/`. Use short ADRs for decisions future agents may otherwise re-litigate.

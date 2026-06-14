@@ -20,6 +20,27 @@ This starter kit gives you a concrete operating model for using Multica as the t
 └── scripts/                                   # Helper scripts for CI and readiness checks
 ```
 
+## Current scope
+
+This repository is currently dogfooding the agent operating layer for Codex + Multica + GitHub.
+
+It intentionally does not include a frontend app, backend API, database schema, authentication system, deployment target, or production runtime.
+
+Those pieces are future scope for turning this template into a full product starter. See `docs/product-starter-roadmap.md`.
+
+## Dogfood loop
+
+1. Create a Multica issue using `multica/issue-template.md`.
+2. Include a `MUL-123` style issue ID in the branch and PR.
+3. Route unclear work to `codex-scoper`.
+4. Route low-risk template changes to `codex-fullstack`.
+5. Route workflow or CI failures to `codex-test`.
+6. Route security, permissions, dependency, or CI-token changes to `codex-security-reviewer`.
+7. Open a GitHub PR.
+8. Run CI and Codex review.
+9. Human reviews and merges.
+10. Patch `AGENTS.md`, `docs/agents/*.md`, or `.agents/skills/*` when an agent repeats a mistake.
+
 ## Recommended first rollout
 
 1. Copy this whole folder into a branch in one representative repository.

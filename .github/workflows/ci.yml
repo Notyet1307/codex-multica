@@ -14,47 +14,17 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  test:
+  readiness:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 10
     steps:
       - name: Checkout
         uses: actions/checkout@v5
         with:
           persist-credentials: false
 
-      # Node example. Replace with your stack.
-      - name: Setup Node
-        if: ${{ hashFiles('package.json') != '' }}
-        uses: actions/setup-node@v5
-        with:
-          node-version-file: .nvmrc
-          cache: pnpm
+      - name: Check agent template readiness
+        run: bash scripts/check-agent-ready.sh
 
-      - name: Install pnpm
-        if: ${{ hashFiles('pnpm-lock.yaml') != '' }}
-        uses: pnpm/action-setup@v4
-        with:
-          version: 10
-
-      - name: Install dependencies
-        run: |
-          if [ -f pnpm-lock.yaml ]; then pnpm install --frozen-lockfile; fi
-          if [ -f package-lock.json ]; then npm ci; fi
-          if [ -f yarn.lock ]; then yarn install --frozen-lockfile; fi
-
-      - name: Lint
-        run: |
-          if [ -f package.json ]; then npm run lint --if-present; fi
-
-      - name: Typecheck
-        run: |
-          if [ -f package.json ]; then npm run typecheck --if-present; fi
-
-      - name: Test
-        run: |
-          if [ -f package.json ]; then npm test --if-present; fi
-
-      - name: Build
-        run: |
-          if [ -f package.json ]; then npm run build --if-present; fi
+      - name: Lint shell scripts
+        run: bash -n scripts/*.sh
