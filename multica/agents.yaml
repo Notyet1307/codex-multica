@@ -1,0 +1,73 @@
+# Reference configuration for creating Multica agents.
+# Multica UI fields and CLI flags may differ by version; treat this as the desired state.
+
+agents:
+  - name: codex-scoper
+    tool: codex
+    visibility: workspace
+    concurrency_limit: 1
+    purpose: Clarify requirements, split issues, route work, write briefs. Does not modify code unless explicitly asked.
+    skills:
+      - issue-slicing
+      - multica-issue-brief
+      - architecture-review
+    system_prompt_file: multica/agent-system-prompts/codex-scoper.md
+
+  - name: codex-fullstack
+    tool: codex
+    visibility: workspace
+    concurrency_limit: 1
+    purpose: Implement low/medium-risk vertical slices across frontend/backend with tests.
+    skills:
+      - tdd-vertical-slice
+      - ci-failure-triage
+    system_prompt_file: multica/agent-system-prompts/codex-fullstack.md
+
+  - name: codex-frontend
+    tool: codex
+    visibility: workspace
+    concurrency_limit: 1
+    purpose: UI, accessibility, frontend state, frontend tests.
+    skills:
+      - tdd-vertical-slice
+    system_prompt_file: multica/agent-system-prompts/codex-frontend.md
+
+  - name: codex-backend
+    tool: codex
+    visibility: workspace
+    concurrency_limit: 1
+    purpose: APIs, data model, service logic, backend tests.
+    skills:
+      - tdd-vertical-slice
+      - security-pr-review
+    system_prompt_file: multica/agent-system-prompts/codex-backend.md
+
+  - name: codex-test
+    tool: codex
+    visibility: workspace
+    concurrency_limit: 1
+    purpose: Test gaps, flaky tests, CI failures, regression tests.
+    skills:
+      - tdd-vertical-slice
+      - ci-failure-triage
+    system_prompt_file: multica/agent-system-prompts/codex-test.md
+
+  - name: codex-security-reviewer
+    tool: codex
+    visibility: private
+    concurrency_limit: 1
+    purpose: Security review and bounded security fixes. Default to review-only.
+    skills:
+      - security-pr-review
+      - architecture-review
+    system_prompt_file: multica/agent-system-prompts/codex-security-reviewer.md
+
+  - name: codex-release-manager
+    tool: codex
+    visibility: workspace
+    concurrency_limit: 1
+    purpose: Release notes, migration notes, changelog, release readiness.
+    skills:
+      - release-notes-drafter
+      - ci-failure-triage
+    system_prompt_file: multica/agent-system-prompts/codex-release-manager.md

@@ -1,0 +1,31 @@
+# Reference Multica squad design.
+
+squads:
+  - name: AppDev Squad
+    leader: codex-scoper
+    instructions: |
+      Route issues to the narrowest competent owner.
+      Do not implement work as leader. Read the issue, select one assignee, @mention that assignee with a terse delegation comment, record evaluation, then stop.
+      Routing rules:
+      - unclear requirement or large scope -> codex-scoper
+      - UI, accessibility, client state -> codex-frontend
+      - API, DB, service logic -> codex-backend
+      - cross-stack low/medium risk -> codex-fullstack
+      - failing test/build/CI -> codex-test
+      - auth, tenant isolation, secrets, PII, dependency risk, CI permissions -> codex-security-reviewer
+      - release notes, migration notes, changelog -> codex-release-manager
+    members:
+      - name: codex-scoper
+        role: Leader; triage, scope, issue slicing, routing.
+      - name: codex-frontend
+        role: Owns frontend implementation and UI tests.
+      - name: codex-backend
+        role: Owns backend implementation and API/data tests.
+      - name: codex-fullstack
+        role: Owns thin vertical slices with low/medium risk.
+      - name: codex-test
+        role: Owns CI, test gaps, flakes, regression tests.
+      - name: codex-security-reviewer
+        role: Owns security review and security-sensitive fixes.
+      - name: codex-release-manager
+        role: Owns releases, changelog, migration notes.

@@ -1,0 +1,49 @@
+name: Bug report
+about: Report a bug with reproduction and expected behavior
+labels: ["type:bug", "needs-triage"]
+body:
+  - type: textarea
+    id: symptom
+    attributes:
+      label: Symptom
+      description: What went wrong?
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Reproduction steps
+      value: |
+        1. 
+        2. 
+        3. 
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Logs, screenshots, traces
+      description: Redact secrets and PII.
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Impact
+      options:
+        - cosmetic
+        - minor
+        - major
+        - critical
+    validations:
+      required: true

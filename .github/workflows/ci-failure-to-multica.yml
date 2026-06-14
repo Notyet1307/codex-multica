@@ -1,0 +1,38 @@
+name: CI failure to Multica webhook
+
+on:
+  workflow_run:
+    workflows: ["CI"]
+    types: [completed]
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  notify_multica:
+    if: ${{ github.event.workflow_run.conclusion == 'failure' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send failure payload to Multica Autopilot webhook
+        env:
+          MULTICA_WEBHOOK_URL: ${{ secrets.MULTICA_CI_FAILURE_WEBHOOK_URL }}
+        run: |
+          test -n "$MULTICA_WEBHOOK_URL"
+          curl -fsS -X POST "$MULTICA_WEBHOOK_URL" \
+            -H "Content-Type: application/json" \
+            -d @- <<'JSON'
+          {
+            "event": "github.workflow_run.failed",
+            "eventPayload": {
+              "repository": "${{ github.repository }}",
+              "workflow": "${{ github.event.workflow_run.name }}",
+              "run_id": "${{ github.event.workflow_run.id }}",
+              "run_number": "${{ github.event.workflow_run.run_number }}",
+              "head_branch": "${{ github.event.workflow_run.head_branch }}",
+              "head_sha": "${{ github.event.workflow_run.head_sha }}",
+              "html_url": "${{ github.event.workflow_run.html_url }}",
+              "conclusion": "${{ github.event.workflow_run.conclusion }}"
+            }
+          }
+          JSON

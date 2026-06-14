@@ -1,0 +1,35 @@
+name: Security review request
+about: Request security review for a change or design
+labels: ["type:security", "security-review-required"]
+body:
+  - type: textarea
+    id: scope
+    attributes:
+      label: Scope
+      description: What change, PR, or design needs review?
+    validations:
+      required: true
+  - type: textarea
+    id: assets
+    attributes:
+      label: Assets and data touched
+      value: |
+        - 
+  - type: textarea
+    id: trust-boundaries
+    attributes:
+      label: Trust boundaries touched
+      value: |
+        - 
+  - type: textarea
+    id: attacker-input
+    attributes:
+      label: Attacker-controlled inputs
+      value: |
+        - 
+  - type: textarea
+    id: concerns
+    attributes:
+      label: Known concerns
+      value: |
+        - 
