@@ -5,6 +5,10 @@ description: Use to break a plan, PRD, design, or large issue into independently
 
 # Issue Slicing
 
+## Transitional Note
+
+This skill is transitional. Prefer `spec-first-intake` for new ambiguous, oversized, risky, or multi-step intake. Keep this skill for compatibility with existing references until all agents and workspace skills are migrated.
+
 ## Goal
 
 Convert ambiguous or large work into small issues that agents can implement and humans can review.
