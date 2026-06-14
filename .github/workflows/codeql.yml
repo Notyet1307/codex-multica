@@ -28,7 +28,7 @@ jobs:
         # Supported examples: 'javascript-typescript', 'python', 'java-kotlin', 'go', 'c-cpp', 'csharp', 'ruby', 'rust', 'swift'
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           persist-credentials: false
 
