@@ -22,7 +22,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        language: ['javascript-typescript']
+        language: ['python']
+        # Dogfood currently has Python helper code but no JS/TS product runtime.
+        # Restore javascript-typescript when the product starter adds JS/TS runtime code.
         # Supported examples: 'javascript-typescript', 'python', 'java-kotlin', 'go', 'c-cpp', 'csharp', 'ruby', 'rust', 'swift'
     steps:
       - name: Checkout repository
@@ -35,9 +37,6 @@ jobs:
         with:
           languages: ${{ matrix.language }}
           queries: security-extended,security-and-quality
-
-      - name: Autobuild
-        uses: github/codeql-action/autobuild@v4
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v4

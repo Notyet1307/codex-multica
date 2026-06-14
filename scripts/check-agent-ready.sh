@@ -12,6 +12,24 @@ require_file() {
   fi
 }
 
+require_contains() {
+  if ! grep -Fq "$2" "$1"; then
+    echo "MISSING: $1 does not contain $2"
+    missing=1
+  else
+    echo "OK: $1 contains $2"
+  fi
+}
+
+require_not_contains() {
+  if grep -Fq "$2" "$1"; then
+    echo "UNEXPECTED: $1 contains $2"
+    missing=1
+  else
+    echo "OK: $1 does not contain $2"
+  fi
+}
+
 require_file AGENTS.md
 require_file docs/agents/code-review.md
 require_file docs/agents/security-review.md
@@ -20,6 +38,10 @@ require_file .github/pull_request_template.md
 require_file .github/codex/prompts/review.md
 require_file .github/scripts/deepseek_pr_review.py
 require_file .github/workflows/deepseek-pr-review.yml
+require_file .github/workflows/codeql.yml
+
+require_contains .github/workflows/codeql.yml "language: ['python']"
+require_not_contains .github/workflows/codeql.yml "language: ['javascript-typescript']"
 
 python3 .github/scripts/deepseek_pr_review.py --self-test
 
