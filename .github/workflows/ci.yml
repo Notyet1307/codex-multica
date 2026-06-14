@@ -26,7 +26,7 @@ jobs:
       # Node example. Replace with your stack.
       - name: Setup Node
         if: ${{ hashFiles('package.json') != '' }}
-        uses: actions/setup-node@v5
+        uses: actions/setup-node@v6
         with:
           node-version-file: .nvmrc
           cache: pnpm
