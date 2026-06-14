@@ -97,6 +97,23 @@ During dogfood, GitHub PR review uses DeepSeek API instead of OpenAI Codex Actio
 
 Do not create frontend, backend, database, auth, deployment, or product runtime directories during dogfood unless a Multica issue explicitly moves this repository into the product starter phase.
 
+## Language policy
+
+Use English for durable project artifacts:
+
+- issue titles and descriptions
+- branch names
+- commit messages
+- pull request titles and bodies
+- agent system prompts
+- code comments
+- documentation committed to the repository
+- GitHub Actions and script output intended for CI logs
+
+Use Chinese when explaining status, decisions, and next steps directly to the human operator in chat.
+
+When a Multica issue or PR needs both, keep the durable artifact in English and provide a short Chinese summary only in the interactive chat, not in committed files.
+
 ## Work intake rules
 
 For every task, identify:

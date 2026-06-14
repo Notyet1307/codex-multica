@@ -1,6 +1,19 @@
 # Triage Labels
 
-Use these labels in Multica comments, GitHub labels, or both.
+Multica does not currently expose issue labels or tags as first-class fields. Use these values as structured issue fields in the Multica issue body or in a routing comment.
+
+Preferred issue body block:
+
+```md
+## Agent routing
+
+Readiness: needs-triage | needs-info | ready-for-agent | ready-for-human | blocked
+Type: type:bug | type:feature | type:refactor | type:test | type:docs | type:security | type:ci | type:release
+Risk: risk:low | risk:medium | risk:high
+Suggested agent: agent:scoper | agent:frontend | agent:backend | agent:fullstack | agent:test | agent:security | agent:release
+```
+
+Agents must treat these values as routing signals, not as proof that the issue is safe to execute. If the fields conflict with the issue body, acceptance criteria, or security notes, stop and ask `codex-scoper` or a human to clarify.
 
 ## Readiness
 

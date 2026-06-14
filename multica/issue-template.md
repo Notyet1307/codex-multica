@@ -25,6 +25,13 @@ Out of scope:
 - [ ] 
 - [ ] 
 
+## Agent routing
+
+Readiness: needs-triage
+Type: type:docs
+Risk: risk:low
+Suggested agent: agent:scoper
+
 ## Technical notes
 
 - Likely files/directories:
