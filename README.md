@@ -49,7 +49,7 @@ Those pieces are future scope for turning this template into a full product star
 4. Import each `.agents/skills/*` folder into Multica as workspace skills, or keep them repo-scoped if you want Codex to load them directly from the repository.
 5. Create the Multica agents listed in `multica/agents.yaml` and paste the matching system prompts from `multica/agent-system-prompts/`.
 6. Enable GitHub PR linking in Multica. Make every branch, PR title, or PR body include the Multica issue ID, such as `MUL-123`.
-7. Add `OPENAI_API_KEY` as a GitHub Actions secret only for the Codex review workflow. Do not store OpenAI keys or production secrets in `AGENTS.md`, Skill files, Multica descriptions, or committed config.
+7. Add `DEEPSEEK_API_KEY` as a GitHub Actions secret for DeepSeek-based PR review during dogfood. Do not store API keys or production secrets in `AGENTS.md`, Skill files, Multica descriptions, or committed config.
 8. Enable CI first, then Codex PR review, then dependency review, then CodeQL.
 9. Start with low-risk issues for 1 week. Do not let agents merge code automatically.
 10. Every repeated agent mistake becomes a patch to `AGENTS.md`, `docs/agents/*.md`, or a Skill.

@@ -18,6 +18,10 @@ require_file docs/agents/security-review.md
 require_file docs/agents/issue-tracker.md
 require_file .github/pull_request_template.md
 require_file .github/codex/prompts/review.md
+require_file .github/scripts/deepseek_pr_review.py
+require_file .github/workflows/deepseek-pr-review.yml
+
+python3 .github/scripts/deepseek_pr_review.py --self-test
 
 if [ -d .agents/skills ]; then
   find .agents/skills -mindepth 2 -maxdepth 2 -name SKILL.md -print | sort

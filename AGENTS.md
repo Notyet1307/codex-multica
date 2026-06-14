@@ -93,6 +93,8 @@ Treat template changes as product changes:
 
 Do not enable automatic merge. Human review is required for every PR.
 
+During dogfood, GitHub PR review uses DeepSeek API instead of OpenAI Codex Action. Do not require `OPENAI_API_KEY` unless the project explicitly switches back to OpenAI Codex Action.
+
 Do not create frontend, backend, database, auth, deployment, or product runtime directories during dogfood unless a Multica issue explicitly moves this repository into the product starter phase.
 
 ## Work intake rules
