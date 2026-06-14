@@ -49,11 +49,56 @@ No security-specific concerns.
         self.assertIn("| Security review required | No |", body)
         self.assertIn(review.strip(), body)
 
+    def test_count_blocking_findings_treats_empty_variants_as_zero(self) -> None:
+        deepseek = load_deepseek_module()
+        variants = (
+            "No blocking findings",
+            "No issues",
+            "None",
+            "N/A",
+            "Nothing blocking",
+        )
+
+        for variant in variants:
+            with self.subTest(variant=variant):
+                review = f"""## Codex PR Review
+
+### Blocking findings
+
+{variant}
+
+### Validation gaps
+
+None.
+"""
+
+                self.assertEqual(deepseek.count_blocking_findings(review), 0)
+
+    def test_markdown_section_stops_at_next_heading_regardless_of_level(self) -> None:
+        deepseek = load_deepseek_module()
+        next_headings = ("# Validation gaps", "## Validation gaps")
+
+        for next_heading in next_headings:
+            with self.subTest(next_heading=next_heading):
+                review = f"""## Codex PR Review
+
+### Blocking findings
+
+None.
+
+{next_heading}
+
+- Add unit tests.
+"""
+
+                self.assertEqual(deepseek.markdown_section(review, "Blocking findings"), "None.")
+
     def test_workflow_updates_existing_marker_comment(self) -> None:
         workflow = WORKFLOW_PATH.read_text(encoding="utf-8")
 
         self.assertIn('AI_REVIEW_MARKER: "<!-- ai-review:deepseek -->"', workflow)
         self.assertIn("github.rest.issues.listComments", workflow)
+        self.assertIn('comment.user?.login === "github-actions[bot]"', workflow)
         self.assertIn("comment.body?.includes(marker)", workflow)
         self.assertIn("github.rest.issues.updateComment", workflow)
         self.assertIn("github.rest.issues.createComment", workflow)

@@ -60,7 +60,7 @@ def extract_review(response):
 
 def markdown_section(text, heading):
     pattern = re.compile(
-        rf"^###\s+{re.escape(heading)}\s*$\n(?P<body>.*?)(?=^###\s+|\Z)",
+        rf"^#{{1,6}}\s+{re.escape(heading)}\s*$\n(?P<body>.*?)(?=^#{{1,6}}\s+\S|\Z)",
         re.IGNORECASE | re.MULTILINE | re.DOTALL,
     )
     match = pattern.search(text)
@@ -74,9 +74,21 @@ def section_is_empty(section):
     return normalized in {"", "none", "n/a", "no", "not applicable"}
 
 
+def section_says_no_findings(section):
+    normalized = re.sub(r"[^a-z0-9/]+", " ", section.lower()).strip()
+    no_finding_phrases = {
+        "no blocking findings",
+        "no issues",
+        "nothing blocking",
+        "no findings",
+        "no blocking issues",
+    }
+    return section_is_empty(section) or normalized in no_finding_phrases
+
+
 def count_blocking_findings(review):
     section = markdown_section(review, "Blocking findings")
-    if not section or re.search(r"no\s+p0/p1\s+blocking\s+findings\s+found", section, re.IGNORECASE):
+    if section_says_no_findings(section) or re.search(r"no\s+p0/p1\s+blocking\s+findings\s+found", section, re.IGNORECASE):
         return 0
 
     severity_lines = re.findall(r"^\s*-\s*Severity:\s*P[01]\b", section, re.IGNORECASE | re.MULTILINE)
