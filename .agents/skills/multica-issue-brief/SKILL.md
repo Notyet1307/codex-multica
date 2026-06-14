@@ -7,7 +7,7 @@ description: Use to turn a vague request, GitHub issue, PR comment, incident not
 
 ## Transitional Note
 
-This skill is transitional. Prefer `spec-first-intake` for new vague request intake, Multica-ready briefs, risk classification, routing, and stop-condition decisions. Keep this skill for compatibility with existing references until all agents and workspace skills are migrated.
+This skill is transitional. Keep it for compatibility with existing workspace bindings or direct references. New repo routing should use `spec-first-intake` for vague request intake, Multica-ready briefs, risk classification, routing, and stop-condition decisions.
 
 ## Process
 

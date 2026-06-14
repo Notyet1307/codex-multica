@@ -7,7 +7,7 @@ description: Use to break a plan, PRD, design, or large issue into independently
 
 ## Transitional Note
 
-This skill is transitional. Prefer `spec-first-intake` for new ambiguous, oversized, risky, or multi-step intake. Keep this skill for compatibility with existing references until all agents and workspace skills are migrated.
+This skill is transitional. Keep it for compatibility with existing workspace bindings or direct references. New repo routing should use `spec-first-intake` for ambiguous, oversized, risky, or multi-step intake.
 
 ## Goal
 
