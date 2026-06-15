@@ -7,6 +7,10 @@
 # to OpenAI-scoper, which owns intake and handoff instead of implementation
 # completion.
 #
+# context-pack is attached to scoping, implementation, test, security, and
+# release agents that may need to preserve compact durable handoff, review, or
+# resume context. It does not create runtime storage or modify workspace state.
+#
 # The name fields below are the Dogfood workspace agent names. The
 # system_prompt_file paths are repo-local prompt filenames only. The retained
 # codex-*.md filenames do not define workspace agent names; they are an
@@ -23,6 +27,7 @@ agents:
     skills:
       - spec-first-intake
       - architecture-review
+      - context-pack
     system_prompt_file: multica/agent-system-prompts/codex-scoper.md
 
   - name: OpenAI-fullstack
@@ -34,6 +39,7 @@ agents:
       - tdd-vertical-slice
       - systematic-debugging
       - verification-before-completion
+      - context-pack
     system_prompt_file: multica/agent-system-prompts/codex-fullstack.md
 
   - name: OpenAI-frontend
@@ -44,6 +50,7 @@ agents:
     skills:
       - tdd-vertical-slice
       - verification-before-completion
+      - context-pack
     system_prompt_file: multica/agent-system-prompts/codex-frontend.md
 
   - name: OpenAI-backend
@@ -55,6 +62,7 @@ agents:
       - tdd-vertical-slice
       - security-pr-review
       - verification-before-completion
+      - context-pack
     system_prompt_file: multica/agent-system-prompts/codex-backend.md
 
   - name: OpenAI-test
@@ -66,6 +74,7 @@ agents:
       - tdd-vertical-slice
       - systematic-debugging
       - verification-before-completion
+      - context-pack
     system_prompt_file: multica/agent-system-prompts/codex-test.md
 
   # Security review stays private because it handles security-sensitive review
@@ -79,6 +88,7 @@ agents:
       - security-pr-review
       - architecture-review
       - verification-before-completion
+      - context-pack
     system_prompt_file: multica/agent-system-prompts/codex-security-reviewer.md
 
   - name: OpenAI-release-manager
@@ -90,4 +100,5 @@ agents:
       - release-notes-drafter
       - systematic-debugging
       - verification-before-completion
+      - context-pack
     system_prompt_file: multica/agent-system-prompts/codex-release-manager.md
