@@ -24,7 +24,7 @@ Current dogfood layout:
 <repo-root>/
 ├── AGENTS.md
 ├── README.md
-├── 01-SETUP-CHECKLIST.md
+├── NEW-REPO-BOOTSTRAP-CHECKLIST.md
 ├── .agents/skills/
 ├── .codex/
 ├── .github/
