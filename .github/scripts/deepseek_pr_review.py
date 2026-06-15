@@ -99,7 +99,7 @@ def count_blocking_findings(review):
         return 0
 
     severity_lines = re.findall(
-        r"^\s*(?:[-*]\s*)?(?:\*\*)?Severity:\s*P[01]\b",
+        r"^\s*(?:[-*]\s*|\d+\.\s*)?(?:\*\*)?Severity:\s*P[01]\b",
         section,
         re.IGNORECASE | re.MULTILINE,
     )
@@ -233,6 +233,21 @@ No security-specific concerns.
 """
         )
         == 1
+    )
+    assert (
+        count_blocking_findings(
+            """## Codex PR Review
+
+### Blocking findings
+
+1. Severity: P1
+   File: .github/workflows/deepseek-pr-review.yml
+
+2. Severity: P0
+   File: .github/scripts/deepseek_pr_review.py
+"""
+        )
+        == 2
     )
 
     def run_with_review(review):

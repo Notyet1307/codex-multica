@@ -44,6 +44,7 @@ require_contains .github/workflows/codeql.yml "language: ['python']"
 require_not_contains .github/workflows/codeql.yml "language: ['javascript-typescript']"
 require_contains .github/workflows/deepseek-pr-review.yml "pull-requests: write"
 require_contains .github/workflows/deepseek-pr-review.yml "steps.deepseek_review.outputs.exit_code != '0'"
+require_not_contains .github/workflows/deepseek-pr-review.yml "continue-on-error: true"
 
 python3 .github/scripts/deepseek_pr_review.py --self-test
 
