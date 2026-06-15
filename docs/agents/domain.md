@@ -12,7 +12,7 @@ Use this file to keep product and engineering language consistent.
 | Product starter | Future full-stack app template with frontend, backend, database, auth, tests, and deployment | current app | Future scope only during dogfood. |
 | Multica issue | The source of truth for requested work | GitHub issue as source of truth | GitHub may mirror or link work, but Multica owns intake. |
 | Agent | A configured Codex worker in Multica | bot | Agents have bounded roles and must not auto-merge. |
-| Squad | A Multica routing group led by `codex-scoper` | team | The squad routes issues to the narrowest competent owner. |
+| Squad | A Multica routing group led by `OpenAI-scoper` | team | The squad routes issues to the narrowest competent owner. |
 | Autopilot | A Multica automation that creates or updates issues | cron job only | Prefer create-issue mode for auditability. |
 | Readiness check | `scripts/check-agent-ready.sh` | test suite | Verifies required template files exist and are usable. |
 

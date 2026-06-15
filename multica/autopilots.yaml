@@ -6,7 +6,7 @@ autopilots:
     mode: create_issue
     trigger: cron
     schedule: "0 0 * * 1-5"  # UTC; adjust to team working hours
-    assignee: codex-scoper
+    assignee: OpenAI-scoper
     issue_title: "Daily engineering standup {{date}}"
     prompt: |
       Summarize yesterday's merged PRs, open in-progress issues, blocked issues, failing CI, and high-risk work.
@@ -15,7 +15,7 @@ autopilots:
   - name: CI failure triage
     mode: create_issue
     trigger: webhook
-    assignee: codex-test
+    assignee: OpenAI-test
     issue_title: "CI failure triage {{date}}"
     prompt: |
       Read the webhook payload appended to this issue. Classify the CI failure, identify likely root cause, and propose the minimal fix. If safe, create a branch and PR. If not safe, write an agent-ready brief.
@@ -24,7 +24,7 @@ autopilots:
     mode: create_issue
     trigger: cron
     schedule: "0 2 * * 1"
-    assignee: codex-security-reviewer
+    assignee: OpenAI-security-reviewer
     issue_title: "Weekly dependency risk review {{date}}"
     prompt: |
       Review dependency update PRs, vulnerability alerts if available, and dependency-related failures. Prioritize high/critical vulnerabilities and unsafe license or supply-chain changes. Do not merge automatically.
@@ -33,7 +33,7 @@ autopilots:
     mode: create_issue
     trigger: cron
     schedule: "0 3 * * 5"
-    assignee: codex-scoper
+    assignee: OpenAI-scoper
     issue_title: "Weekly stale issue review {{date}}"
     prompt: |
       Identify issues with no progress, unclear acceptance criteria, or blocked status. Recommend close, split, clarify, escalate, or assign to an agent.
@@ -41,7 +41,7 @@ autopilots:
   - name: Release notes draft
     mode: create_issue
     trigger: manual_or_cron
-    assignee: codex-release-manager
+    assignee: OpenAI-release-manager
     issue_title: "Release notes draft {{date}}"
     prompt: |
       Draft release notes from merged PRs since the previous release. Group by Features, Fixes, Security, Performance, Breaking Changes, Migrations, and Internal Maintenance. Include linked issue IDs.
