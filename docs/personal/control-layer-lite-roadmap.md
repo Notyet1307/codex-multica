@@ -25,6 +25,17 @@ These skills cover the normal issue lifecycle:
 - review trust-boundary changes
 - preserve durable context for future agents
 
+Current kernel status:
+
+| Target skill | Status |
+| --- | --- |
+| `spec-first-intake` | Present. Created from the previous intake skills and now owns intake, scoping, and context handoff for non-trivial delegated work. |
+| `tdd-vertical-slice` | Present. Existing implementation skill remains part of the core kernel. |
+| `systematic-debugging` | Present. Created from the previous CI-focused triage workflow and now owns CI, local test, build, lint, typecheck, flaky, environment-dependent, and reproduced defect debugging. |
+| `verification-before-completion` | Not present yet. This is the next target kernel skill. |
+| `security-pr-review` | Present. Existing security review skill remains part of the core kernel. |
+| `context-pack` | Not present yet. Add this only after dogfood proves which handoff fields are repeatedly needed across issues. |
+
 ## Context handoff direction
 
 Multica comments are useful as an event stream, but they are not enough as the
@@ -115,16 +126,16 @@ kernel. Keep them unchanged until a dedicated issue approves consolidation.
 
 | Current skill | Target direction |
 | --- | --- |
-| `multica-issue-brief` | Merge into `spec-first-intake`. |
-| `issue-slicing` | Merge into `spec-first-intake`. |
-| `ci-failure-triage` | Become part of `systematic-debugging`. |
+| `multica-issue-brief` | Transitional/deprecated. New intake should route to `spec-first-intake`; keep this directory for compatibility until a dedicated cleanup issue. |
+| `issue-slicing` | Transitional/deprecated. New intake should route to `spec-first-intake`; keep this directory for compatibility until a dedicated cleanup issue. |
+| `ci-failure-triage` | Transitional/deprecated. New debugging should route to `systematic-debugging`; keep this directory for compatibility until a dedicated cleanup issue. |
 | `tdd-vertical-slice` | Keep as a core kernel skill. |
 | `security-pr-review` | Keep as a core kernel skill. |
 | `architecture-review` | Keep optional/manual, or fold selected planning checks into `spec-first-intake`. |
 | `release-notes-drafter` | Keep low-frequency/manual-only, outside the default kernel. |
 
-`verification-before-completion` and `context-pack` are target kernel skills
-even though this repository does not have matching skill directories yet.
+`verification-before-completion` and `context-pack` are the remaining target
+kernel skills that do not have matching skill directories yet.
 
 ## Manual-only capabilities
 
@@ -155,15 +166,12 @@ when needed, but it is not part of the default routing path for ordinary issues.
 
 ## Next migration slices
 
-Future issues should be small and reversible:
+Future issues should be small and reversible. The remaining migration order is:
 
-1. Draft `spec-first-intake` from `multica-issue-brief` and `issue-slicing`.
-2. Draft `systematic-debugging` from `ci-failure-triage` plus local debugging
-   discipline.
-3. Add `verification-before-completion` as an evidence gate for completion
+1. Add `verification-before-completion` as an evidence gate for completion
    claims.
-4. Add `context-pack` for compact durable handoff notes.
-5. Retire or park transitional skills only after references and agent routing
+2. Add `context-pack` for compact durable handoff notes.
+3. Retire or park transitional skills only after references and agent routing
    are updated.
 
 Each slice should update routing documentation, run `make verify`, and keep
