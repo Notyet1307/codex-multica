@@ -137,6 +137,8 @@ Stop and ask a human if:
 
 A worker agent must return a Handoff Back after implementation and before the task is considered ready for review.
 
+The scope check must be evidence-based, not only self-reported. The worker must include the changed-file command output, compare it with the allowed files or allowed areas from the handoff, and explicitly confirm whether unexpected files changed. If unexpected files changed, mark the task not ready for review and ask for correction instead of asking for review or merge.
+
 Suggested output shape:
 
 ## Handoff back
@@ -156,8 +158,12 @@ Suggested output shape:
 
 ### Scope check
 
+- Changed-file command: `git diff --name-only origin/main...HEAD`
+- Changed-file output:
+- Compared against allowed files or areas:
 - Within allowed files or areas: yes/no
 - Unexpected files changed:
+- No unexpected files changed: yes/no
 - Unexpected behavior changes:
 
 ### Decisions made during implementation
@@ -176,7 +182,7 @@ Suggested output shape:
 ### Ready for review
 
 - yes/no
-- Reason:
+- Reason, including whether any unexpected files require correction:
 
 ## Delegation Gate
 
