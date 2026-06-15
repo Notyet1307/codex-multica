@@ -82,6 +82,9 @@ Current parked and future items:
 
 Current Dogfood agent prompt mapping:
 
+`system_prompt_file` values are literal repo-local paths. Do not infer prompt
+paths from workspace agent names or prompt file basenames.
+
 | Workspace agent name | Repo-local prompt file |
 | --- | --- |
 | `OpenAI-scoper` | `multica/agent-system-prompts/codex-scoper.md` |

@@ -54,7 +54,7 @@ For the next context-management slice, prefer this minimum shape:
   the task onward or marks it ready for human review.
 - Keep context handoff responsibilities inside `spec-first-intake` until
   `context-pack` is implemented.
-- Do not introduce a separate `codex-context-manager` agent, context database,
+- Do not introduce a separate `OpenAI-context-manager` agent, context database,
   or issue-scoped `.agent-context/` directory by default.
 
 The `Context Ledger` should stay compact and point to durable evidence instead
