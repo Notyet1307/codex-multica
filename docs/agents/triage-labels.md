@@ -13,7 +13,7 @@ Risk: risk:low | risk:medium | risk:high
 Suggested agent: agent:scoper | agent:frontend | agent:backend | agent:fullstack | agent:test | agent:security | agent:release
 ```
 
-Agents must treat these values as routing signals, not as proof that the issue is safe to execute. If the fields conflict with the issue body, acceptance criteria, or security notes, stop and ask `codex-scoper` or a human to clarify.
+Agents must treat these values as routing signals, not as proof that the issue is safe to execute. If the fields conflict with the issue body, acceptance criteria, or security notes, stop and ask `OpenAI-scoper` or a human to clarify.
 
 ## Readiness
 

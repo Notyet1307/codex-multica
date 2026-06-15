@@ -35,7 +35,7 @@ The first successful dogfood loop has validated the current operating path:
 - `MUL-1` fixed CodeQL language selection for this dogfood repository.
 - The DeepSeek PR review workflow runs and posts comments.
 - `MUL-2` parked Dependency Review until GitHub Dependency Graph is enabled.
-- Multica routed work through `codex-scoper`, `codex-fullstack`, and `codex-test`.
+- Multica routed work through `OpenAI-scoper`, `OpenAI-fullstack`, and `OpenAI-test`.
 - GitHub PRs and checks are the merge gate.
 
 Run the standard local and CI verification entrypoint before opening or updating a PR:
@@ -50,10 +50,10 @@ Use this checklist for the current issue -> PR -> checks -> merge -> close issue
 
 1. Create a Multica issue using `multica/issue-template.md`.
 2. Include a `MUL-123` style issue ID in the branch and PR.
-3. Route unclear work to `codex-scoper`.
-4. Route low-risk template changes to `codex-fullstack`.
-5. Route workflow or CI failures to `codex-test`.
-6. Route security, permissions, dependency, or CI-token changes to `codex-security-reviewer`.
+3. Route unclear work to `OpenAI-scoper`.
+4. Route low-risk template changes to `OpenAI-fullstack`.
+5. Route workflow or CI failures to `OpenAI-test`.
+6. Route security, permissions, dependency, or CI-token changes to `OpenAI-security-reviewer`.
 7. Open a GitHub PR.
 8. Run CI and Codex review.
 9. Human reviews and merges.
@@ -73,12 +73,27 @@ Current parked and future items:
 2. Edit placeholders: project name, issue prefix, test commands, package manager, deployment target, data classification.
 3. Put `AGENTS.md`, `.agents/skills`, `.github/codex/prompts`, and `docs/agents` under version control.
 4. Import each `.agents/skills/*` folder into Multica as workspace skills, or keep them repo-scoped if you want Codex to load them directly from the repository.
-5. Create the Multica agents listed in `multica/agents.yaml` and paste the matching system prompts from `multica/agent-system-prompts/`.
+5. Create the Multica agents listed in `multica/agents.yaml` and paste the matching system prompts from `multica/agent-system-prompts/`. The prompt files intentionally keep repo-local `codex-*.md` filenames; workspace agent names come from `multica/agents.yaml`.
 6. Enable GitHub PR linking in Multica. Make every branch, PR title, or PR body include the Multica issue ID, such as `MUL-123`.
 7. Add `DEEPSEEK_API_KEY` as a GitHub Actions secret for DeepSeek-based PR review during dogfood. Do not store API keys or production secrets in `AGENTS.md`, Skill files, Multica descriptions, or committed config.
 8. Enable CI first, then Codex PR review, then GitHub Dependency graph, then dependency review, then CodeQL, then Dependabot. The dependency review workflow is parked as `.github/workflows/dependency-review.yml.disabled` until a repository administrator enables `Settings` > `Advanced Security` > `Dependency Graph`; Dependabot is parked as `.github/dependabot.yml.disabled` until dependency update PRs have a real package/runtime surface and stable automated review checks.
 9. Start with low-risk issues for 1 week. Do not let agents merge code automatically.
 10. Every repeated agent mistake becomes a patch to `AGENTS.md`, `docs/agents/*.md`, or a Skill.
+
+Current Dogfood agent prompt mapping:
+
+`system_prompt_file` values are literal repo-local paths. Do not infer prompt
+paths from workspace agent names or prompt file basenames.
+
+| Workspace agent name | Repo-local prompt file |
+| --- | --- |
+| `OpenAI-scoper` | `multica/agent-system-prompts/codex-scoper.md` |
+| `OpenAI-fullstack` | `multica/agent-system-prompts/codex-fullstack.md` |
+| `OpenAI-frontend` | `multica/agent-system-prompts/codex-frontend.md` |
+| `OpenAI-backend` | `multica/agent-system-prompts/codex-backend.md` |
+| `OpenAI-test` | `multica/agent-system-prompts/codex-test.md` |
+| `OpenAI-security-reviewer` | `multica/agent-system-prompts/codex-security-reviewer.md` |
+| `OpenAI-release-manager` | `multica/agent-system-prompts/codex-release-manager.md` |
 
 ## Import guidance for third-party skills
 
