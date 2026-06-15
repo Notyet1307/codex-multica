@@ -7,8 +7,10 @@
 # to OpenAI-scoper, which owns intake and handoff instead of implementation
 # completion.
 #
+# The name fields below are the Dogfood workspace agent names. The
 # system_prompt_file paths are repo-local prompt filenames only. The retained
-# codex-*.md filenames do not define workspace agent names.
+# codex-*.md filenames do not define workspace agent names; they are an
+# explicit compatibility mapping to the existing prompt files.
 
 agents:
   - name: OpenAI-scoper

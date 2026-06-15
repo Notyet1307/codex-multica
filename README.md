@@ -80,6 +80,18 @@ Current parked and future items:
 9. Start with low-risk issues for 1 week. Do not let agents merge code automatically.
 10. Every repeated agent mistake becomes a patch to `AGENTS.md`, `docs/agents/*.md`, or a Skill.
 
+Current Dogfood agent prompt mapping:
+
+| Workspace agent name | Repo-local prompt file |
+| --- | --- |
+| `OpenAI-scoper` | `multica/agent-system-prompts/codex-scoper.md` |
+| `OpenAI-fullstack` | `multica/agent-system-prompts/codex-fullstack.md` |
+| `OpenAI-frontend` | `multica/agent-system-prompts/codex-frontend.md` |
+| `OpenAI-backend` | `multica/agent-system-prompts/codex-backend.md` |
+| `OpenAI-test` | `multica/agent-system-prompts/codex-test.md` |
+| `OpenAI-security-reviewer` | `multica/agent-system-prompts/codex-security-reviewer.md` |
+| `OpenAI-release-manager` | `multica/agent-system-prompts/codex-release-manager.md` |
+
 ## Import guidance for third-party skills
 
 Third-party skills such as `mattpocock/skills` are useful reference material, especially `tdd`, `diagnose`, `grill-with-docs`, `to-issues`, `triage`, and `improve-codebase-architecture`. Do not import them blindly. Review every `SKILL.md`, script, hook, and installer first. Prefer copying the workflow idea into your own shorter company-specific skill.
