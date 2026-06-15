@@ -46,7 +46,7 @@ require_contains .github/workflows/deepseek-pr-review.yml "pull-requests: write"
 require_contains .github/workflows/deepseek-pr-review.yml "steps.deepseek_review.outputs.exit_code != '0'"
 require_not_contains .github/workflows/deepseek-pr-review.yml "continue-on-error: true"
 require_not_contains .github/workflows/deepseek-pr-review.yml "hashFiles('deepseek-review.md')"
-require_not_contains .github/workflows/deepseek-pr-review.yml "exit 0"
+require_contains .github/workflows/deepseek-pr-review.yml "exit 0"
 require_contains .github/workflows/deepseek-pr-review.yml "always() && steps.deepseek_review.outputs.exit_code != '0'"
 
 python3 .github/scripts/deepseek_pr_review.py --self-test

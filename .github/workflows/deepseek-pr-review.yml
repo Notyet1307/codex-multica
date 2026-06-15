@@ -45,7 +45,7 @@ jobs:
           review_exit_code=$?
           set -e
           echo "exit_code=$review_exit_code" >> "$GITHUB_OUTPUT"
-          exit "$review_exit_code"
+          exit 0
 
       - name: Check review output
         id: review_output

@@ -18,6 +18,8 @@ REVIEWER_SYSTEM_PROMPT = "You are a pragmatic senior code reviewer. Prioritize c
 PASS_EXIT_CODE = 0
 BLOCKING_FINDINGS_EXIT_CODE = 1
 OPERATIONAL_FAILURE_EXIT_CODE = 2
+# Policy: validation gaps without P0/P1 blocking findings are non-blocking.
+# The review comment still says "Review required"; the check remains green.
 VALIDATION_GAPS_WITHOUT_BLOCKING_EXIT_CODE = PASS_EXIT_CODE
 
 
@@ -141,6 +143,7 @@ def review_recommendation(blocking_findings, validation_gaps):
 def review_exit_code(review):
     if count_blocking_findings(review):
         return BLOCKING_FINDINGS_EXIT_CODE
+    # Validation gaps are advisory unless the review also has P0/P1 blockers.
     return VALIDATION_GAPS_WITHOUT_BLOCKING_EXIT_CODE
 
 
@@ -310,6 +313,7 @@ None.
     assert "| Recommendation | No P0/P1 blocking findings found |" in clean_body
     assert "| Blocking findings | 0 |" in clean_body
 
+    assert VALIDATION_GAPS_WITHOUT_BLOCKING_EXIT_CODE == PASS_EXIT_CODE
     validation_gap_exit_code, validation_gap_body = run_with_review(
         """## Codex PR Review
 
