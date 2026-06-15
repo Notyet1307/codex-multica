@@ -19,7 +19,7 @@ agents:
     purpose: Implement low/medium-risk vertical slices across frontend/backend with tests.
     skills:
       - tdd-vertical-slice
-      - ci-failure-triage
+      - systematic-debugging
     system_prompt_file: multica/agent-system-prompts/codex-fullstack.md
 
   - name: codex-frontend
@@ -48,7 +48,7 @@ agents:
     purpose: Test gaps, flaky tests, CI failures, regression tests.
     skills:
       - tdd-vertical-slice
-      - ci-failure-triage
+      - systematic-debugging
     system_prompt_file: multica/agent-system-prompts/codex-test.md
 
   - name: codex-security-reviewer
@@ -68,5 +68,5 @@ agents:
     purpose: Release notes, migration notes, changelog, release readiness.
     skills:
       - release-notes-drafter
-      - ci-failure-triage
+      - systematic-debugging
     system_prompt_file: multica/agent-system-prompts/codex-release-manager.md

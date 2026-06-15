@@ -16,7 +16,7 @@ The target kernel is exactly these six core skills:
 | --- | --- | --- |
 | `spec-first-intake` | Convert ambiguous work into a scoped, testable, agent-ready spec before implementation. | Exists as `.agents/skills/spec-first-intake/`. Current `multica-issue-brief` and `issue-slicing` are transitional skills that should route to it for new intake. |
 | `tdd-vertical-slice` | Implement one thin behavior slice with tests, validation, and minimal drift from the spec. | Exists as `.agents/skills/tdd-vertical-slice/`. |
-| `systematic-debugging` | Reproduce failures, form hypotheses, isolate root cause, and fix with evidence. | Target skill does not exist yet. Current `ci-failure-triage` is transitional and should become this broader debugging skill. |
+| `systematic-debugging` | Reproduce failures, form hypotheses, isolate root cause, and fix with evidence. | Present as `.agents/skills/systematic-debugging/`. Current `ci-failure-triage` remains transitional/deprecated for compatibility. |
 | `verification-before-completion` | Require fresh verification evidence before claiming work is complete, passing, or ready. | Target skill does not exist yet in this repo. |
 | `security-pr-review` | Review changes that touch trust boundaries, secrets, PII, permissions, dependencies, CI tokens, or similar security-sensitive surfaces. | Exists as `.agents/skills/security-pr-review/`. |
 | `context-pack` | Package the minimum durable context future agents need: decisions, constraints, evidence, links, and unresolved questions. | Target skill does not exist yet in this repo. |
@@ -29,9 +29,9 @@ without a dedicated Multica issue.
 
 - `multica-issue-brief` and `issue-slicing` are transitional intake skills.
   Their responsibilities should merge into `spec-first-intake`.
-- `ci-failure-triage` is a transitional CI-focused skill. Its useful workflow
-  should become part of `systematic-debugging`, which should cover CI failures,
-  local test failures, and reproduced product defects.
+- `ci-failure-triage` is a transitional/deprecated CI-focused skill kept for
+  compatibility. New debugging work should route to `systematic-debugging`,
+  which covers CI failures, local test failures, and reproduced product defects.
 - `architecture-review` is not a core kernel responsibility. Use it only as an
   optional manual planning review, or fold its useful checks into
   `spec-first-intake` when shaping high-risk work.
@@ -70,8 +70,7 @@ the small company-specific workflow that this repository needs.
 This routing document does not:
 
 - delete, rename, or merge skills
-- create `systematic-debugging`, `verification-before-completion`, or
-  `context-pack` directories
+- create `verification-before-completion` or `context-pack` directories
 - change Multica agents, squads, autopilots, or workspace skill bindings
 - add PR-Agent, Repomix, or another external tool
 - change GitHub Actions, CodeQL, dependency review, Dependabot, or branch

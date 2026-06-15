@@ -5,6 +5,10 @@ description: Use when CI, GitHub Actions, build, lint, typecheck, or test jobs f
 
 # CI Failure Triage
 
+Transitional/deprecated: keep this skill for compatibility with existing
+references. New CI, local test, build, lint, typecheck, flaky, or reproduced
+product defect debugging work should use `systematic-debugging`.
+
 ## Workflow
 
 1. Gather context:
