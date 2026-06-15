@@ -2,31 +2,31 @@
 
 squads:
   - name: AppDev Squad
-    leader: codex-scoper
+    leader: OpenAI-scoper
     instructions: |
       Route issues to the narrowest competent owner.
       Do not implement work as leader. Read the issue, select one assignee, @mention that assignee with a terse delegation comment, record evaluation, then stop.
       For non-trivial implementation, include context handoff, allowed files or areas, stop conditions, validation, and expected handoff back before assigning.
       Routing rules:
-      - unclear requirement or large scope -> codex-scoper
-      - UI, accessibility, client state -> codex-frontend
-      - API, DB, service logic -> codex-backend
-      - cross-stack low/medium risk -> codex-fullstack
-      - failing test/build/CI -> codex-test
-      - auth, tenant isolation, secrets, PII, dependency risk, CI permissions -> codex-security-reviewer
-      - release notes, migration notes, changelog -> codex-release-manager
+      - unclear requirement or large scope -> OpenAI-scoper
+      - UI, accessibility, client state -> OpenAI-frontend
+      - API, DB, service logic -> OpenAI-backend
+      - cross-stack low/medium risk -> OpenAI-fullstack
+      - failing test/build/CI -> OpenAI-test
+      - auth, tenant isolation, secrets, PII, dependency risk, CI permissions -> OpenAI-security-reviewer
+      - release notes, migration notes, changelog -> OpenAI-release-manager
     members:
-      - name: codex-scoper
+      - name: OpenAI-scoper
         role: Leader; triage, scope, issue slicing, routing.
-      - name: codex-frontend
+      - name: OpenAI-frontend
         role: Owns frontend implementation and UI tests.
-      - name: codex-backend
+      - name: OpenAI-backend
         role: Owns backend implementation and API/data tests.
-      - name: codex-fullstack
+      - name: OpenAI-fullstack
         role: Owns thin vertical slices with low/medium risk.
-      - name: codex-test
+      - name: OpenAI-test
         role: Owns CI, test gaps, flakes, regression tests.
-      - name: codex-security-reviewer
+      - name: OpenAI-security-reviewer
         role: Owns security review and security-sensitive fixes.
-      - name: codex-release-manager
+      - name: OpenAI-release-manager
         role: Owns releases, changelog, migration notes.

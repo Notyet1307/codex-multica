@@ -4,11 +4,14 @@
 # verification-before-completion is a completion gate for agents that claim
 # implementation, test, review, or release readiness. Use it before claiming
 # done, ready for review, or ready to merge. It is intentionally not attached
-# to codex-scoper, which owns intake and handoff instead of implementation
+# to OpenAI-scoper, which owns intake and handoff instead of implementation
 # completion.
+#
+# system_prompt_file paths are repo-local prompt filenames only. The retained
+# codex-*.md filenames do not define workspace agent names.
 
 agents:
-  - name: codex-scoper
+  - name: OpenAI-scoper
     tool: codex
     visibility: workspace
     concurrency_limit: 1
@@ -18,7 +21,7 @@ agents:
       - architecture-review
     system_prompt_file: multica/agent-system-prompts/codex-scoper.md
 
-  - name: codex-fullstack
+  - name: OpenAI-fullstack
     tool: codex
     visibility: workspace
     concurrency_limit: 1
@@ -29,7 +32,7 @@ agents:
       - verification-before-completion
     system_prompt_file: multica/agent-system-prompts/codex-fullstack.md
 
-  - name: codex-frontend
+  - name: OpenAI-frontend
     tool: codex
     visibility: workspace
     concurrency_limit: 1
@@ -39,7 +42,7 @@ agents:
       - verification-before-completion
     system_prompt_file: multica/agent-system-prompts/codex-frontend.md
 
-  - name: codex-backend
+  - name: OpenAI-backend
     tool: codex
     visibility: workspace
     concurrency_limit: 1
@@ -50,7 +53,7 @@ agents:
       - verification-before-completion
     system_prompt_file: multica/agent-system-prompts/codex-backend.md
 
-  - name: codex-test
+  - name: OpenAI-test
     tool: codex
     visibility: workspace
     concurrency_limit: 1
@@ -61,7 +64,7 @@ agents:
       - verification-before-completion
     system_prompt_file: multica/agent-system-prompts/codex-test.md
 
-  - name: codex-security-reviewer
+  - name: OpenAI-security-reviewer
     tool: codex
     visibility: private
     concurrency_limit: 1
@@ -72,7 +75,7 @@ agents:
       - verification-before-completion
     system_prompt_file: multica/agent-system-prompts/codex-security-reviewer.md
 
-  - name: codex-release-manager
+  - name: OpenAI-release-manager
     tool: codex
     visibility: workspace
     concurrency_limit: 1

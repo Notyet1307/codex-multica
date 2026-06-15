@@ -45,7 +45,7 @@ context storage, new agents, or new skills.
 
 For the next context-management slice, prefer this minimum shape:
 
-- Keep `codex-scoper` as the lightweight squad leader and context steward.
+- Keep `OpenAI-scoper` as the lightweight squad leader and context steward.
 - Add a `Context Ledger` pattern for non-trivial issues, either in the issue
   body or as the latest structured leader comment.
 - Require a structured delegation comment before assigning implementation,
@@ -102,7 +102,7 @@ multi-step, risky, or oversized work:
 - expected worker output
 - required validation
 
-`codex-scoper` should not delegate non-trivial implementation work until this
+`OpenAI-scoper` should not delegate non-trivial implementation work until this
 handoff exists. After a worker finishes, the leader should require a result
 packet with:
 
@@ -177,6 +177,6 @@ skill directory changes separate from external tooling or Multica config
 changes.
 
 Before adding the `context-pack` skill directory, add the lightweight context
-handoff contract to `spec-first-intake` and `codex-scoper`. Only promote it into
+handoff contract to `spec-first-intake` and `OpenAI-scoper`. Only promote it into
 `context-pack` after dogfood proves which context fields are repeatedly needed
 across issues.
