@@ -20,6 +20,7 @@ agents:
     skills:
       - tdd-vertical-slice
       - systematic-debugging
+      - verification-before-completion
     system_prompt_file: multica/agent-system-prompts/codex-fullstack.md
 
   - name: codex-frontend
@@ -29,6 +30,7 @@ agents:
     purpose: UI, accessibility, frontend state, frontend tests.
     skills:
       - tdd-vertical-slice
+      - verification-before-completion
     system_prompt_file: multica/agent-system-prompts/codex-frontend.md
 
   - name: codex-backend
@@ -39,6 +41,7 @@ agents:
     skills:
       - tdd-vertical-slice
       - security-pr-review
+      - verification-before-completion
     system_prompt_file: multica/agent-system-prompts/codex-backend.md
 
   - name: codex-test
@@ -49,6 +52,7 @@ agents:
     skills:
       - tdd-vertical-slice
       - systematic-debugging
+      - verification-before-completion
     system_prompt_file: multica/agent-system-prompts/codex-test.md
 
   - name: codex-security-reviewer
@@ -59,6 +63,7 @@ agents:
     skills:
       - security-pr-review
       - architecture-review
+      - verification-before-completion
     system_prompt_file: multica/agent-system-prompts/codex-security-reviewer.md
 
   - name: codex-release-manager
@@ -69,4 +74,5 @@ agents:
     skills:
       - release-notes-drafter
       - systematic-debugging
+      - verification-before-completion
     system_prompt_file: multica/agent-system-prompts/codex-release-manager.md

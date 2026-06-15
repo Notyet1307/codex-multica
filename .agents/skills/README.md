@@ -17,7 +17,7 @@ The target kernel is exactly these six core skills:
 | `spec-first-intake` | Convert ambiguous work into a scoped, testable, agent-ready spec before implementation. | Exists as `.agents/skills/spec-first-intake/`. Current `multica-issue-brief` and `issue-slicing` are transitional skills that should route to it for new intake. |
 | `tdd-vertical-slice` | Implement one thin behavior slice with tests, validation, and minimal drift from the spec. | Exists as `.agents/skills/tdd-vertical-slice/`. |
 | `systematic-debugging` | Reproduce failures, form hypotheses, isolate root cause, and fix with evidence. | Present as `.agents/skills/systematic-debugging/`. Current `ci-failure-triage` remains transitional/deprecated for compatibility. |
-| `verification-before-completion` | Require fresh verification evidence before claiming work is complete, passing, or ready. | Target skill does not exist yet in this repo. |
+| `verification-before-completion` | Require fresh verification evidence before claiming work is complete, passing, or ready. | Present as `.agents/skills/verification-before-completion/`. |
 | `security-pr-review` | Review changes that touch trust boundaries, secrets, PII, permissions, dependencies, CI tokens, or similar security-sensitive surfaces. | Exists as `.agents/skills/security-pr-review/`. |
 | `context-pack` | Package the minimum durable context future agents need: decisions, constraints, evidence, links, and unresolved questions. | Target skill does not exist yet in this repo. |
 
@@ -39,8 +39,8 @@ without a dedicated Multica issue.
   the default kernel path for ordinary issue implementation.
 - `tdd-vertical-slice` and `security-pr-review` are already aligned with target
   kernel responsibilities and should stay small.
-- `verification-before-completion` and `context-pack` are target kernel skills
-  even though this PR does not add their skill directories.
+- `context-pack` is the remaining target kernel skill without a matching skill
+  directory.
 - Preserve existing skill directories until a dedicated Multica issue explicitly
   approves a rename, merge, addition, or deletion.
 - Do not update Multica agent configuration just to match this routing document.
@@ -70,7 +70,7 @@ the small company-specific workflow that this repository needs.
 This routing document does not:
 
 - delete, rename, or merge skills
-- create `verification-before-completion` or `context-pack` directories
+- create the `context-pack` directory
 - change Multica agents, squads, autopilots, or workspace skill bindings
 - add PR-Agent, Repomix, or another external tool
 - change GitHub Actions, CodeQL, dependency review, Dependabot, or branch
