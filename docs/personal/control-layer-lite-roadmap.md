@@ -34,16 +34,16 @@ Current kernel status:
 | `systematic-debugging` | Present. Created from the previous CI-focused triage workflow and now owns CI, local test, build, lint, typecheck, flaky, environment-dependent, and reproduced defect debugging. |
 | `verification-before-completion` | Present. Created as the evidence gate before agents claim completion, passing validation, or readiness for review. |
 | `security-pr-review` | Present. Existing security review skill remains part of the core kernel. |
-| `context-pack` | Not present yet. Add this only after dogfood proves which handoff fields are repeatedly needed across issues. |
+| `context-pack` | Present. Owns compact durable context packaging before handoff, pause, delegation, review, or resume. |
 
 ## Context handoff direction
 
 Multica comments are useful as an event stream, but they are not enough as the
 current source of truth for a multi-agent task. The lightweight control layer
-should therefore add a small context handoff contract before adding heavier
-context storage, new agents, or new skills.
+now has a small `context-pack` handoff contract before any heavier context
+storage, new agents, or runtime scaffolding.
 
-For the next context-management slice, prefer this minimum shape:
+For context-management slices, prefer this minimum shape:
 
 - Keep `OpenAI-scoper` as the lightweight squad leader and context steward.
 - Add a `Context Ledger` pattern for non-trivial issues, either in the issue
@@ -52,8 +52,9 @@ For the next context-management slice, prefer this minimum shape:
   testing, security review, or documentation work.
 - Require a structured result packet from the worker before the leader routes
   the task onward or marks it ready for human review.
-- Keep context handoff responsibilities inside `spec-first-intake` until
-  `context-pack` is implemented.
+- Use `spec-first-intake` to shape delegation context before implementation and
+  `context-pack` to preserve compact durable state for handoff, pause, review,
+  or resume.
 - Do not introduce a separate `OpenAI-context-manager` agent, context database,
   or issue-scoped `.agent-context/` directory by default.
 
@@ -78,18 +79,18 @@ repository unless a dedicated Multica issue explicitly approves that adoption.
 | mattpocock/skills | Short handoff documents that reference existing artifacts instead of duplicating PRDs, plans, diffs, logs, or issue history. | Do not bulk import skills. Adapt only the small handoff, TDD, diagnosis, and issue-splitting patterns that fit this repo. |
 | Agent Orchestrator style worktrees | Branch/worktree-per-task isolation and routing CI or review feedback back to the originating issue. | Do not add worktree automation or parallel write agents until a dedicated issue scopes it. |
 | PR-Agent / review tools | Manual benchmarking ideas for concise PR review summaries and finding validation gaps. | Do not add PR-Agent or other external review automation to the default path. |
-| Repomix | Future `context-pack` inspiration for compact repository context bundles. | Do not add Repomix, MCP servers, or generated context dumps by default. |
+| Repomix | `context-pack` inspiration for compact repository context bundles. | Do not add Repomix, MCP servers, or generated context dumps by default. |
 
 The practical rule is: borrow workflow constraints, output contracts, and stop
 conditions; avoid importing runtime systems.
 
 ## Context handoff contract
 
-The first handoff implementation should update existing skill and prompt
-surfaces instead of creating new runtime storage.
+The first handoff implementation updates repo-local skill and routing surfaces
+instead of creating new runtime storage.
 
-`spec-first-intake` should learn to produce a copy-safe handoff for ambiguous,
-multi-step, risky, or oversized work:
+`spec-first-intake` produces a copy-safe handoff for ambiguous, multi-step,
+risky, or oversized work:
 
 - source of truth: issue, PR, branch, and relevant docs
 - verified current state
@@ -134,8 +135,8 @@ kernel. Keep them unchanged until a dedicated issue approves consolidation.
 | `architecture-review` | Keep optional/manual, or fold selected planning checks into `spec-first-intake`. |
 | `release-notes-drafter` | Keep low-frequency/manual-only, outside the default kernel. |
 
-`context-pack` is the remaining target kernel skill that does not have a
-matching skill directory yet.
+`context-pack` is now part of the core kernel for compact durable handoff and
+resume context.
 
 ## Manual-only capabilities
 
@@ -155,8 +156,8 @@ when needed, but it is not part of the default routing path for ordinary issues.
 
 - Do not add external tools such as PR-Agent or Repomix as part of the lite
   control-layer roadmap.
-- Do not add, delete, rename, or merge skill directories without a dedicated
-  Multica issue.
+- Do not add, delete, rename, or merge skill directories beyond the approved
+  `context-pack` addition without a dedicated Multica issue.
 - Do not update Multica agent configuration as a side effect of documenting the
   roadmap.
 - Do not change GitHub workflows for this roadmap unless a future issue scopes
@@ -168,7 +169,7 @@ when needed, but it is not part of the default routing path for ordinary issues.
 
 Future issues should be small and reversible. The remaining migration order is:
 
-1. Add `context-pack` for compact durable handoff notes.
+1. Dogfood `context-pack` on handoffs, review readiness, and resume scenarios.
 2. Retire or park transitional skills only after references and agent routing
    are updated.
 
@@ -176,7 +177,6 @@ Each slice should update routing documentation, run `make verify`, and keep
 skill directory changes separate from external tooling or Multica config
 changes.
 
-Before adding the `context-pack` skill directory, add the lightweight context
-handoff contract to `spec-first-intake` and `OpenAI-scoper`. Only promote it into
-`context-pack` after dogfood proves which context fields are repeatedly needed
-across issues.
+The six-skill kernel is complete. Do not add heavier context storage, a
+context-manager agent, generated context dumps, or runtime directories unless a
+future issue explicitly scopes that work.

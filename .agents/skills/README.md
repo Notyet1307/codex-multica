@@ -19,11 +19,10 @@ The target kernel is exactly these six core skills:
 | `systematic-debugging` | Reproduce failures, form hypotheses, isolate root cause, and fix with evidence. | Present as `.agents/skills/systematic-debugging/`. Current `ci-failure-triage` remains transitional/deprecated for compatibility. |
 | `verification-before-completion` | Require fresh verification evidence before claiming work is complete, passing, or ready. | Present as `.agents/skills/verification-before-completion/`. |
 | `security-pr-review` | Review changes that touch trust boundaries, secrets, PII, permissions, dependencies, CI tokens, or similar security-sensitive surfaces. | Exists as `.agents/skills/security-pr-review/`. |
-| `context-pack` | Package the minimum durable context future agents need: decisions, constraints, evidence, links, and unresolved questions. | Target skill does not exist yet in this repo. |
+| `context-pack` | Package the minimum durable context future agents need: decisions, constraints, evidence, links, and unresolved questions. | Present as `.agents/skills/context-pack/`. |
 
-The kernel is future-facing. A target skill may be listed here before a matching
-`.agents/skills/<name>/` directory exists. Do not create new skill directories
-without a dedicated Multica issue.
+The six-skill kernel is now present. Do not create new skill directories without
+a dedicated Multica issue.
 
 ## Current-to-target migration notes
 
@@ -39,12 +38,11 @@ without a dedicated Multica issue.
   the default kernel path for ordinary issue implementation.
 - `tdd-vertical-slice` and `security-pr-review` are already aligned with target
   kernel responsibilities and should stay small.
-- `context-pack` is the remaining target kernel skill without a matching skill
-  directory.
+- `context-pack` now owns compact durable handoff and resume context.
 - Preserve existing skill directories until a dedicated Multica issue explicitly
   approves a rename, merge, addition, or deletion.
-- Do not update Multica agent configuration just to match this routing document.
-  Agent config changes need their own issue and review.
+- Keep Multica agent configuration aligned with the kernel only through
+  dedicated issues and review.
 
 ## Manual-only policy
 
@@ -70,7 +68,6 @@ the small company-specific workflow that this repository needs.
 This routing document does not:
 
 - delete, rename, or merge skills
-- create the `context-pack` directory
 - change Multica agents, squads, autopilots, or workspace skill bindings
 - add PR-Agent, Repomix, or another external tool
 - change GitHub Actions, CodeQL, dependency review, Dependabot, or branch
