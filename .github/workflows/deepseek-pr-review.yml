@@ -95,5 +95,5 @@ jobs:
             });
 
       - name: Fail DeepSeek review check
-        if: ${{ steps.deepseek_review.outputs.exit_code == '1' }}
+        if: ${{ steps.deepseek_review.outputs.exit_code != '0' }}
         run: exit 1
