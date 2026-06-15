@@ -1,57 +1,117 @@
-# 30-Day Setup Checklist
+# New Repo Bootstrap Checklist
 
-## Week 1 — Foundation
+Use this checklist when applying the Codex + Multica + GitHub operating model to
+a new repository. The goal of the bootstrap PR is governance setup only: copy and
+adapt the agent, validation, issue, and review scaffolding before product runtime
+work begins.
 
-- [ ] Select one pilot repository.
-- [ ] Create a branch: `agent/bootstrap-codex-multica`.
-- [ ] Copy this template into the repository.
-- [ ] Edit `AGENTS.md` with real commands and directories.
-- [ ] Edit `.github/workflows/ci.yml` for your stack.
-- [ ] Create Multica workspace and connect GitHub.
-- [ ] Create these Multica agents:
-  - `codex-scoper`
-  - `codex-fullstack`
-  - `codex-test`
-  - `codex-security-reviewer`
-  - `codex-release-manager`
-- [ ] Create one Multica project for the pilot.
-- [ ] Run 3 low-risk issues through the full loop.
+Do not create frontend, backend, database, auth, deployment, or other product
+runtime directories during governance bootstrap unless the target repository
+explicitly needs product code changes.
 
-## Week 2 — Role specialization
+## 1. Choose the Pilot Repository
 
-- [ ] Add `codex-frontend` and `codex-backend` if the repo has clear frontend/backend ownership.
-- [ ] Import or attach skills:
+- [ ] Confirm the GitHub repository owner and canonical repository URL.
+- [ ] Confirm the Multica issue prefix that PRs and branches should reference.
+- [ ] Confirm the repository data classification and any stop conditions for
+      agents.
+- [ ] Confirm the actual stack, package manager, and real local validation
+      commands.
+- [ ] Confirm whether the repository is governance-only during bootstrap or also
+      needs product code changes.
+
+## 2. Copy Governance Files
+
+- [ ] Copy `AGENTS.md`.
+- [ ] Copy `Makefile`.
+- [ ] Copy `.agents/skills/`.
+- [ ] Copy `.github/ISSUE_TEMPLATE/`.
+- [ ] Copy `.github/codex/prompts/`.
+- [ ] Copy `.github/scripts/deepseek_pr_review.py`.
+- [ ] Copy `.github/workflows/ci.yml`.
+- [ ] Copy `.github/workflows/codeql.yml`.
+- [ ] Copy `.github/workflows/deepseek-pr-review.yml`.
+- [ ] Copy `.github/pull_request_template.md`.
+- [ ] Copy `docs/agents/`.
+- [ ] Copy `multica/`.
+- [ ] Copy `scripts/`.
+
+Repo-local prompt filenames under `.github/codex/prompts/` may still use
+`codex-*.md` names. Those filenames are prompt template names, not Multica
+workspace agent names.
+
+## 3. Adapt Repository-Specific Files
+
+- [ ] Update `AGENTS.md` for the real product, stack, commands, package manager,
+      data classification, and stop conditions.
+- [ ] Update `Makefile` so `make verify` is the single standard verification
+      entrypoint for both local runs and CI.
+- [ ] Update `.github/workflows/ci.yml` so the `readiness` job runs the project's
+      real validation through `make verify`.
+- [ ] Keep DeepSeek PR review configured for dogfood unless the repository
+      explicitly switches review providers.
+- [ ] Do not rename existing skills or modify skill content as part of the
+      bootstrap unless a separate issue explicitly asks for it.
+- [ ] Do not change Multica workspace runtime directly from the bootstrap PR.
+
+## 4. Configure GitHub
+
+- [ ] Add `DEEPSEEK_API_KEY` as a GitHub Actions secret.
+- [ ] Open the bootstrap branch with the Multica issue ID in the branch, title,
+      or PR body, for example `MUL-123`.
+- [ ] Include summary, validation, risk, rollback, and security notes in the PR
+      body.
+- [ ] Use GitHub checks as the merge gate.
+- [ ] Wait for the `readiness` check.
+- [ ] Wait for the DeepSeek `review` check.
+- [ ] Wait for CodeQL.
+- [ ] Keep human final merge; do not enable automatic merge.
+- [ ] Enable branch protection only after the checks are stable.
+
+## 5. Configure Multica
+
+- [ ] Create or select the Multica project for the repository.
+- [ ] Connect the GitHub repository to the Multica project.
+- [ ] Reuse existing workspace skills where possible, including:
+  - `spec-first-intake`
   - `tdd-vertical-slice`
-  - `ci-failure-triage`
+  - `systematic-debugging`
+  - `verification-before-completion`
   - `security-pr-review`
-  - `issue-slicing`
-  - `architecture-review`
-  - `release-notes-drafter`
-- [ ] Create `AppDev Squad` with `codex-scoper` as leader.
-- [ ] Require all Multica issues to include acceptance criteria.
+  - `context-pack`
+- [ ] Create or reuse these Multica workspace agents:
+  - `OpenAI-scoper`
+  - `OpenAI-fullstack`
+  - `OpenAI-frontend`
+  - `OpenAI-backend`
+  - `OpenAI-test`
+  - `OpenAI-security-reviewer`
+  - `OpenAI-release-manager`
+- [ ] Create or reuse AppDev Squad with `OpenAI-scoper` as leader.
+- [ ] Ensure squad routing, issue assignment, and handoff text use `OpenAI-*`
+      workspace agent names.
 
-## Week 3 — CI and review gates
+## 6. Open the First Bootstrap PR
 
-- [ ] Enable required branch checks:
-  - CI
-  - Dependency review
-  - CodeQL or equivalent SAST
-  - Codex PR review comment/check if your policy treats it as advisory or blocking
-- [ ] Add PR labels:
-  - `agent-authored`
-  - `needs-human-review`
-  - `security-review-required`
-  - `risk:low`, `risk:medium`, `risk:high`
-- [ ] Enforce human approval for high-risk PRs.
+- [ ] Create a Multica issue for the bootstrap.
+- [ ] Create a branch such as `agent/bootstrap-codex-multica` or another branch
+      name that includes the Multica issue ID.
+- [ ] Copy and adapt only the governance files needed for the target repository.
+- [ ] Run `make verify` locally.
+- [ ] Open the PR.
+- [ ] Confirm the PR links to the Multica issue through the branch, title, or
+      body.
+- [ ] Wait for `readiness`, DeepSeek `review`, and CodeQL checks.
+- [ ] Have a human review and merge the PR.
+- [ ] Close the Multica issue only after merge and acceptance criteria are met.
 
-## Week 4 — Automation and improvement loop
+## 7. Run the First Dogfood Issues
 
-- [ ] Add Multica autopilots:
-  - Daily standup summary
-  - CI failure triage
-  - Weekly dependency risk review
-  - Weekly stale issue review
-  - Release note draft
-- [ ] Create a weekly “agent mistakes” review.
-- [ ] Add one new `AGENTS.md` or Skill rule for each repeated failure.
-- [ ] Decide whether to expand to a second repository.
+- [ ] Run one documentation-only issue.
+- [ ] Run one small tested implementation issue.
+- [ ] Run one CI, test failure, or validation issue.
+- [ ] Require context handoff and completion evidence on each issue.
+- [ ] Patch `AGENTS.md`, `docs/agents/*.md`, or skills when agents repeat
+      mistakes.
+- [ ] Keep product runtime directories out of the repository until a product
+      starter issue explicitly introduces them.
