@@ -58,6 +58,10 @@ PR-Agent, Repomix, Open SWE, gstack, Superpowers, or third-party skill
 repositories. Adapt only the smallest useful workflow ideas into repo-local
 instructions.
 
+This skill does not contain copied third-party files, prompts, skill text,
+scripts, hooks, installers, dependencies, or global state. It adapts only
+workflow patterns into this repository's own completion-gate language.
+
 ## Completion gate workflow
 
 1. Identify the issue or task reference.

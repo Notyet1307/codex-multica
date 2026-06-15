@@ -1,5 +1,11 @@
 # Reference configuration for creating Multica agents.
 # Multica UI fields and CLI flags may differ by version; treat this as the desired state.
+#
+# verification-before-completion is a completion gate for agents that claim
+# implementation, test, review, or release readiness. Use it before claiming
+# done, ready for review, or ready to merge. It is intentionally not attached
+# to codex-scoper, which owns intake and handoff instead of implementation
+# completion.
 
 agents:
   - name: codex-scoper
