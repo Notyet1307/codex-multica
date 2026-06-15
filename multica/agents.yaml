@@ -79,6 +79,8 @@ agents:
 
   # Security review stays private because it handles security-sensitive review
   # routing. Do not broaden visibility as part of name alignment.
+  # context-pack output from this private agent must remain private, or be
+  # explicitly redacted before any workspace-visible comment.
   - name: OpenAI-security-reviewer
     tool: codex
     visibility: private

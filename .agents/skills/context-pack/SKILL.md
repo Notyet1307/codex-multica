@@ -110,6 +110,23 @@ databases, scripts, hooks, workflows, validators, installers, dependencies,
 MCP servers, generated context dumps, or external tool outputs as part of this
 skill.
 
+## Privacy and output channels
+
+Before writing a context pack, identify the agent visibility and destination
+channel.
+
+If the agent has private visibility or is handling security-sensitive review
+context, do not output a context pack to any workspace-visible or shared channel.
+Use a private output channel. If no private output channel is available, stop
+and ask a human.
+
+Do not include secrets, credentials, customer data, production data, private
+security findings, exploit details, or sensitive review context in a shared
+context pack.
+
+For shared handoff, use redacted wording such as: "security-sensitive review
+context exists; read the private security review or ask the security reviewer."
+
 ## Decisions and assumptions
 
 Separate decisions from assumptions:
@@ -155,6 +172,12 @@ Stop and ask a human or route to the right owner if:
 
 - the context pack would require reading secrets, customer data, production
   data, or private credentials
+- the agent has private visibility or is handling security-sensitive review
+  context and the only available output destination is workspace-visible or
+  shared
+- a shared context pack would include secrets, credentials, customer data,
+  production data, private security findings, exploit details, or sensitive
+  review context instead of redacted wording
 - the task scope is unclear and multiple reasonable next actions exist
 - the agent cannot tell whether validation evidence is fresh
 - the changed-file set exceeds the issue's allowed files or allowed areas
