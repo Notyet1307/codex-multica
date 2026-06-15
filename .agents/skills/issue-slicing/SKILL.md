@@ -5,6 +5,10 @@ description: Use to break a plan, PRD, design, or large issue into independently
 
 # Issue Slicing
 
+## Transitional Note
+
+This skill is transitional. Keep it for compatibility with existing workspace bindings or direct references. New repo routing should use `spec-first-intake` for ambiguous, oversized, risky, or multi-step intake.
+
 ## Goal
 
 Convert ambiguous or large work into small issues that agents can implement and humans can review.

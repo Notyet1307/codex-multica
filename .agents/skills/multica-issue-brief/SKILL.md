@@ -5,6 +5,10 @@ description: Use to turn a vague request, GitHub issue, PR comment, incident not
 
 # Multica Issue Brief
 
+## Transitional Note
+
+This skill is transitional. Keep it for compatibility with existing workspace bindings or direct references. New repo routing should use `spec-first-intake` for vague request intake, Multica-ready briefs, risk classification, routing, and stop-condition decisions.
+
 ## Process
 
 1. Extract the requested outcome.

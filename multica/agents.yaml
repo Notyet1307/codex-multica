@@ -8,8 +8,7 @@ agents:
     concurrency_limit: 1
     purpose: Clarify requirements, split issues, route work, write briefs. Does not modify code unless explicitly asked.
     skills:
-      - issue-slicing
-      - multica-issue-brief
+      - spec-first-intake
       - architecture-review
     system_prompt_file: multica/agent-system-prompts/codex-scoper.md
 

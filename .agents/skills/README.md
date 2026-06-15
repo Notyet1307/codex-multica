@@ -14,7 +14,7 @@ The target kernel is exactly these six core skills:
 
 | Target skill | Core responsibility | Current state |
 | --- | --- | --- |
-| `spec-first-intake` | Convert ambiguous work into a scoped, testable, agent-ready spec before implementation. | Target skill does not exist yet. Current `multica-issue-brief` and `issue-slicing` are transitional skills that should merge into it. |
+| `spec-first-intake` | Convert ambiguous work into a scoped, testable, agent-ready spec before implementation. | Exists as `.agents/skills/spec-first-intake/`. Current `multica-issue-brief` and `issue-slicing` are transitional skills that should route to it for new intake. |
 | `tdd-vertical-slice` | Implement one thin behavior slice with tests, validation, and minimal drift from the spec. | Exists as `.agents/skills/tdd-vertical-slice/`. |
 | `systematic-debugging` | Reproduce failures, form hypotheses, isolate root cause, and fix with evidence. | Target skill does not exist yet. Current `ci-failure-triage` is transitional and should become this broader debugging skill. |
 | `verification-before-completion` | Require fresh verification evidence before claiming work is complete, passing, or ready. | Target skill does not exist yet in this repo. |
@@ -69,9 +69,9 @@ the small company-specific workflow that this repository needs.
 
 This routing document does not:
 
-- add, delete, rename, or merge skills
-- create `spec-first-intake`, `systematic-debugging`,
-  `verification-before-completion`, or `context-pack` directories
+- delete, rename, or merge skills
+- create `systematic-debugging`, `verification-before-completion`, or
+  `context-pack` directories
 - change Multica agents, squads, autopilots, or workspace skill bindings
 - add PR-Agent, Repomix, or another external tool
 - change GitHub Actions, CodeQL, dependency review, Dependabot, or branch
