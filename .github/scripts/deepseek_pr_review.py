@@ -90,7 +90,9 @@ def section_says_no_findings(section):
         "no findings",
         "no blocking issues",
     }
-    return section_is_empty(section) or normalized in no_finding_phrases
+    if section_is_empty(section) or normalized in no_finding_phrases:
+        return True
+    return bool(re.search(r"\bno\b.*\bp[01]\b.*\b(findings|issues)\b", section, re.IGNORECASE))
 
 
 def count_blocking_findings(review):
@@ -248,6 +250,17 @@ No security-specific concerns.
 """
         )
         == 2
+    )
+    assert (
+        count_blocking_findings(
+            """## Codex PR Review
+
+### Blocking findings
+
+No Severity: P0 findings.
+"""
+        )
+        == 0
     )
 
     def run_with_review(review):

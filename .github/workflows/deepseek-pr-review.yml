@@ -45,10 +45,20 @@ jobs:
           review_exit_code=$?
           set -e
           echo "exit_code=$review_exit_code" >> "$GITHUB_OUTPUT"
-          exit 0
+          exit "$review_exit_code"
+
+      - name: Check review output
+        id: review_output
+        if: ${{ always() }}
+        run: |
+          if [ -f deepseek-review.md ]; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
 
       - name: Post review comment
-        if: ${{ always() && hashFiles('deepseek-review.md') != '' }}
+        if: ${{ always() && steps.review_output.outputs.exists == 'true' }}
         uses: actions/github-script@v7
         env:
           AI_REVIEW_MARKER: "<!-- ai-review:deepseek -->"
@@ -94,5 +104,7 @@ jobs:
             });
 
       - name: Fail DeepSeek review check
-        if: ${{ steps.deepseek_review.outputs.exit_code != '0' }}
-        run: exit 1
+        if: ${{ always() && steps.deepseek_review.outputs.exit_code != '0' }}
+        env:
+          DEEPSEEK_REVIEW_EXIT_CODE: ${{ steps.deepseek_review.outputs.exit_code }}
+        run: exit "${DEEPSEEK_REVIEW_EXIT_CODE:-1}"
