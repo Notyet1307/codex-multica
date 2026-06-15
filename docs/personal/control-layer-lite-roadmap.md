@@ -25,6 +25,89 @@ These skills cover the normal issue lifecycle:
 - review trust-boundary changes
 - preserve durable context for future agents
 
+## Context handoff direction
+
+Multica comments are useful as an event stream, but they are not enough as the
+current source of truth for a multi-agent task. The lightweight control layer
+should therefore add a small context handoff contract before adding heavier
+context storage, new agents, or new skills.
+
+For the next context-management slice, prefer this minimum shape:
+
+- Keep `codex-scoper` as the lightweight squad leader and context steward.
+- Add a `Context Ledger` pattern for non-trivial issues, either in the issue
+  body or as the latest structured leader comment.
+- Require a structured delegation comment before assigning implementation,
+  testing, security review, or documentation work.
+- Require a structured result packet from the worker before the leader routes
+  the task onward or marks it ready for human review.
+- Keep context handoff responsibilities inside `spec-first-intake` until
+  `context-pack` is implemented.
+- Do not introduce a separate `codex-context-manager` agent, context database,
+  or issue-scoped `.agent-context/` directory by default.
+
+The `Context Ledger` should stay compact and point to durable evidence instead
+of copying all prior discussion. It should track the current phase, owner,
+branch or PR, latest validation, open risks, and the minimal artifacts a
+zero-context worker must read.
+
+## Open-source reference map
+
+External projects are reference material only. Do not copy third-party skill
+files, scripts, hooks, installers, global state, or dependencies into this
+repository unless a dedicated Multica issue explicitly approves that adoption.
+
+| Reference | Borrow | Do not borrow |
+| --- | --- | --- |
+| Multica squads | The leader-worker shape: one leader keeps issue state coherent and delegates to the narrowest capable worker. | Do not add dynamic squads or new squad topologies just to document context handoff. |
+| CCPM | Spec-first discipline, traceability from request to issue to PR, and refusal to code directly from vague work. | Do not import CCPM project layout, commands, automation, or GitHub issue machinery. |
+| Open SWE | Manager/Planner/Programmer/Reviewer separation, human approval gates, and independent review before completion. | Do not adopt Open SWE runtime, service architecture, queueing model, or deployment assumptions. |
+| Superpowers | The sequence of clarify intent, write a spec, produce a plan, implement, then review. | Do not install the full workflow or make every small task follow a heavyweight ceremony. |
+| gstack | Command-like skill boundaries such as `/spec`, plus context-save/context-restore concepts for decisions, validation, and remaining work. | Do not create separate `context-save`, `context-restore`, or `squad-leader-learn` skills during the lite kernel phase. Fold useful ideas into `spec-first-intake` first, then later into `context-pack`. |
+| mattpocock/skills | Short handoff documents that reference existing artifacts instead of duplicating PRDs, plans, diffs, logs, or issue history. | Do not bulk import skills. Adapt only the small handoff, TDD, diagnosis, and issue-splitting patterns that fit this repo. |
+| Agent Orchestrator style worktrees | Branch/worktree-per-task isolation and routing CI or review feedback back to the originating issue. | Do not add worktree automation or parallel write agents until a dedicated issue scopes it. |
+| PR-Agent / review tools | Manual benchmarking ideas for concise PR review summaries and finding validation gaps. | Do not add PR-Agent or other external review automation to the default path. |
+| Repomix | Future `context-pack` inspiration for compact repository context bundles. | Do not add Repomix, MCP servers, or generated context dumps by default. |
+
+The practical rule is: borrow workflow constraints, output contracts, and stop
+conditions; avoid importing runtime systems.
+
+## Context handoff contract
+
+The first handoff implementation should update existing skill and prompt
+surfaces instead of creating new runtime storage.
+
+`spec-first-intake` should learn to produce a copy-safe handoff for ambiguous,
+multi-step, risky, or oversized work:
+
+- source of truth: issue, PR, branch, and relevant docs
+- verified current state
+- decisions already made
+- known facts versus assumptions
+- allowed files or areas
+- explicit non-goals
+- stop conditions
+- suggested next owner
+- expected worker output
+- required validation
+
+`codex-scoper` should not delegate non-trivial implementation work until this
+handoff exists. After a worker finishes, the leader should require a result
+packet with:
+
+- summary of work performed
+- files changed
+- validation commands and results
+- known failures
+- risks or uncertainty
+- scope check against allowed files
+- recommended next owner or human review
+
+Use copy-safe Markdown for Multica issue bodies and comments. Avoid fenced code
+blocks in issue templates and delegation comments because they have already
+caused copied issue text to truncate during dogfood. Prefer inline commands
+such as `make verify`.
+
 ## Current transitional skills
 
 The current repository has useful skills that predate the final lightweight
@@ -86,3 +169,8 @@ Future issues should be small and reversible:
 Each slice should update routing documentation, run `make verify`, and keep
 skill directory changes separate from external tooling or Multica config
 changes.
+
+Before adding the `context-pack` skill directory, add the lightweight context
+handoff contract to `spec-first-intake` and `codex-scoper`. Only promote it into
+`context-pack` after dogfood proves which context fields are repeatedly needed
+across issues.
