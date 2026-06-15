@@ -7,6 +7,8 @@ description: Use when a request is ambiguous, multi-step, risky, oversized, or n
 
 Use this skill as the first stop before implementation when the request is not already a small, clear, directly verifiable task.
 
+The scoper is responsible for context stewardship before implementation begins. Context stewardship means verifying current state before delegating, separating facts from assumptions, preserving decisions already made, defining allowed scope and stop conditions, defining expected worker output, and writing the handoff into durable Multica issue comments or PR text instead of relying on hidden chat context.
+
 ## Use when
 
 - A rough request needs to become an agent-ready Multica brief or spec.
@@ -22,9 +24,17 @@ Use this skill as the first stop before implementation when the request is not a
 
 ## Design References
 
-This skill adapts workflow ideas from CCPM spec-first discipline, mattpocock/skills `to-issues`, Superpowers planning, gstack `/spec`, and the local `multica-issue-brief` and `issue-slicing` skills.
+This skill adapts workflow ideas from the Multica Squad model, CCPM spec-first discipline, Open SWE manager/programmer separation, agent handoff patterns, the MUL-11 dogfood failure, mattpocock/skills `to-issues`, Superpowers planning, gstack `/spec`, and the local `multica-issue-brief` and `issue-slicing` skills.
 
-Do not copy third-party skill files, scripts, hooks, installers, or global state. Do not import third-party dependencies. Adapt only the workflow ideas into repo-local output.
+Adapted workflow ideas:
+
+- Multica Squad model: the scoper acts as leader and context steward before delegating work.
+- CCPM: context must be durable and traceable through spec, issue, branch, PR, and validation.
+- Open SWE: keep manager/planner responsibilities separate from programmer execution; do not let implementation start before context and plan are clear.
+- Agent handoff patterns: prevent lost state, weak escalation, and unclear uncertainty signals by using persistent state, approval gates, risk signals, and handoff artifacts.
+- MUL-11 dogfood failure: missing allowed files and stop conditions caused scope expansion, so handoff fields must be durable and copy-safe.
+
+Do not copy third-party project files, prompts, skills, scripts, hooks, installers, dependencies, or global state. Do not add external tools. Adapt only the workflow ideas into short repo-local instructions.
 
 ## Intake Workflow
 
@@ -45,6 +55,156 @@ Do not copy third-party skill files, scripts, hooks, installers, or global state
    - one implementation route when the work is small enough for a single agent-ready issue
    - child issues when the work is large, serial, or independently reviewable
 10. Preserve traceability from request/spec to issue, branch, PR, and validation result. Include the Multica issue key in suggested branch and PR text.
+11. For non-trivial implementation delegation, write a Context Handoff before assigning a worker and require a Handoff Back before review.
+
+## Context Handoff
+
+The scoper must produce a Context Handoff before delegating non-trivial implementation. Keep it proportional to task risk, but do not delegate if required scope boundaries are missing.
+
+Required fields:
+
+- Source of truth
+- Verified current state
+- Decisions already made
+- Known facts
+- Assumptions
+- Allowed files or allowed areas
+- Explicit non-goals
+- Stop conditions
+- Worker assignment
+- Expected output
+- Validation required
+- Handoff back requirement
+
+Suggested output shape:
+
+## Context handoff
+
+### Source of truth
+
+- Multica issue:
+- GitHub PR:
+- Branch:
+- Related docs:
+
+### Verified current state
+
+- ...
+
+### Decisions already made
+
+- ...
+
+### Known facts
+
+- ...
+
+### Assumptions
+
+- ...
+
+### Allowed files or allowed areas
+
+- ...
+
+### Explicit non-goals
+
+- ...
+
+### Stop conditions
+
+Stop and ask a human if:
+
+- ...
+
+### Worker assignment
+
+- Agent:
+- Reason:
+
+### Expected output
+
+- Changed files:
+- Validation evidence:
+- PR or issue comment:
+- Handoff back: required
+
+### Required validation
+
+- `make verify` or task-specific command
+
+## Handoff Back
+
+A worker agent must return a Handoff Back after implementation and before the task is considered ready for review.
+
+The scope check must be evidence-based, not only self-reported. The worker must include the changed-file command output, compare it with the allowed files or allowed areas from the handoff, and explicitly confirm whether unexpected files changed. If unexpected files changed, mark the task not ready for review and ask for correction instead of asking for review or merge.
+
+Suggested output shape:
+
+## Handoff back
+
+### Work performed
+
+- ...
+
+### Files changed
+
+- ...
+
+### Validation evidence
+
+- Command:
+- Result:
+
+### Scope check
+
+- Changed-file command: `git diff --name-only origin/main...HEAD`
+- Changed-file output:
+- Compared against allowed files or areas:
+- Within allowed files or areas: yes/no
+- Unexpected files changed:
+- No unexpected files changed: yes/no
+- Unexpected behavior changes:
+
+### Decisions made during implementation
+
+- ...
+
+### Remaining uncertainty
+
+- ...
+
+### Follow-up needed
+
+- yes/no
+- Suggested follow-up issue:
+
+### Ready for review
+
+- yes/no
+- Reason, including whether any unexpected files require correction:
+
+## Delegation Gate
+
+Scoper must not delegate non-trivial implementation if any of these are missing:
+
+- allowed files or allowed areas
+- stop conditions
+- validation command
+- expected worker output
+- risk or HITL classification
+
+If the user request or Multica issue is missing them, scoper must first write a Context Handoff comment or ask for clarification.
+
+## Copy Safety
+
+Do not rely on fenced code blocks for critical scope boundaries in Multica issue text if copying may truncate later sections.
+
+For critical instructions such as `Allowed files`, `Stop conditions`, and `Validation`, prefer bullet lists and inline command text like `make verify`.
+
+## Scope Creep
+
+If a worker identifies useful changes outside the allowed files, allowed areas, or approved scope, it must propose them as follow-up comments or follow-up issues. It must not implement them in the current PR without human approval.
 
 ## Split Decision
 

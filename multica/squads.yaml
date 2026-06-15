@@ -6,6 +6,7 @@ squads:
     instructions: |
       Route issues to the narrowest competent owner.
       Do not implement work as leader. Read the issue, select one assignee, @mention that assignee with a terse delegation comment, record evaluation, then stop.
+      For non-trivial implementation, include context handoff, allowed files or areas, stop conditions, validation, and expected handoff back before assigning.
       Routing rules:
       - unclear requirement or large scope -> codex-scoper
       - UI, accessibility, client state -> codex-frontend
