@@ -1,5 +1,11 @@
 # Reference configuration for creating Multica agents.
 # Multica UI fields and CLI flags may differ by version; treat this as the desired state.
+#
+# verification-before-completion is a completion gate for agents that claim
+# implementation, test, review, or release readiness. Use it before claiming
+# done, ready for review, or ready to merge. It is intentionally not attached
+# to codex-scoper, which owns intake and handoff instead of implementation
+# completion.
 
 agents:
   - name: codex-scoper
@@ -20,6 +26,7 @@ agents:
     skills:
       - tdd-vertical-slice
       - systematic-debugging
+      - verification-before-completion
     system_prompt_file: multica/agent-system-prompts/codex-fullstack.md
 
   - name: codex-frontend
@@ -29,6 +36,7 @@ agents:
     purpose: UI, accessibility, frontend state, frontend tests.
     skills:
       - tdd-vertical-slice
+      - verification-before-completion
     system_prompt_file: multica/agent-system-prompts/codex-frontend.md
 
   - name: codex-backend
@@ -39,6 +47,7 @@ agents:
     skills:
       - tdd-vertical-slice
       - security-pr-review
+      - verification-before-completion
     system_prompt_file: multica/agent-system-prompts/codex-backend.md
 
   - name: codex-test
@@ -49,6 +58,7 @@ agents:
     skills:
       - tdd-vertical-slice
       - systematic-debugging
+      - verification-before-completion
     system_prompt_file: multica/agent-system-prompts/codex-test.md
 
   - name: codex-security-reviewer
@@ -59,6 +69,7 @@ agents:
     skills:
       - security-pr-review
       - architecture-review
+      - verification-before-completion
     system_prompt_file: multica/agent-system-prompts/codex-security-reviewer.md
 
   - name: codex-release-manager
@@ -69,4 +80,5 @@ agents:
     skills:
       - release-notes-drafter
       - systematic-debugging
+      - verification-before-completion
     system_prompt_file: multica/agent-system-prompts/codex-release-manager.md

@@ -32,7 +32,7 @@ Current kernel status:
 | `spec-first-intake` | Present. Created from the previous intake skills and now owns intake, scoping, and context handoff for non-trivial delegated work. |
 | `tdd-vertical-slice` | Present. Existing implementation skill remains part of the core kernel. |
 | `systematic-debugging` | Present. Created from the previous CI-focused triage workflow and now owns CI, local test, build, lint, typecheck, flaky, environment-dependent, and reproduced defect debugging. |
-| `verification-before-completion` | Not present yet. This is the next target kernel skill. |
+| `verification-before-completion` | Present. Created as the evidence gate before agents claim completion, passing validation, or readiness for review. |
 | `security-pr-review` | Present. Existing security review skill remains part of the core kernel. |
 | `context-pack` | Not present yet. Add this only after dogfood proves which handoff fields are repeatedly needed across issues. |
 
@@ -134,8 +134,8 @@ kernel. Keep them unchanged until a dedicated issue approves consolidation.
 | `architecture-review` | Keep optional/manual, or fold selected planning checks into `spec-first-intake`. |
 | `release-notes-drafter` | Keep low-frequency/manual-only, outside the default kernel. |
 
-`verification-before-completion` and `context-pack` are the remaining target
-kernel skills that do not have matching skill directories yet.
+`context-pack` is the remaining target kernel skill that does not have a
+matching skill directory yet.
 
 ## Manual-only capabilities
 
@@ -168,10 +168,8 @@ when needed, but it is not part of the default routing path for ordinary issues.
 
 Future issues should be small and reversible. The remaining migration order is:
 
-1. Add `verification-before-completion` as an evidence gate for completion
-   claims.
-2. Add `context-pack` for compact durable handoff notes.
-3. Retire or park transitional skills only after references and agent routing
+1. Add `context-pack` for compact durable handoff notes.
+2. Retire or park transitional skills only after references and agent routing
    are updated.
 
 Each slice should update routing documentation, run `make verify`, and keep
