@@ -38,10 +38,15 @@ jobs:
         env:
           DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
         run: |
+          set +e
           python3 .github/scripts/deepseek_pr_review.py \
             pr-truncated.diff \
             .github/codex/prompts/review.md \
             deepseek-review.md
+          review_exit_code=$?
+          set -e
+          echo "exit_code=$review_exit_code" >> "$GITHUB_OUTPUT"
+          exit "$review_exit_code"
 
       - name: Post review comment
         if: ${{ always() && hashFiles('deepseek-review.md') != '' }}
@@ -90,5 +95,5 @@ jobs:
             });
 
       - name: Fail DeepSeek review check
-        if: ${{ steps.deepseek_review.outcome == 'failure' }}
+        if: ${{ steps.deepseek_review.outputs.exit_code == '1' }}
         run: exit 1

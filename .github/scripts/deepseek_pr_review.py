@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+import contextlib
+import io
 import json
 import os
 import re
@@ -15,6 +17,7 @@ PROVIDER_NAME = "DeepSeek"
 REVIEWER_SYSTEM_PROMPT = "You are a pragmatic senior code reviewer. Prioritize correctness, security, data loss, broken CI, and missing validation."
 PASS_EXIT_CODE = 0
 BLOCKING_FINDINGS_EXIT_CODE = 1
+OPERATIONAL_FAILURE_EXIT_CODE = 2
 VALIDATION_GAPS_WITHOUT_BLOCKING_EXIT_CODE = PASS_EXIT_CODE
 
 
@@ -95,7 +98,11 @@ def count_blocking_findings(review):
     if section_says_no_findings(section) or re.search(r"no\s+p0/p1\s+blocking\s+findings\s+found", section, re.IGNORECASE):
         return 0
 
-    severity_lines = re.findall(r"^\s*-\s*Severity:\s*P[01]\b", section, re.IGNORECASE | re.MULTILINE)
+    severity_lines = re.findall(
+        r"^\s*(?:[-*]\s*)?(?:\*\*)?Severity:\s*P[01]\b",
+        section,
+        re.IGNORECASE | re.MULTILINE,
+    )
     if severity_lines:
         return len(severity_lines)
 
@@ -211,6 +218,22 @@ No security-specific concerns.
     assert review_body.startswith(f"{AI_REVIEW_MARKER}\n")
     assert "| Provider | DeepSeek |" in review_body
     assert "| Blocking findings | 0 |" in review_body
+    assert (
+        count_blocking_findings(
+            """## Codex PR Review
+
+### Blocking findings
+
+**Severity: P1**
+**File/area:** `.github/workflows/deepseek-pr-review.yml`
+
+**Impact:**
+- API errors should not be counted as review findings.
+- File errors should not be counted as review findings.
+"""
+        )
+        == 1
+    )
 
     def run_with_review(review):
         previous_api_key = os.environ.get("DEEPSEEK_API_KEY")
@@ -293,6 +316,31 @@ None.
     assert "| Recommendation | Changes requested |" in blocking_body
     assert "| Blocking findings | 1 |" in blocking_body
 
+    previous_argv = sys.argv
+    previous_api_key = os.environ.get("DEEPSEEK_API_KEY")
+    try:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            diff_path = os.path.join(tmpdir, "pr.diff")
+            prompt_path = os.path.join(tmpdir, "review.md")
+            output_path = os.path.join(tmpdir, "deepseek-review.md")
+            with open(diff_path, "w", encoding="utf-8") as file:
+                file.write("diff --git a/file b/file\n+hello\n")
+            with open(prompt_path, "w", encoding="utf-8") as file:
+                file.write("Review carefully.")
+
+            os.environ.pop("DEEPSEEK_API_KEY", None)
+            sys.argv = ["deepseek_pr_review.py", diff_path, prompt_path, output_path]
+
+            with contextlib.redirect_stderr(io.StringIO()):
+                assert main() == 2
+            assert not os.path.exists(output_path)
+    finally:
+        sys.argv = previous_argv
+        if previous_api_key is None:
+            os.environ.pop("DEEPSEEK_API_KEY", None)
+        else:
+            os.environ["DEEPSEEK_API_KEY"] = previous_api_key
+
 
 def main():
     if len(sys.argv) == 2 and sys.argv[1] == "--self-test":
@@ -310,7 +358,7 @@ def main():
         return run(sys.argv[1], sys.argv[2], sys.argv[3])
     except Exception as error:
         print(f"ERROR: {error}", file=sys.stderr)
-        return 1
+        return OPERATIONAL_FAILURE_EXIT_CODE
 
 
 if __name__ == "__main__":
