@@ -93,6 +93,34 @@ Treat template changes as product changes:
 
 Do not enable automatic merge. Human review is required for every PR.
 
+Default merge path:
+
+1. Multica issue
+2. Branch referencing the Multica issue ID
+3. GitHub PR referencing the Multica issue ID
+4. `make verify`
+5. GitHub `readiness`
+6. DeepSeek `review`
+7. CodeQL when applicable
+8. Human review
+9. Human final merge
+
+Agents must not merge PRs, direct push to `main`, or bypass branch protection.
+Owner/admin direct push or bypass to `main` is allowed only for narrow
+operator-controlled exceptions:
+
+- Emergency rollback of a broken governance or template change.
+- Fixing repository configuration that prevents PR creation or CI execution.
+- Repairing branch protection, workflow, or repository metadata when the normal PR path is unavailable.
+- Human-approved trivial correction where the operator explicitly accepts bypass risk.
+
+After any bypass, record a visible Multica issue comment or follow-up note with
+the commit SHA or link, reason for bypass, files changed, validation run or
+skipped-validation reason, risk and rollback note, and whether a follow-up PR or
+issue is needed. Commit `6878e31` is the motivating example: a human-requested
+direct push succeeded while GitHub reported bypassed pull request and required
+status check rules.
+
 During dogfood, GitHub PR review uses DeepSeek API instead of OpenAI Codex Action. Do not require `OPENAI_API_KEY` unless the project explicitly switches back to OpenAI Codex Action.
 
 Do not create frontend, backend, database, auth, deployment, or product runtime directories during dogfood unless a Multica issue explicitly moves this repository into the product starter phase.
