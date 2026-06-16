@@ -55,8 +55,8 @@ Use this checklist for the current issue -> PR -> checks -> merge -> close issue
 5. Route workflow or CI failures to `OpenAI-test`.
 6. Route security, permissions, dependency, or CI-token changes to `OpenAI-security-reviewer`.
 7. Open a GitHub PR.
-8. Run CI and Codex review.
-9. Human reviews and merges.
+8. Run CI, GitHub `readiness`, DeepSeek `review`, and CodeQL when applicable.
+9. Human reviews and performs the final merge.
 10. Close the Multica issue after the merged PR has satisfied the issue acceptance criteria.
 11. Patch `AGENTS.md`, `docs/agents/*.md`, or `.agents/skills/*` when an agent repeats a mistake.
 
@@ -65,7 +65,14 @@ Current parked and future items:
 - Dependabot remains disabled during dogfood. Restore it by renaming `.github/dependabot.yml.disabled` back to `.github/dependabot.yml` after this repository has a real dependency surface to update, GitHub Dependency Graph / Dependency Review are ready, and automated review checks are no longer known-noisy on Dependabot PRs.
 - Dependency Review remains disabled until a repository administrator enables GitHub Dependency Graph.
 - Product runtime directories remain future scope; this repository is still an agent operating template, not a frontend/backend runtime.
-- Branch protection is not enabled yet; humans still own final merge discipline.
+- Branch protection or repository rules may report bypassed pull request or
+  required-check rules. `AGENTS.md` contains the mandatory agent-facing rules,
+  and the durable detailed policy is documented in
+  `docs/personal/branch-protection-policy.md`: default work uses issue ->
+  branch -> PR -> all required checks passing -> human review -> human final
+  merge; agents must not merge, direct push, suggest bypass, execute bypass, or
+  approve bypass; owner/admin bypass is only for narrow operator-approved
+  exceptions with recorded evidence.
 
 ## Recommended first rollout
 
@@ -101,4 +108,4 @@ Third-party skills such as `mattpocock/skills` are useful reference material, es
 
 ## Minimal operating rule
 
-Agents may write feature branches, tests, documentation, comments, and PR review feedback. Humans own product direction, architecture acceptance, security exceptions, production deployment, and final merge.
+Agents may write feature branches, tests, documentation, comments, and PR review feedback. Agents must not merge, direct push, or bypass branch protection. Humans own product direction, architecture acceptance, security exceptions, production deployment, owner/admin bypass approval, and final merge.
