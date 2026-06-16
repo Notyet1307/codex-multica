@@ -14,6 +14,10 @@ Every repository change should use the normal governed path:
 8. Complete human review.
 9. Let a human perform the final merge.
 
+Checks may run concurrently, but every required check must pass before human
+review or final merge. If any required check fails, the failure must be fixed or
+reported as a blocker before review proceeds.
+
 Agents must not merge PRs, direct push to `main`, or bypass branch protection.
 Agents may prepare branches, commits, validation evidence, PRs, and review
 notes for human review.
@@ -36,6 +40,9 @@ Allowed bypass cases:
 
 Bypass does not transfer merge authority to agents. Human final merge ownership
 still applies to normal PRs, and only a human operator may approve a bypass.
+Agents must never initiate, suggest, approve, or execute a bypass, even if the
+conditions appear to match an allowed exception or a human asks the agent to
+perform the bypass.
 
 ## Required evidence after bypass
 

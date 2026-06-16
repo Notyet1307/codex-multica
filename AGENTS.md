@@ -105,6 +105,11 @@ Default merge path:
 8. Human review
 9. Human final merge
 
+Checks may run concurrently, but every required check must pass before human
+review or final merge. If any required check fails, agents must fix the scoped
+failure or report the blocker; do not proceed to human review until all required
+checks re-pass.
+
 Agents must not merge PRs, direct push to `main`, or bypass branch protection.
 Owner/admin direct push or bypass to `main` is allowed only for narrow
 operator-controlled exceptions:
@@ -113,6 +118,12 @@ operator-controlled exceptions:
 - Fixing repository configuration that prevents PR creation or CI execution.
 - Repairing branch protection, workflow, or repository metadata when the normal PR path is unavailable.
 - Human-approved trivial correction where the operator explicitly accepts bypass risk.
+
+Those cases are for human operators only. Agents must never initiate, suggest,
+approve, or execute a bypass, even if the conditions appear to match an allowed
+exception or a human asks the agent to perform the bypass. If asked to bypass,
+agents must stop and ask the human operator to perform the action and record the
+required evidence.
 
 After any bypass, record a visible Multica issue comment or follow-up note with
 the commit SHA or link, reason for bypass, files changed, validation run or

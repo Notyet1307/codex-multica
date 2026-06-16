@@ -66,11 +66,13 @@ Current parked and future items:
 - Dependency Review remains disabled until a repository administrator enables GitHub Dependency Graph.
 - Product runtime directories remain future scope; this repository is still an agent operating template, not a frontend/backend runtime.
 - Branch protection or repository rules may report bypassed pull request or
-  required-check rules. The durable policy is documented in
+  required-check rules. `AGENTS.md` contains the mandatory agent-facing rules,
+  and the durable detailed policy is documented in
   `docs/personal/branch-protection-policy.md`: default work uses issue ->
-  branch -> PR -> checks -> human review -> human final merge; agents must not
-  merge, direct push, or bypass; owner/admin bypass is only for narrow
-  operator-approved exceptions with recorded evidence.
+  branch -> PR -> all required checks passing -> human review -> human final
+  merge; agents must not merge, direct push, suggest bypass, execute bypass, or
+  approve bypass; owner/admin bypass is only for narrow operator-approved
+  exceptions with recorded evidence.
 
 ## Recommended first rollout
 
