@@ -7,8 +7,8 @@ description: Use before handoff, pause, delegation, review, or resume when a fut
 
 Use this skill to package the minimum durable context needed for a future agent
 or human to continue work without replaying every prior comment, terminal log,
-diff, or discussion. A context pack is a compact save point, not a transcript or
-repository dump.
+diff, or discussion. A context pack is a compact save point and index, not a
+transcript, repository dump, or second copy of Handoff Back.
 
 When a Handoff Back or PR already contains the full evidence report, the context
 pack should be a compact resume state. Reference the Handoff Back or PR for full
@@ -32,7 +32,9 @@ Use this skill when:
 Do not use this skill when:
 
 - the task is a trivial single-step reply with no durable follow-up value
-- the latest issue or PR comment already contains a fresh, complete handoff
+- Handoff Back or PR evidence already gives a fresh, complete state and no
+  continuation state would be lost
+- the work is one-pass complete, has complete Handoff Back, and has no follow-up
 - the work is a pure acknowledgement, sign-off, or thanks
 - producing the pack would require reading secrets, private credentials,
   customer data, production data, or other sensitive material
@@ -67,32 +69,36 @@ repo-local instructions.
 ## Context pack workflow
 
 1. Identify the issue, task, PR, branch, and current owner if available.
-2. Read the latest issue scope, handoff, PR status, and validation evidence.
-3. Summarize only durable facts, decisions, constraints, and unresolved
+2. Read the latest issue scope, Handoff Back, PR status, and validation
+   evidence.
+3. Decide whether a separate context pack is useful. If Handoff Back or PR
+   evidence already contains the durable state and there is no continuation,
+   omit the pack.
+4. Summarize only durable facts, decisions, constraints, and unresolved
    questions.
-4. List changed files or affected areas when relevant.
-5. List commands already run and their results.
-6. List known failures, skipped checks, and stale or uncertain evidence.
+5. Point to the decisive Handoff Back comment, PR, or artifact that contains
+   detailed validation, changed-file, scope, security, and risk evidence.
+6. Include changed validation, changed scope, stale evidence, ambiguity, or
+   unavailable evidence only when it affects the next action.
 7. Link or reference source artifacts, Handoff Back, or PR evidence instead of
    duplicating full content.
 8. State what the next agent or human should do next.
 9. State what should not be changed or re-litigated.
-10. Return a fixed context pack.
+10. Return a fixed context pack only when the pack adds durable continuation
+    value.
 
 ## Evidence requirements
 
-A context pack must include available evidence for:
+A compact context pack must include available evidence for:
 
-- issue, task, PR, branch, and current owner
-- current status and goal
-- allowed scope, affected areas, or changed files
-- key decisions and assumptions already made
+- issue, PR, branch, and current status
+- allowed scope or affected area
+- key decision or current assumption the next owner should preserve
+- the source artifact that contains full evidence
+- validation status, especially whether detailed evidence is fresh, stale,
+  unavailable, or changed after Handoff Back
 - constraints, non-goals, and explicit stop conditions
-- validation commands already run and their results
-- known failures, skipped checks, unavailable checks, and stale evidence
-- security-sensitive surfaces touched or confirmed out of scope
-- remaining risks, open questions, and next recommended action
-- source artifacts the next reader should inspect before acting
+- open questions and next recommended action
 
 If a field is unavailable, say `Unavailable` or `Not applicable` and briefly
 explain why. Do not invent evidence to make the pack look complete.
@@ -101,6 +107,9 @@ Available evidence does not mean copying the full Handoff Back into the context
 pack. If Handoff Back or the PR already contains detailed validation logs,
 changed-file output, scope comparison, and risk notes, summarize the current
 state and reference that source for full evidence.
+
+Use the full resume form only when no Handoff Back or PR evidence exists and the
+next agent would otherwise lack required state.
 
 ## Scope and constraints
 
@@ -111,11 +120,20 @@ Prefer references over duplication:
 
 - Multica issue key or issue link instead of copied issue descriptions
 - PR URL and branch instead of pasted diffs
-- Handoff Back section instead of repeated validation, scope, and risk detail
-- changed-file command output instead of broad file summaries
-- exact validation command and result instead of pasted full logs
+- Handoff Back comment instead of repeated changed-file, scope, validation,
+  security, and risk detail
+- exact validation command and short result only when the detailed evidence is
+  stale, changed, ambiguous, or unavailable elsewhere
 - latest decisive comment, document, or artifact path instead of a full
   conversation transcript
+
+Full evidence should point to the Handoff Back comment, PR, or decisive artifact
+that contains detailed validation, changed-file, scope, security, and risk
+evidence.
+
+Do not repeat Handoff Back's full validation logs, changed-file evidence, scope
+check, security check, or risk detail unless those details changed after Handoff
+Back, are stale, are ambiguous, or are unavailable elsewhere.
 
 Do not create `.agent-context/`, product runtime directories, context
 databases, scripts, hooks, workflows, validators, installers, dependencies,
@@ -203,7 +221,33 @@ Stop and ask a human or route to the right owner if:
 
 ## Output contract
 
-Return exactly this report shape:
+Default to this compact index form when a Context pack is useful and Handoff
+Back or PR evidence exists:
+
+## Context pack
+
+- Issue:
+- PR:
+- Branch:
+- Current status:
+- Scope:
+- Key decision:
+- Full evidence:
+- Validation status:
+- Constraints:
+- Open questions:
+- Next action:
+
+Use `Full evidence` to point to the Handoff Back comment, PR, or decisive
+artifact containing detailed validation, changed-file, scope, security, and risk
+evidence.
+
+Do not repeat Handoff Back's full validation logs, changed-file evidence, scope
+check, security check, or risk detail unless those details changed after Handoff
+Back, are stale, are ambiguous, or are unavailable elsewhere.
+
+Use this full resume form only when no Handoff Back or PR evidence exists and
+the next agent would otherwise lack required state:
 
 ## Context pack
 
