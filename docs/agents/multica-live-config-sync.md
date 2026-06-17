@@ -103,18 +103,74 @@ For this dogfood template, the most important live objects to audit are:
 - `verification-before-completion` skill from
   `.agents/skills/verification-before-completion/SKILL.md`
 
-## Repo Audit Command
+## Read-Only Drift Audit Helper
 
-Run this local read-only audit after documentation, prompt, skill, or Multica
-template changes:
+Run the repo-only audit any time documentation, prompt, skill, or Multica
+template paths change:
+
+```bash
+python3 scripts/audit-multica-live-config.py --repo-only
+```
+
+`--repo-only` does not require Multica authentication or live workspace access.
+It parses repository templates and checks the Handoff Back / Context pack marker
+wording in local docs, prompts, and skills. Live object status is reported as
+`unknown` because no live comparison was attempted.
+
+When live Multica CLI read access is available, run the optional live audit:
+
+```bash
+python3 scripts/audit-multica-live-config.py --live --no-secrets
+```
+
+The live audit may call only read-only Multica CLI commands:
+
+- `multica agent list --output json`
+- `multica skill list --output json`
+- `multica skill get <id> --output json`
+- `multica squad list --output json`
+- `multica squad get <id> --output json`
+- `multica autopilot list --output json`
+- `multica autopilot get <id> --output json`
+
+The helper must not call Multica create, update, delete, import, sync, trigger,
+environment, or member mutation commands. It also must not read or print
+`custom_env`, API key, token, credential, cookie, password, or session values.
+Reports include object names, statuses, and field-level drift labels, not live
+prompt or skill bodies.
+
+Before executing the Multica CLI, the helper resolves `multica` to an absolute
+binary path. It refuses repo-local binaries and paths outside the trusted
+installation directories used by the Multica desktop app and common system/user
+CLI locations. If the binary cannot be resolved safely, the live audit reports
+`unavailable` instead of executing it.
+
+Status meanings:
+
+- `current`: live and repo values match for the fields checked.
+- `stale`: the live object exists but one or more checked fields differ.
+- `missing`: the repo template has no matching live object.
+- `extra`: the live workspace has an object with no matching repo template.
+- `unavailable`: Multica CLI access or a required live read result was not
+  available.
+- `unknown`: the helper could not determine drift, usually because it ran in
+  repo-only mode or the live CLI does not expose that field.
+
+Keep `make verify` independent from Multica auth. It may validate the helper and
+its command allowlist locally, but it must not require live workspace access.
+
+## Marker Audit Command
+
+As a lightweight local supplement, this marker search can confirm that
+repository guidance and templates still contain expected drift, sync, and
+handoff wording:
 
 ```bash
 rg -n "Multica live|live configuration|sync|drift|agent-system-prompts|.agents/skills|Handoff Back|Context pack|compact resume|manual sync|stale local" README.md AGENTS.md NEW-REPO-BOOTSTRAP-CHECKLIST.md docs .agents multica scripts tests
 ```
 
 This command does not prove the live workspace is current. It only confirms
-that repository guidance and templates still contain the expected drift, sync,
-and handoff markers.
+that local marker wording is present.
 
 ## Stop Conditions
 
