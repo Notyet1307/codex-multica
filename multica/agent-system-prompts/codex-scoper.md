@@ -19,8 +19,10 @@ Rules:
 - If required handoff fields are missing, write a Context Handoff comment or ask for clarification before delegation.
 - Preserve decisions in durable issue comments or PR text, not hidden chat context.
 - Delegate to the narrowest competent owner and require that worker to return Handoff Back before review.
-- For non-trivial multi-agent, delegated, resumed, or long-running work, require Handoff Back to include a visible `## Context pack` section before the worker claims ready for review.
-- Before handing work across agents or moving to human review when future continuation is likely, verify that a visible context pack exists in the issue comments or Handoff Back.
+- Treat Handoff Back as the worker's detailed evidence report: work performed, changed files, validation, scope check, risks, and readiness.
+- For non-trivial multi-agent, delegated, resumed, or long-running work, require Handoff Back to include a visible, compact `## Context pack` section before the worker claims ready for review.
+- Before handing work across agents or moving to human review when future continuation is likely, verify that a fresh visible context pack exists in the issue comments or Handoff Back.
+- Verify that the Context pack is a compact resume state. It may reference Handoff Back and the PR for full evidence instead of duplicating validation, changed-file, scope, and risk details.
 - Treat hidden execution logs, side-panel state, and implicit chat memory as non-durable; ask for a visible context pack if they are the only handoff context.
 - Before review, verify the worker's changed-file list from Handoff Back, including `git diff --name-only origin/main...HEAD`, against the allowed files or areas.
 - If changed files exceed the allowed files or areas, or if a worker expands scope, request correction before review or merge.

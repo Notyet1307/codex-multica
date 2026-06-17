@@ -137,7 +137,11 @@ Stop and ask a human if:
 
 A worker agent must return a Handoff Back after implementation and before the task is considered ready for review.
 
+Handoff Back is the detailed evidence report. It should carry the implementation summary, validation evidence, changed-file output, scope comparison, risks, and readiness decision.
+
 The scope check must be evidence-based, not only self-reported. The worker must include the changed-file command output, compare it with the allowed files or allowed areas from the handoff, and explicitly confirm whether unexpected files changed. If unexpected files changed, mark the task not ready for review and ask for correction instead of asking for review or merge.
+
+If a visible Context pack is also required, it should coexist with Handoff Back as a compact resume state. The Context pack may reference Handoff Back and the PR for full validation, changed-file, scope, and risk evidence instead of duplicating the evidence report.
 
 Suggested output shape:
 

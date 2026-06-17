@@ -10,6 +10,11 @@ or human to continue work without replaying every prior comment, terminal log,
 diff, or discussion. A context pack is a compact save point, not a transcript or
 repository dump.
 
+When a Handoff Back or PR already contains the full evidence report, the context
+pack should be a compact resume state. Reference the Handoff Back or PR for full
+validation, changed-file, scope, and risk evidence instead of duplicating those
+details, while still preserving the facts needed to resume.
+
 ## When to use
 
 Use this skill when:
@@ -68,7 +73,8 @@ repo-local instructions.
 4. List changed files or affected areas when relevant.
 5. List commands already run and their results.
 6. List known failures, skipped checks, and stale or uncertain evidence.
-7. Link or reference source artifacts instead of duplicating full content.
+7. Link or reference source artifacts, Handoff Back, or PR evidence instead of
+   duplicating full content.
 8. State what the next agent or human should do next.
 9. State what should not be changed or re-litigated.
 10. Return a fixed context pack.
@@ -91,6 +97,11 @@ A context pack must include available evidence for:
 If a field is unavailable, say `Unavailable` or `Not applicable` and briefly
 explain why. Do not invent evidence to make the pack look complete.
 
+Available evidence does not mean copying the full Handoff Back into the context
+pack. If Handoff Back or the PR already contains detailed validation logs,
+changed-file output, scope comparison, and risk notes, summarize the current
+state and reference that source for full evidence.
+
 ## Scope and constraints
 
 Keep the pack compact. Include the durable facts a future agent needs to avoid
@@ -100,6 +111,7 @@ Prefer references over duplication:
 
 - Multica issue key or issue link instead of copied issue descriptions
 - PR URL and branch instead of pasted diffs
+- Handoff Back section instead of repeated validation, scope, and risk detail
 - changed-file command output instead of broad file summaries
 - exact validation command and result instead of pasted full logs
 - latest decisive comment, document, or artifact path instead of a full
