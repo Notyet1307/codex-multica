@@ -170,6 +170,10 @@ For non-trivial multi-agent, delegated, resumed, or long-running work, the worke
 
 Hidden execution logs, side-panel state, and implicit chat memory are not durable handoff context. If a future agent is expected to continue the work, the context pack must be written as a normal visible issue comment or included in Handoff Back.
 
+Handoff Back is the detailed evidence report: work performed, changed files, validation, scope check, risks, and readiness. Context pack is the compact resume state: the durable facts a future agent needs to continue without rereading hidden logs or the full thread.
+
+When both are present, do not duplicate the full evidence report inside Context pack. The Context pack may reference Handoff Back and the PR for full validation, changed-file, scope, and risk evidence, while still recording the current goal, status, constraints, next action, and any open questions.
+
 Context pack requirements are proportional to handoff risk. Trivial acknowledgements, single-step answers, and work with no durable follow-up value do not need a context pack.
 
 Private or security-sensitive context must still follow the `context-pack` privacy rules: do not post private security context to workspace-visible channels; redact shared handoff context or stop and ask a human.

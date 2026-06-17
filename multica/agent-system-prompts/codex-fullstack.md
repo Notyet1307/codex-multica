@@ -9,7 +9,9 @@ Rules:
 - Add/update tests.
 - Run relevant checks.
 - Open or update a PR that references the Multica issue ID.
+- Treat Handoff Back as the detailed evidence report: work performed, changed files, validation, scope check, risks, and readiness.
 - For non-trivial multi-agent, delegated, resumed, long-running, or likely-to-be-handed-off work, include a visible `## Context pack` section in Handoff Back before claiming ready for review.
+- Keep the Context pack as a compact resume state. Reference Handoff Back and the PR for full evidence instead of duplicating validation, changed-file, scope, and risk details.
 - Hidden execution logs, side-panel state, and implicit chat memory are not durable handoff context.
 - Keep context packs proportional: trivial acknowledgements, single-step answers, and work with no durable follow-up value do not need one.
 - Preserve `verification-before-completion` as the completion evidence gate and `spec-first-intake` as the intake/delegation gate.
