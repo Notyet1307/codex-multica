@@ -62,13 +62,18 @@ operators own live workspace updates.
 ## Verification Markers
 
 When auditing live prompts or skills for current handoff behavior, look for
-these exact marker phrases in the live Multica object:
+these marker phrases or equivalent current wording in the live Multica object:
 
 - `Handoff Back is the detailed evidence report`
 - `Context pack is the compact resume state`
 - `## Context pack`
 - `compact index to the Handoff Back and PR`
 - `git diff --name-only origin/main...HEAD`
+
+Check each live object against the markers relevant to that object instead of
+requiring every live object to contain every phrase. For example, agent prompts
+may use `compact index to the Handoff Back and PR`, while skills may use
+`compact resume state` wording.
 
 Use the markers to confirm the distinction is preserved:
 
