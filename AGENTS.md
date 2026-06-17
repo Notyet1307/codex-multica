@@ -136,6 +136,15 @@ During dogfood, GitHub PR review uses DeepSeek API instead of OpenAI Codex Actio
 
 Do not create frontend, backend, database, auth, deployment, or product runtime directories during dogfood unless a Multica issue explicitly moves this repository into the product starter phase.
 
+Repository Multica files are source templates, not automatic live workspace
+sync. Changes to `multica/agent-system-prompts/`, `.agents/skills/`,
+`multica/agents.yaml`, `multica/squads.yaml`, or `multica/autopilots.yaml`
+require a separate manual audit and operator sync after review and merge. Use
+`docs/agents/multica-live-config-sync.md` for the checklist and verification
+markers. Agents must not mutate live Multica configuration, add automatic sync
+behavior, use credentials for sync, or rename existing live agents or skills
+unless a future issue explicitly scopes that work.
+
 ## Language policy
 
 Use English for durable project artifacts:

@@ -53,6 +53,9 @@ workspace agent names.
 - [ ] Do not rename existing skills or modify skill content as part of the
       bootstrap unless a separate issue explicitly asks for it.
 - [ ] Do not change Multica workspace runtime directly from the bootstrap PR.
+- [ ] If prompt, skill, agent, squad, or autopilot templates changed, plan a
+      separate manual live configuration sync after review and merge. Use
+      `docs/agents/multica-live-config-sync.md` as the audit checklist.
 
 ## 4. Configure GitHub
 
@@ -90,6 +93,20 @@ workspace agent names.
 - [ ] Create or reuse AppDev Squad with `OpenAI-scoper` as leader.
 - [ ] Ensure squad routing, issue assignment, and handoff text use `OpenAI-*`
       workspace agent names.
+- [ ] Confirm repo templates are not assumed to sync live configuration
+      automatically. Live Multica agent prompts, workspace skills, squads, and
+      autopilots must be updated or confirmed separately by an operator.
+- [ ] Before copying prompt or skill text into Multica, refresh the local clone
+      with `git fetch origin main` and `git pull --ff-only` if it is stale.
+- [ ] Check live prompts and skills for the current handoff markers:
+      `Handoff Back is the detailed evidence report`, `Context pack is the
+      compact resume state`, `## Context pack`, and `compact index to the
+      Handoff Back and PR`.
+- [ ] Compare live `OpenAI-*` agents against `multica/agents.yaml`, live AppDev
+      Squad routing against `multica/squads.yaml`, and live autopilots against
+      `multica/autopilots.yaml`.
+- [ ] Do not add automatic sync, live write automation, credential-dependent
+      scripts, agent renames, or skill renames during bootstrap.
 
 ## 6. Open the First Bootstrap PR
 
@@ -98,6 +115,8 @@ workspace agent names.
       name that includes the Multica issue ID.
 - [ ] Copy and adapt only the governance files needed for the target repository.
 - [ ] Run `make verify` locally.
+- [ ] Run the repo-local drift audit:
+      `rg -n "Multica live|live configuration|sync|drift|agent-system-prompts|.agents/skills|Handoff Back|Context pack|compact resume|manual sync|stale local" README.md AGENTS.md NEW-REPO-BOOTSTRAP-CHECKLIST.md docs .agents multica scripts tests`
 - [ ] Open the PR.
 - [ ] Confirm the PR links to the Multica issue through the branch, title, or
       body.

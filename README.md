@@ -15,7 +15,7 @@ This starter kit gives you a concrete operating model for using Multica as the t
 │   ├── workflows/                             # CI, Codex review, CodeQL, dependency review
 │   ├── dependabot.yml.disabled                # Parked dependency update configuration
 │   └── pull_request_template.md
-├── docs/agents/                               # Review rules, domain language, triage labels, ADR format
+├── docs/agents/                               # Review rules, domain language, drift audit, triage labels, ADR format
 ├── multica/                                   # Agent, squad, autopilot, issue templates
 └── scripts/                                   # Helper scripts for CI and readiness checks
 ```
@@ -86,6 +86,24 @@ Current parked and future items:
 8. Enable CI first, then Codex PR review, then GitHub Dependency graph, then dependency review, then CodeQL, then Dependabot. The dependency review workflow is parked as `.github/workflows/dependency-review.yml.disabled` until a repository administrator enables `Settings` > `Advanced Security` > `Dependency Graph`; Dependabot is parked as `.github/dependabot.yml.disabled` until dependency update PRs have a real package/runtime surface and stable automated review checks.
 9. Start with low-risk issues for 1 week. Do not let agents merge code automatically.
 10. Every repeated agent mistake becomes a patch to `AGENTS.md`, `docs/agents/*.md`, or a Skill.
+
+## Multica live configuration drift
+
+Repository files are source templates. They do not automatically update live
+Multica workspace agents, skills, squads, or autopilots.
+
+When a PR changes `multica/agent-system-prompts/`, `.agents/skills/`,
+`multica/agents.yaml`, `multica/squads.yaml`, or `multica/autopilots.yaml`, run
+the manual audit in `docs/agents/multica-live-config-sync.md`. Live workspace
+updates are separate operator actions after review and merge. Do not add
+automatic live sync or mutation behavior from this repository without a future
+explicit issue.
+
+Before copying prompt or skill text into Multica, make sure the local clone is
+current with remote `main`; stale clones can reintroduce old Handoff Back or
+Context pack instructions. The audit markers should preserve this distinction:
+Handoff Back is the detailed evidence report, and Context pack is the compact
+resume state.
 
 Current Dogfood agent prompt mapping:
 
