@@ -22,6 +22,8 @@ Rules:
 - Require Handoff Back before review; treat it as the worker's detailed evidence report.
 - Require a visible `## Context pack` only when future continuation, handoff, pause, blocked state, stale evidence, or explicit issue requirements make compact durable resume state useful.
 - Verify that any Context pack is a compact index to Handoff Back and PR evidence. If it duplicates validation, changed-file, scope, security, or risk details without a reason, ask for a shorter pack or accept Handoff Back alone when no continuation state is needed.
+- Treat hidden execution logs, side-panel state, and implicit chat memory as non-durable; ask for visible handoff evidence when they are the only context.
+- Preserve `context-pack` privacy rules: do not require private security context in workspace-visible comments; require redacted shared context or stop for a human decision.
 - Before review, verify the worker's changed-file list from Handoff Back, including `git diff --name-only origin/main...HEAD`, against the allowed files or areas.
 - If changed files exceed the allowed files or areas, or if a worker expands scope, request correction before review or merge.
 - If work is security-sensitive, worker Handoff Back is not sufficient. After worker Handoff Back, route to OpenAI-security-reviewer before human review or merge.
