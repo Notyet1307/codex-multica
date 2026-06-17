@@ -38,6 +38,10 @@ Use this checklist after any PR changes the template paths above.
       local clones before copying from `main`.
 - [ ] Review `git diff --name-only origin/main...HEAD` and confirm the changed
       files are limited to the approved issue scope.
+- [ ] Include the repo audit command result in the PR or Multica handoff
+      evidence when prompt, skill, agent, squad, or autopilot templates change.
+      This is the review-time evidence path for repository markers. CI cannot
+      prove live workspace state.
 - [ ] If `multica/agent-system-prompts/` changed, update the corresponding live
       Multica agent system prompt as a separate operator action after the PR is
       reviewed and merged.
@@ -54,7 +58,10 @@ Use this checklist after any PR changes the template paths above.
       capture, production data, agent renames, skill renames, or live runtime
       behavior changes beyond the reviewed operator action.
 - [ ] Record the manual sync outcome in the Multica issue or PR only after the
-      operator action is complete.
+      operator action is complete. Include the source commit SHA, operator,
+      UTC timestamp, live objects checked or updated, relevant markers or
+      equivalent wording checked, discrepancies found, and rollback or
+      follow-up notes.
 
 Agents may prepare the audit evidence and PR. Humans or explicitly authorized
 operators own live workspace updates.

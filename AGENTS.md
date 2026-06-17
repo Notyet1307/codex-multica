@@ -143,7 +143,11 @@ require a separate manual audit and operator sync after review and merge. Use
 `docs/agents/multica-live-config-sync.md` for the checklist and verification
 markers. Agents must not mutate live Multica configuration, add automatic sync
 behavior, use credentials for sync, or rename existing live agents or skills
-unless a future issue explicitly scopes that work.
+unless a future issue explicitly scopes that work. Agents must never write or
+paste content into a live Multica workspace by UI copy-paste, browser
+automation, API, CLI sync, or any credential-backed path. When these template
+paths change, Handoff Back or PR evidence must include the repo-local drift
+audit result.
 
 ## Language policy
 
