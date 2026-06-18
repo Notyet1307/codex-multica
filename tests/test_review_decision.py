@@ -238,6 +238,33 @@ None.
 
         self.assertFalse(result.security_review_required)
 
+    def test_security_review_required_handles_mixed_negative_and_positive_lines(self) -> None:
+        decision = load_review_decision_module()
+
+        negative_result = decision.decide_review(
+            """## Codex PR Review
+
+### Security notes
+
+
+- No auth changes.
+- This doesn't handle auth, secrets, tokens, or permissions.
+- No security issues.
+"""
+        )
+        positive_result = decision.decide_review(
+            """## Codex PR Review
+
+### Security notes
+
+- No auth changes in the parser itself.
+- Security review required because CI permissions changed.
+"""
+        )
+
+        self.assertFalse(negative_result.security_review_required)
+        self.assertTrue(positive_result.security_review_required)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -98,10 +98,9 @@ def security_review_required(review: str) -> bool:
     negative_pattern = re.compile(r"\b(no|none|not|doesn['’]?t|does\s+not|without)\b", re.IGNORECASE)
 
     for line in section.splitlines():
-        if not positive_pattern.search(line):
-            continue
         positive_match = positive_pattern.search(line)
-        assert positive_match is not None
+        if positive_match is None:
+            continue
         prefix = line[: positive_match.start()]
         if negative_pattern.search(prefix):
             continue
