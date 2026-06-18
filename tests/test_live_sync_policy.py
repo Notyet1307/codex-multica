@@ -93,6 +93,7 @@ class LiveSyncPolicyTests(unittest.TestCase):
         )
 
     def test_write_value_validation_rejects_secret_like_text_but_allows_normal_prose(self) -> None:
+        self.assertEqual(policy.validate_write_value(""), "write value is empty")
         self.assertEqual(policy.validate_write_value("token=abc123"), "write value appears to contain secret-like text")
         self.assertEqual(policy.validate_write_value('"session": "abc123"'), "write value appears to contain secret-like text")
         self.assertEqual(policy.validate_write_value("export API_KEY=abc123"), "write value appears to contain secret-like text")
@@ -126,6 +127,21 @@ class LiveSyncPolicyTests(unittest.TestCase):
             "new skill",
         )
         self.assertEqual(policy.sync_write_value(("multica", "agent", "get", "agent-1")), "")
+
+    def test_inline_write_transport_is_disabled_until_cli_supports_file_or_stdin(self) -> None:
+        self.assertEqual(
+            policy.validate_write_transport(
+                ("multica", "agent", "update", "agent-1", "--instructions", "new prompt", "--output", "json")
+            ),
+            "inline prompt/skill writes are disabled until the Multica CLI supports file or stdin transport for instructions and skill content",
+        )
+        self.assertEqual(
+            policy.validate_write_transport(
+                ("multica", "skill", "update", "skill-1", "--content", "new skill", "--output", "json")
+            ),
+            "inline prompt/skill writes are disabled until the Multica CLI supports file or stdin transport for instructions and skill content",
+        )
+        self.assertIsNone(policy.validate_write_transport(("multica", "agent", "get", "agent-1", "--output", "json")))
 
 
 if __name__ == "__main__":

@@ -261,6 +261,7 @@ class MulticaLiveConfigSyncPlanTests(unittest.TestCase):
     def test_write_value_validation_rejects_secret_like_text(self) -> None:
         sync = load_sync_module()
 
+        self.assertEqual(sync.validate_write_value(""), "write value is empty")
         self.assertEqual(sync.validate_write_value("token=abc123"), "write value appears to contain secret-like text")
         self.assertEqual(sync.validate_write_value('"session": "abc123"'), "write value appears to contain secret-like text")
         self.assertEqual(sync.validate_write_value("export API_KEY=abc123"), "write value appears to contain secret-like text")
@@ -268,6 +269,19 @@ class MulticaLiveConfigSyncPlanTests(unittest.TestCase):
         self.assertEqual(sync.validate_write_value("my secret password is hunter2"), "write value appears to contain secret-like text")
         self.assertIsNone(sync.validate_write_value("ordinary prompt text"))
         self.assertIsNone(sync.validate_write_value("recovering from a long issue thread, PR discussion, or terminal session\n- preserving decisions"))
+
+    def test_default_write_runner_blocks_inline_prompt_transport(self) -> None:
+        sync = load_sync_module()
+
+        _, error = sync.run_multica_write_command(
+            ("multica", "agent", "update", "agent-1", "--instructions", "new prompt", "--output", "json"),
+            timeout_seconds=1,
+        )
+
+        self.assertEqual(
+            error,
+            "inline prompt/skill writes are disabled until the Multica CLI supports file or stdin transport for instructions and skill content",
+        )
 
     def test_hashes_are_normalized(self) -> None:
         sync = load_sync_module()

@@ -113,8 +113,19 @@ def sync_write_value(command: Sequence[str]) -> str:
 
 
 def validate_write_value(value: str) -> str | None:
+    if not value:
+        return "write value is empty"
     if len(value.encode("utf-8")) > MAX_INLINE_WRITE_VALUE_BYTES:
         return "write value is too large for inline CLI argument; wait for file/stdin support"
     if WRITE_VALUE_SENSITIVE_ASSIGNMENT_PATTERN.search(value) or WRITE_VALUE_SENSITIVE_PROSE_PATTERN.search(value):
         return "write value appears to contain secret-like text"
+    return None
+
+
+def validate_write_transport(command: Sequence[str]) -> str | None:
+    if any(flag in command for flag in ("--instructions", "--content")):
+        return (
+            "inline prompt/skill writes are disabled until the Multica CLI supports "
+            "file or stdin transport for instructions and skill content"
+        )
     return None

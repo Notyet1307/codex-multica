@@ -107,10 +107,11 @@ module and its tests before changing apply behavior.
 `apply` is a live operator action and requires `MULTICA_SYNC_ALLOWED=true` in
 addition to the exact confirmation string. This environment variable is not a
 substitute for human review; it is an extra guard against accidental agent or
-terminal execution. Because the current Multica CLI accepts instructions and
-skill content as command arguments, the helper rejects oversized values and
-secret-like text before invoking the CLI. Do not put secrets in prompt or skill
-templates.
+terminal execution. Because the current Multica CLI accepts agent instructions
+and skill content only as command arguments, actual inline prompt/skill writes
+are disabled by policy until the CLI supports file or stdin transport for those
+fields. The helper still rejects empty, oversized, and secret-like values before
+any write runner is allowed. Do not put secrets in prompt or skill templates.
 
 ## Sync Plan Contract
 
