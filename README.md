@@ -104,6 +104,11 @@ app state, cookies, or rendered web UI. Live workspace updates are separate
 operator actions after review and merge. Do not add automatic live sync or
 mutation behavior from this repository without a future explicit issue.
 
+The same document also defines the design-only future human-confirmed
+plan/apply workflow. Its first syncable fields are limited to agent
+instructions and skill content, and any future apply must require an exact
+operator confirmation string plus stale-live-state checks before writing.
+
 Before copying prompt or skill text into Multica, make sure the local clone is
 current with remote `main`; stale clones can reintroduce old Handoff Back or
 Context pack instructions. The audit markers should preserve this distinction:
