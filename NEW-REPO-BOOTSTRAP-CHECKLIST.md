@@ -2,8 +2,15 @@
 
 Use this checklist when applying the Codex + Multica + GitHub operating model to
 a new repository. The goal of the bootstrap PR is governance setup only: copy and
-adapt the agent, validation, issue, and review scaffolding before product runtime
-work begins.
+adapt the repository-local validation, issue, and review scaffolding before
+product runtime work begins.
+
+This checklist assumes a shared Multica workspace runtime: live Multica agents,
+workspace skills, squads, and workspace-level autopilots are maintained by this
+template repository, not copied into each product repository. A target product
+repository should record project facts, safety boundaries, roadmap, validation,
+and GitHub review automation. It should not become another source of truth for
+the shared live agent runtime.
 
 Do not create frontend, backend, database, auth, deployment, or other product
 runtime directories during governance bootstrap unless the target repository
@@ -24,7 +31,6 @@ explicitly needs product code changes.
 
 - [ ] Copy `AGENTS.md`.
 - [ ] Copy `Makefile`.
-- [ ] Copy `.agents/skills/`.
 - [ ] Copy `.github/ISSUE_TEMPLATE/`.
 - [ ] Copy `.github/codex/prompts/`.
 - [ ] Copy `.github/scripts/deepseek_pr_review.py`.
@@ -33,8 +39,14 @@ explicitly needs product code changes.
 - [ ] Copy `.github/workflows/deepseek-pr-review.yml`.
 - [ ] Copy `.github/pull_request_template.md`.
 - [ ] Copy `docs/agents/`.
-- [ ] Copy `multica/`.
 - [ ] Copy `scripts/`.
+- [ ] Do not copy `.agents/skills/`; live workspace skills are maintained from
+      this template repository.
+- [ ] Do not copy `multica/agent-system-prompts/`, `multica/agents.yaml`,
+      `multica/squads.yaml`, or `multica/autopilots.yaml`; those files describe
+      the shared live Multica runtime, not a single product repository.
+- [ ] Copy or create `multica/issue-template.md` only if the target repository
+      needs a repo-local issue brief template.
 
 Repo-local prompt filenames under `.github/codex/prompts/` may still use
 `codex-*.md` names. Those filenames are prompt template names, not Multica
@@ -50,12 +62,16 @@ workspace agent names.
       real validation through `make verify`.
 - [ ] Keep DeepSeek PR review configured for dogfood unless the repository
       explicitly switches review providers.
-- [ ] Do not rename existing skills or modify skill content as part of the
-      bootstrap unless a separate issue explicitly asks for it.
+- [ ] Remove bootstrap validation requirements that assume repo-local
+      `.agents/skills/`, `multica/agents.yaml`, or
+      `multica/agent-system-prompts/` exist in the target repository.
+- [ ] Keep project-specific safety rules in `AGENTS.md`, `docs/roadmap.md`, and
+      issue briefs instead of editing shared workspace agent prompts.
 - [ ] Do not change Multica workspace runtime directly from the bootstrap PR.
-- [ ] If prompt, skill, agent, squad, or autopilot templates changed, plan a
-      separate manual live configuration sync after review and merge. Use
-      `docs/agents/multica-live-config-sync.md` as the audit checklist.
+- [ ] If the bootstrap reveals that shared prompts, skills, agents, squads, or
+      workspace-level autopilots need changes, make that change in this template
+      repository first, then run the live configuration audit/sync process from
+      this template repository after review and merge.
 
 ## 4. Configure GitHub
 
@@ -75,14 +91,15 @@ workspace agent names.
 
 - [ ] Create or select the Multica project for the repository.
 - [ ] Connect the GitHub repository to the Multica project.
-- [ ] Reuse existing workspace skills where possible, including:
+- [ ] Reuse the shared workspace skills maintained by this template repository,
+      including:
   - `spec-first-intake`
   - `tdd-vertical-slice`
   - `systematic-debugging`
   - `verification-before-completion`
   - `security-pr-review`
   - `context-pack`
-- [ ] Create or reuse these Multica workspace agents:
+- [ ] Reuse the shared workspace agents maintained by this template repository:
   - `OpenAI-scoper`
   - `OpenAI-fullstack`
   - `OpenAI-frontend`
@@ -90,21 +107,18 @@ workspace agent names.
   - `OpenAI-test`
   - `OpenAI-security-reviewer`
   - `OpenAI-release-manager`
-- [ ] Create or reuse AppDev Squad with `OpenAI-scoper` as leader.
+- [ ] Reuse AppDev Squad with `OpenAI-scoper` as leader.
 - [ ] Ensure squad routing, issue assignment, and handoff text use `OpenAI-*`
       workspace agent names.
-- [ ] Confirm repo templates are not assumed to sync live configuration
-      automatically. Live Multica agent prompts, workspace skills, squads, and
-      autopilots must be updated or confirmed separately by an operator.
-- [ ] Before copying prompt or skill text into Multica, refresh the local clone
-      with `git fetch origin main` and `git pull --ff-only` if it is stale.
-- [ ] Check live prompts and skills for the current handoff markers:
+- [ ] Confirm the target repository does not carry its own copy of shared live
+      agent prompts, workspace skill content, squad definitions, or
+      workspace-level autopilot templates.
+- [ ] Check the shared live prompts and skills for the current handoff markers:
       `Handoff Back is the detailed evidence report`, `Context pack is the
       compact resume state`, `## Context pack`, and `compact index to the
       Handoff Back and PR`.
-- [ ] Compare live `OpenAI-*` agents against `multica/agents.yaml`, live AppDev
-      Squad routing against `multica/squads.yaml`, and live autopilots against
-      `multica/autopilots.yaml`.
+- [ ] If shared live configuration drift is suspected, run the audit from this
+      template repository, not from the target product repository.
 - [ ] Do not add automatic sync, live write automation, credential-dependent
       scripts, agent renames, or skill renames during bootstrap.
 
@@ -116,7 +130,12 @@ workspace agent names.
 - [ ] Copy and adapt only the governance files needed for the target repository.
 - [ ] Run `make verify` locally.
 - [ ] Run the repo-local drift audit:
-      `rg -n "Multica live|live configuration|sync|drift|agent-system-prompts|.agents/skills|Handoff Back|Context pack|compact resume|manual sync|stale local" README.md AGENTS.md NEW-REPO-BOOTSTRAP-CHECKLIST.md docs .agents multica scripts tests`
+      `rg -n "Multica live|live configuration|shared workspace|workspace skills|Handoff Back|Context pack|compact resume|manual sync|stale local" README.md AGENTS.md docs scripts tests`
+- [ ] Confirm the target repository does not include copied shared runtime
+      source paths such as `.agents/skills/`, `multica/agent-system-prompts/`,
+      `multica/agents.yaml`, `multica/squads.yaml`, or
+      `multica/autopilots.yaml` unless a separate issue explicitly creates
+      project-specific Multica configuration.
 - [ ] Open the PR.
 - [ ] Confirm the PR links to the Multica issue through the branch, title, or
       body.
