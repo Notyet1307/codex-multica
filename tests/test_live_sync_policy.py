@@ -73,6 +73,16 @@ class LiveSyncPolicyTests(unittest.TestCase):
         )
         self.assertFalse(
             policy.is_allowlisted_write_command(
+                ("multica", "agent", "update", "agent-1", "--content", "new prompt", "--output", "json")
+            )
+        )
+        self.assertFalse(
+            policy.is_allowlisted_write_command(
+                ("multica", "skill", "update", "skill-1", "--instructions", "new skill", "--output", "json")
+            )
+        )
+        self.assertFalse(
+            policy.is_allowlisted_write_command(
                 ("multica", "agent", "update", "agent-1", "--max-concurrent-tasks", "6", "--output", "json")
             )
         )
@@ -96,10 +106,26 @@ class LiveSyncPolicyTests(unittest.TestCase):
         )
 
     def test_write_value_size_limit_is_policy_owned(self) -> None:
+        self.assertIsNone(policy.validate_write_value("x" * policy.MAX_INLINE_WRITE_VALUE_BYTES))
         self.assertEqual(
             policy.validate_write_value("x" * (policy.MAX_INLINE_WRITE_VALUE_BYTES + 1)),
             "write value is too large for inline CLI argument; wait for file/stdin support",
         )
+
+    def test_sync_write_value_extracts_the_allowlisted_field_value(self) -> None:
+        self.assertEqual(
+            policy.sync_write_value(
+                ("multica", "agent", "update", "agent-1", "--instructions", "new prompt", "--output", "json")
+            ),
+            "new prompt",
+        )
+        self.assertEqual(
+            policy.sync_write_value(
+                ("multica", "skill", "update", "skill-1", "--output", "json", "--content", "new skill")
+            ),
+            "new skill",
+        )
+        self.assertEqual(policy.sync_write_value(("multica", "agent", "get", "agent-1")), "")
 
 
 if __name__ == "__main__":
