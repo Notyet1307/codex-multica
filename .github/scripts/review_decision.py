@@ -72,7 +72,15 @@ def count_blocking_findings(review: str) -> int:
 
 def count_validation_gaps(review: str) -> int:
     section = markdown_section(review, "Validation gaps")
-    if section_is_empty(section):
+    normalized = re.sub(r"[^a-z0-9/]+", " ", section.lower()).strip()
+    no_gap_phrases = {
+        "no validation gaps",
+        "no gaps",
+        "no validation issues",
+    }
+    if section_is_empty(section) or normalized in no_gap_phrases:
+        return 0
+    if re.search(r"\bno\b.*\b(validation\s+)?(gaps|issues)\b", section, re.IGNORECASE):
         return 0
 
     bullet_lines = re.findall(r"^\s*[-*]\s+\S", section, re.MULTILINE)
@@ -94,13 +102,6 @@ def review_recommendation(blocking_findings: int, validation_gaps: int) -> str:
     if validation_gaps:
         return "Review required"
     return "No P0/P1 blocking findings found"
-
-
-def review_exit_code(review: str) -> int:
-    if count_blocking_findings(review):
-        return BLOCKING_FINDINGS_EXIT_CODE
-    # Validation gaps are advisory unless the review also has P0/P1 blockers.
-    return VALIDATION_GAPS_WITHOUT_BLOCKING_EXIT_CODE
 
 
 def decide_review(review: str) -> ReviewDecision:

@@ -27,8 +27,9 @@ VALIDATION_GAPS_WITHOUT_BLOCKING_EXIT_CODE = PASS_EXIT_CODE
 def load_review_decision_module():
     module_path = Path(__file__).resolve().parent / "review_decision.py"
     spec = importlib.util.spec_from_file_location("review_decision", module_path)
+    if spec is None or spec.loader is None:
+        raise RuntimeError(f"Could not load review decision module: {module_path}")
     module = importlib.util.module_from_spec(spec)
-    assert spec.loader is not None
     sys.modules[spec.name] = module
     spec.loader.exec_module(module)
     return module

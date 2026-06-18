@@ -1,5 +1,8 @@
+import contextlib
+import io
 import importlib.util
 import os
+import sys
 import tempfile
 import unittest
 from pathlib import Path
@@ -26,6 +29,17 @@ class DeepSeekReviewTests(unittest.TestCase):
         self.assertTrue(hasattr(decision, "decide_review"))
         self.assertEqual(decision.BLOCKING_FINDINGS_EXIT_CODE, 1)
         self.assertEqual(decision.VALIDATION_GAPS_WITHOUT_BLOCKING_EXIT_CODE, 0)
+
+    def test_load_review_decision_module_reports_missing_loader(self) -> None:
+        deepseek = load_deepseek_module()
+        previous_spec_from_file_location = deepseek.importlib.util.spec_from_file_location
+        deepseek.importlib.util.spec_from_file_location = lambda name, path: None
+
+        try:
+            with self.assertRaisesRegex(RuntimeError, "Could not load review decision module"):
+                deepseek.load_review_decision_module()
+        finally:
+            deepseek.importlib.util.spec_from_file_location = previous_spec_from_file_location
 
     def test_format_review_body_adds_marker_and_structured_summary(self) -> None:
         deepseek = load_deepseek_module()
@@ -166,6 +180,39 @@ None.
         self.assertEqual(blocking_exit_code, 1)
         self.assertIn("| Recommendation | Changes requested |", blocking_body)
         self.assertIn("| Blocking findings | 1 |", blocking_body)
+
+    def test_main_returns_operational_failure_when_api_call_fails(self) -> None:
+        deepseek = load_deepseek_module()
+        previous_api_key = os.environ.get("DEEPSEEK_API_KEY")
+        previous_argv = sys.argv
+        previous_call_deepseek = deepseek.call_deepseek
+        os.environ["DEEPSEEK_API_KEY"] = "test-key"
+
+        def failing_call_deepseek(payload, api_key, api_url):
+            raise RuntimeError("HTTP 500: unavailable")
+
+        deepseek.call_deepseek = failing_call_deepseek
+        try:
+            with tempfile.TemporaryDirectory() as tmpdir:
+                diff_path = Path(tmpdir) / "pr.diff"
+                prompt_path = Path(tmpdir) / "review.md"
+                output_path = Path(tmpdir) / "deepseek-review.md"
+                diff_path.write_text("diff --git a/file b/file\n+hello\n", encoding="utf-8")
+                prompt_path.write_text("Review carefully.", encoding="utf-8")
+                sys.argv = ["deepseek_pr_review.py", str(diff_path), str(prompt_path), str(output_path)]
+
+                with contextlib.redirect_stderr(io.StringIO()) as stderr:
+                    self.assertEqual(deepseek.main(), 2)
+
+                self.assertIn("HTTP 500: unavailable", stderr.getvalue())
+                self.assertFalse(output_path.exists())
+        finally:
+            deepseek.call_deepseek = previous_call_deepseek
+            sys.argv = previous_argv
+            if previous_api_key is None:
+                os.environ.pop("DEEPSEEK_API_KEY", None)
+            else:
+                os.environ["DEEPSEEK_API_KEY"] = previous_api_key
 
     def test_workflow_updates_existing_marker_comment(self) -> None:
         workflow = WORKFLOW_PATH.read_text(encoding="utf-8")

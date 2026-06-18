@@ -116,6 +116,21 @@ No P0/P1 blocking findings found.
         self.assertEqual(result.recommendation, "Review required")
         self.assertEqual(result.exit_code, 0)
 
+    def test_count_validation_gaps_treats_no_gap_variants_as_zero(self) -> None:
+        decision = load_review_decision_module()
+        variants = ("No validation gaps", "No gaps.", "No validation issues.")
+
+        for variant in variants:
+            with self.subTest(variant=variant):
+                review = f"""## Codex PR Review
+
+### Validation gaps
+
+{variant}
+"""
+
+                self.assertEqual(decision.count_validation_gaps(review), 0)
+
     def test_decide_review_fails_only_for_blocking_findings(self) -> None:
         decision = load_review_decision_module()
         result = decision.decide_review(
