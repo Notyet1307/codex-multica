@@ -98,7 +98,9 @@ the read-only audit helper documented in
 `docs/agents/multica-live-config-sync.md`. Start with
 `python3 scripts/audit-multica-live-config.py --repo-only`; use
 `python3 scripts/audit-multica-live-config.py --live --no-secrets` only when
-live Multica CLI read access is available. Live workspace updates are separate
+the local `multica` CLI is explicitly authenticated and configured for the
+target SaaS workspace. The helper does not read browser sessions, Dia/Desktop
+app state, cookies, or rendered web UI. Live workspace updates are separate
 operator actions after review and merge. Do not add automatic live sync or
 mutation behavior from this repository without a future explicit issue.
 

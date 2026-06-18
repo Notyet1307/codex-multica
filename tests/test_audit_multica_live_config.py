@@ -258,6 +258,30 @@ class MulticaLiveConfigAuditTests(unittest.TestCase):
         self.assertIsNone(error)
         self.assertEqual(resolved, str(binary.resolve()))
 
+    def test_resolve_multica_binary_accepts_homebrew_cellar_symlink_target(self) -> None:
+        audit = load_audit_module()
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp) / "repo"
+            homebrew_bin = Path(tmp) / "opt/homebrew/bin"
+            cellar_bin = Path(tmp) / "opt/homebrew/Cellar/multica/0.2.32/bin"
+            root.mkdir()
+            homebrew_bin.mkdir(parents=True)
+            cellar_bin.mkdir(parents=True)
+            binary = cellar_bin / "multica"
+            binary.write_text("#!/bin/sh\nexit 0\n", encoding="utf-8")
+            binary.chmod(0o755)
+            symlink = homebrew_bin / "multica"
+            symlink.symlink_to(binary)
+
+            resolved, error = audit.resolve_multica_binary(
+                str(symlink),
+                cwd=root,
+                trusted_dirs=(homebrew_bin, cellar_bin.parents[1]),
+            )
+
+        self.assertIsNone(error)
+        self.assertEqual(resolved, str(binary.resolve()))
+
     def test_resolve_multica_binary_rejects_repo_local_path(self) -> None:
         audit = load_audit_module()
         with tempfile.TemporaryDirectory() as tmp:

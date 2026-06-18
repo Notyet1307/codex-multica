@@ -123,6 +123,15 @@ When live Multica CLI read access is available, run the optional live audit:
 python3 scripts/audit-multica-live-config.py --live --no-secrets
 ```
 
+The live audit is an occasional operator-triggered check, not a daemon,
+monitor, or CI-required gate. It reads SaaS Multica workspace state only through
+an explicitly authenticated local `multica` CLI with a configured
+`workspace_id` or `MULTICA_WORKSPACE_ID`. It does not read browser sessions,
+Dia/Desktop app state, cookies, or rendered web UI. If CLI authentication,
+workspace configuration, network access, or permissions are unavailable, the
+helper reports `unavailable` instead of attempting login, browser automation,
+sync, or mutation.
+
 The live audit may call only read-only Multica CLI commands:
 
 - `multica agent list --output json`
@@ -142,8 +151,9 @@ prompt or skill bodies.
 Before executing the Multica CLI, the helper resolves `multica` to an absolute
 binary path. It refuses repo-local binaries and paths outside the trusted
 installation directories used by the Multica desktop app and common system/user
-CLI locations. If the binary cannot be resolved safely, the live audit reports
-`unavailable` instead of executing it.
+CLI locations, including normal Homebrew `bin` symlinks that resolve into the
+Homebrew `Cellar/multica` package directory. If the binary cannot be resolved
+safely, the live audit reports `unavailable` instead of executing it.
 
 Status meanings:
 

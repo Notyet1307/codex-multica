@@ -55,7 +55,9 @@ FORBIDDEN_MULTICA_WORDS = {
 TRUSTED_MULTICA_BINARY_DIRS = (
     Path("/Applications/Multica.app/Contents/Resources/app.asar.unpacked/resources/bin"),
     Path("/opt/homebrew/bin"),
+    Path("/opt/homebrew/Cellar/multica"),
     Path("/usr/local/bin"),
+    Path("/usr/local/Cellar/multica"),
     Path("/usr/bin"),
     Path("/bin"),
     Path.home() / ".local/bin",
