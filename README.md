@@ -94,10 +94,15 @@ Multica workspace agents, skills, squads, or autopilots.
 
 When a PR changes `multica/agent-system-prompts/`, `.agents/skills/`,
 `multica/agents.yaml`, `multica/squads.yaml`, or `multica/autopilots.yaml`, run
-the manual audit in `docs/agents/multica-live-config-sync.md`. Live workspace
-updates are separate operator actions after review and merge. Do not add
-automatic live sync or mutation behavior from this repository without a future
-explicit issue.
+the read-only audit helper documented in
+`docs/agents/multica-live-config-sync.md`. Start with
+`python3 scripts/audit-multica-live-config.py --repo-only`; use
+`python3 scripts/audit-multica-live-config.py --live --no-secrets` only when
+the local `multica` CLI is explicitly authenticated and configured for the
+target SaaS workspace. The helper does not read browser sessions, Dia/Desktop
+app state, cookies, or rendered web UI. Live workspace updates are separate
+operator actions after review and merge. Do not add automatic live sync or
+mutation behavior from this repository without a future explicit issue.
 
 Before copying prompt or skill text into Multica, make sure the local clone is
 current with remote `main`; stale clones can reintroduce old Handoff Back or
