@@ -139,15 +139,18 @@ Do not create frontend, backend, database, auth, deployment, or product runtime 
 Repository Multica files are source templates, not automatic live workspace
 sync. Changes to `multica/agent-system-prompts/`, `.agents/skills/`,
 `multica/agents.yaml`, `multica/squads.yaml`, or `multica/autopilots.yaml`
-require a separate manual audit and operator sync after review and merge. Use
-`docs/agents/multica-live-config-sync.md` for the checklist and verification
-markers. Agents must not mutate live Multica configuration, add automatic sync
-behavior, use credentials for sync, or rename existing live agents or skills
-unless a future issue explicitly scopes that work. Agents must never write or
-paste content into a live Multica workspace by UI copy-paste, browser
-automation, API, CLI sync, or any credential-backed path. When these template
-paths change, Handoff Back or PR evidence must include the repo-local drift
-audit result.
+require a separate manual audit and human-confirmed operator sync after review
+and merge. Use `docs/agents/multica-live-config-sync.md` for the checklist,
+verification markers, and the `scripts/sync-multica-live-config.py` plan/apply
+helper. Agents may generate read-only sync plans, but must not execute live
+apply, mutate live Multica configuration, add automatic sync behavior, use
+credentials for sync, or rename existing live agents or skills unless a human
+explicitly authorizes that live operator action and provides the required
+`MULTICA_SYNC_ALLOWED=true` apply guard. Agents must never write or paste
+content into a live Multica workspace by UI copy-paste, browser automation,
+API, CLI sync, or any credential-backed path as an implicit side effect of
+review or drift detection. When these template paths change, Handoff Back or PR
+evidence must include the repo-local drift audit result.
 
 ## Language policy
 

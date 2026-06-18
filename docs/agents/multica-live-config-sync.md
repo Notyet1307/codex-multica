@@ -57,10 +57,11 @@ A future sync helper must keep `plan` and `apply` separate:
    extra, unavailable, or unknown live objects. Audit output is evidence only;
    it does not authorize writes.
 2. **Plan**: create a read-only sync plan from the reviewed repository commit
-   and current live state. The plan may inspect repo files and live Multica
-   objects through allowlisted read commands, then write a local plan artifact
-   such as `/tmp/multica-sync-plan.json`. It must not write to the live
-   workspace.
+   and current live state. The local worktree must be clean so the plan's
+   source commit SHA exactly identifies the repository content being proposed
+   for sync. The plan may inspect repo files and live Multica objects through
+   allowlisted read commands, then write a local plan artifact such as
+   `/tmp/multica-sync-plan.json`. It must not write to the live workspace.
 3. **Human confirm**: require an operator to inspect the plan and provide an
    exact confirmation string before any apply attempt:
 
@@ -80,15 +81,29 @@ A future sync helper must keep `plan` and `apply` separate:
    comment. Evidence must say exactly what changed, what did not change, and
    how to validate or roll back.
 
-Suggested future command shape:
+Current command shape:
 
 ```bash
 python3 scripts/sync-multica-live-config.py plan --output /tmp/multica-sync-plan.json
-python3 scripts/sync-multica-live-config.py apply --plan /tmp/multica-sync-plan.json --confirm "APPLY <workspace-id> <source-commit-sha>"
+MULTICA_SYNC_ALLOWED=true python3 scripts/sync-multica-live-config.py apply --plan /tmp/multica-sync-plan.json --confirm "APPLY <workspace-id> <source-commit-sha>"
 ```
 
-Do not add the apply command until a future issue explicitly scopes live write
-behavior and security review for that implementation.
+The helper is intentionally narrow. It can plan and apply only the first
+syncable fields listed above: live agent `instructions` and live skill
+`content`. It must not apply concurrency differences. For this dogfood
+workspace, `multica/agents.yaml` records the desired live concurrency limit of
+6, but the sync helper treats concurrency as out of scope and never writes it.
+If the plan detects concurrency or another out-of-scope drift, it must report an
+`out_of_scope_drift` warning so the operator can decide whether a separate
+manual action or follow-up is required.
+
+`apply` is a live operator action and requires `MULTICA_SYNC_ALLOWED=true` in
+addition to the exact confirmation string. This environment variable is not a
+substitute for human review; it is an extra guard against accidental agent or
+terminal execution. Because the current Multica CLI accepts instructions and
+skill content as command arguments, the helper rejects oversized values and
+secret-like text before invoking the CLI. Do not put secrets in prompt or skill
+templates.
 
 ## Sync Plan Contract
 
@@ -115,6 +130,8 @@ Each plan entry must include:
   update` for agent instructions or `multica skill update` for skill content
 - rollback note
 - fields explicitly not touched
+- out-of-scope drift warnings, such as concurrency differences that require a
+  separate operator decision
 
 The plan must not include shell-ready write commands, raw secrets, live
 `custom_env`, credentials, browser session data, cookies, or unredacted live
@@ -123,7 +140,7 @@ apply can detect stale live state precisely.
 
 ## Apply Safety Checks
 
-Before any future apply writes, the helper must verify:
+Before apply writes, the helper must verify:
 
 - the `multica` CLI is authenticated for the intended workspace
 - the workspace id matches the plan
@@ -135,6 +152,9 @@ Before any future apply writes, the helper must verify:
   visibility, concurrency, status, name, squad, or autopilot fields
 - the write command class is allowlisted for the first sync scope
 - all output is redacted before it is printed, saved, or posted
+- `MULTICA_SYNC_ALLOWED=true` is present for the apply command
+- inline prompt or skill content is not oversized and does not contain
+  secret-like assignment text
 
 Apply must preflight every approved plan entry before writing. It must update
 only fields explicitly present in the approved plan and abort on stale live
