@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import html
+import importlib.util
 import json
 import os
 import re
@@ -95,6 +96,19 @@ LIVE_MARKER_OBJECTS = {
     "agents": {"OpenAI-scoper", "OpenAI-fullstack"},
     "skills": {"spec-first-intake", "context-pack", "verification-before-completion"},
 }
+
+
+def load_template_catalog_module():
+    catalog_path = Path(__file__).resolve().parent / "template_catalog.py"
+    spec = importlib.util.spec_from_file_location("template_catalog", catalog_path)
+    module = importlib.util.module_from_spec(spec)
+    assert spec.loader is not None
+    sys.modules[spec.name] = module
+    spec.loader.exec_module(module)
+    return module
+
+
+template_catalog = load_template_catalog_module()
 
 
 @dataclass
@@ -254,213 +268,32 @@ def normalize_text(value: Any) -> str:
     return text.strip()
 
 
-def strip_inline_comment(value: str) -> str:
-    in_single = False
-    in_double = False
-    escaped = False
-    result: list[str] = []
-    for char in value:
-        if escaped:
-            result.append(char)
-            escaped = False
-            continue
-        if char == "\\":
-            result.append(char)
-            escaped = True
-            continue
-        if char == "'" and not in_double:
-            in_single = not in_single
-        elif char == '"' and not in_single:
-            in_double = not in_double
-        elif char == "#" and not in_single and not in_double:
-            break
-        result.append(char)
-    return "".join(result).strip()
-
-
 def clean_scalar(value: str) -> str:
-    value = strip_inline_comment(value).strip()
-    if len(value) >= 2 and value[0] == value[-1] and value[0] in {"'", '"'}:
-        return value[1:-1]
-    return value
+    return template_catalog.clean_scalar(value)
 
 
 def read_text_if_present(path: Path) -> str:
-    if not path.is_file():
-        return ""
-    return path.read_text(encoding="utf-8")
+    return template_catalog.read_text_if_present(path)
 
 
 def parse_frontmatter_name(path: Path) -> str:
-    text = read_text_if_present(path)
-    if not text.startswith("---\n"):
-        return path.parent.name
-    for line in text.splitlines()[1:]:
-        if line == "---":
-            break
-        key, separator, value = line.partition(":")
-        if separator and key.strip() == "name":
-            return clean_scalar(value)
-    return path.parent.name
+    return template_catalog.parse_frontmatter_name(path)
 
 
 def parse_agents_template(root: Path) -> list[dict[str, Any]]:
-    path = root / "multica/agents.yaml"
-    agents: list[dict[str, Any]] = []
-    current: dict[str, Any] | None = None
-    in_skills = False
-
-    for raw_line in read_text_if_present(path).splitlines():
-        line = raw_line.rstrip()
-        stripped = line.strip()
-        if not stripped or stripped.startswith("#"):
-            continue
-
-        match = re.match(r"^\s*-\s+name:\s*(.+)$", line)
-        if match:
-            current = {"name": clean_scalar(match.group(1)), "skills": []}
-            agents.append(current)
-            in_skills = False
-            continue
-        if current is None:
-            continue
-        if re.match(r"^\s*skills:\s*$", line):
-            in_skills = True
-            continue
-        list_match = re.match(r"^\s*-\s*(.+)$", line)
-        if in_skills and list_match:
-            current.setdefault("skills", []).append(clean_scalar(list_match.group(1)))
-            continue
-        key_match = re.match(r"^\s*([A-Za-z_][\w_-]*):\s*(.+)$", line)
-        if key_match:
-            key, value = key_match.groups()
-            current[key] = clean_scalar(value)
-            in_skills = False
-
-    return agents
-
-
-def parse_block(lines: list[str], start_index: int, base_indent: int) -> tuple[str, int]:
-    block: list[str] = []
-    index = start_index
-    while index < len(lines):
-        raw = lines[index]
-        if raw.strip() and (len(raw) - len(raw.lstrip(" "))) <= base_indent:
-            break
-        block.append(raw[base_indent + 2 :] if len(raw) >= base_indent + 2 else "")
-        index += 1
-    return "\n".join(block).rstrip(), index - 1
+    return [agent.as_dict() for agent in template_catalog.parse_agents_template(root)]
 
 
 def parse_squads_template(root: Path) -> list[dict[str, Any]]:
-    path = root / "multica/squads.yaml"
-    lines = read_text_if_present(path).splitlines()
-    squads: list[dict[str, Any]] = []
-    current: dict[str, Any] | None = None
-    current_member: dict[str, str] | None = None
-    in_members = False
-    index = 0
-
-    while index < len(lines):
-        line = lines[index].rstrip()
-        stripped = line.strip()
-        if not stripped or stripped.startswith("#"):
-            index += 1
-            continue
-        indent = len(line) - len(line.lstrip(" "))
-        match = re.match(r"^\s*-\s+name:\s*(.+)$", line)
-        if match and indent == 2:
-            current = {"name": clean_scalar(match.group(1)), "members": []}
-            squads.append(current)
-            in_members = False
-            current_member = None
-            index += 1
-            continue
-        if current is None:
-            index += 1
-            continue
-        if re.match(r"^\s*members:\s*$", line):
-            in_members = True
-            index += 1
-            continue
-        member_match = re.match(r"^\s*-\s+name:\s*(.+)$", line)
-        if in_members and member_match and indent > 2:
-            current_member = {"name": clean_scalar(member_match.group(1))}
-            current.setdefault("members", []).append(current_member)
-            index += 1
-            continue
-        role_match = re.match(r"^\s*role:\s*(.+)$", line)
-        if in_members and current_member is not None and role_match:
-            current_member["role"] = clean_scalar(role_match.group(1))
-            index += 1
-            continue
-        block_match = re.match(r"^(\s*)(instructions):\s*\|\s*$", line)
-        if block_match:
-            block, index = parse_block(lines, index + 1, len(block_match.group(1)))
-            current["instructions"] = block
-            index += 1
-            continue
-        key_match = re.match(r"^\s*([A-Za-z_][\w_-]*):\s*(.+)$", line)
-        if key_match and not in_members:
-            key, value = key_match.groups()
-            current[key] = clean_scalar(value)
-        index += 1
-
-    return squads
+    return [squad.as_dict() for squad in template_catalog.parse_squads_template(root)]
 
 
 def parse_autopilots_template(root: Path) -> list[dict[str, Any]]:
-    path = root / "multica/autopilots.yaml"
-    lines = read_text_if_present(path).splitlines()
-    autopilots: list[dict[str, Any]] = []
-    current: dict[str, Any] | None = None
-    index = 0
-
-    while index < len(lines):
-        line = lines[index].rstrip()
-        stripped = line.strip()
-        if not stripped or stripped.startswith("#"):
-            index += 1
-            continue
-        match = re.match(r"^\s*-\s+name:\s*(.+)$", line)
-        if match:
-            current = {"name": clean_scalar(match.group(1))}
-            autopilots.append(current)
-            index += 1
-            continue
-        if current is None:
-            index += 1
-            continue
-        block_match = re.match(r"^(\s*)(prompt):\s*\|\s*$", line)
-        if block_match:
-            block, index = parse_block(lines, index + 1, len(block_match.group(1)))
-            current["prompt"] = block
-            index += 1
-            continue
-        key_match = re.match(r"^\s*([A-Za-z_][\w_-]*):\s*(.+)$", line)
-        if key_match:
-            key, value = key_match.groups()
-            current[key] = clean_scalar(value)
-        index += 1
-
-    return autopilots
+    return [autopilot.as_dict() for autopilot in template_catalog.parse_autopilots_template(root)]
 
 
 def load_repo_templates(root: Path) -> dict[str, Any]:
-    skills: dict[str, dict[str, str]] = {}
-    for skill_path in sorted((root / ".agents/skills").glob("*/SKILL.md")):
-        name = parse_frontmatter_name(skill_path)
-        skills[name] = {
-            "name": name,
-            "path": skill_path.relative_to(root).as_posix(),
-            "content": read_text_if_present(skill_path),
-        }
-    return {
-        "agents": parse_agents_template(root),
-        "skills": skills,
-        "squads": parse_squads_template(root),
-        "autopilots": parse_autopilots_template(root),
-    }
+    return template_catalog.TemplateCatalog.load(root).legacy_dict()
 
 
 def run_json_command(command: tuple[str, ...], timeout_seconds: int) -> tuple[Any | None, str | None]:
