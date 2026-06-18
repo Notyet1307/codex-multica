@@ -214,6 +214,57 @@ Security review required because CI permissions changed.
             )
         )
 
+    def test_security_review_required_handles_negative_security_bullets(self) -> None:
+        decision = load_review_decision_module()
+
+        result = decision.decide_review(
+            """## Codex PR Review
+
+### Blocking findings
+
+No P0/P1 blocking findings found.
+
+### Validation gaps
+
+None.
+
+### Security notes
+
+- The `review_decision.py` module doesn't handle any sensitive data or authentication
+- The refactoring doesn't introduce new security concerns
+- No secrets, tokens, or permissions are handled in the new module
+"""
+        )
+
+        self.assertFalse(result.security_review_required)
+
+    def test_security_review_required_handles_mixed_negative_and_positive_lines(self) -> None:
+        decision = load_review_decision_module()
+
+        negative_result = decision.decide_review(
+            """## Codex PR Review
+
+### Security notes
+
+
+- No auth changes.
+- This doesn't handle auth, secrets, tokens, or permissions.
+- No security issues.
+"""
+        )
+        positive_result = decision.decide_review(
+            """## Codex PR Review
+
+### Security notes
+
+- No auth changes in the parser itself.
+- Security review required because CI permissions changed.
+"""
+        )
+
+        self.assertFalse(negative_result.security_review_required)
+        self.assertTrue(positive_result.security_review_required)
+
 
 if __name__ == "__main__":
     unittest.main()
