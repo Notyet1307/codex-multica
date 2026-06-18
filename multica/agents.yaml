@@ -17,12 +17,17 @@
 # explicit compatibility mapping to the existing prompt files. Treat each
 # system_prompt_file value as a literal path; do not infer it from the agent
 # name or from the prompt file basename.
+#
+# concurrency_limit mirrors the current live workspace operator cap of 6 for
+# all Dogfood agents, including scoping and private security-review agents. The
+# live sync helper reports concurrency drift but never writes concurrency; any
+# future concurrency change remains a separate operator decision.
 
 agents:
   - name: OpenAI-scoper
     tool: codex
     visibility: workspace
-    concurrency_limit: 1
+    concurrency_limit: 6
     purpose: Clarify requirements, split issues, route work, write briefs. Does not modify code unless explicitly asked.
     skills:
       - spec-first-intake
@@ -33,7 +38,7 @@ agents:
   - name: OpenAI-fullstack
     tool: codex
     visibility: workspace
-    concurrency_limit: 1
+    concurrency_limit: 6
     purpose: Implement low/medium-risk vertical slices across frontend/backend with tests.
     skills:
       - tdd-vertical-slice
@@ -45,7 +50,7 @@ agents:
   - name: OpenAI-frontend
     tool: codex
     visibility: workspace
-    concurrency_limit: 1
+    concurrency_limit: 6
     purpose: UI, accessibility, frontend state, frontend tests.
     skills:
       - tdd-vertical-slice
@@ -56,7 +61,7 @@ agents:
   - name: OpenAI-backend
     tool: codex
     visibility: workspace
-    concurrency_limit: 1
+    concurrency_limit: 6
     purpose: APIs, data model, service logic, backend tests.
     skills:
       - tdd-vertical-slice
@@ -68,7 +73,7 @@ agents:
   - name: OpenAI-test
     tool: codex
     visibility: workspace
-    concurrency_limit: 1
+    concurrency_limit: 6
     purpose: Test gaps, flaky tests, CI failures, regression tests.
     skills:
       - tdd-vertical-slice
@@ -84,7 +89,7 @@ agents:
   - name: OpenAI-security-reviewer
     tool: codex
     visibility: private
-    concurrency_limit: 1
+    concurrency_limit: 6
     purpose: Security review and bounded security fixes. Default to review-only.
     skills:
       - security-pr-review
@@ -96,7 +101,7 @@ agents:
   - name: OpenAI-release-manager
     tool: codex
     visibility: workspace
-    concurrency_limit: 1
+    concurrency_limit: 6
     purpose: Release notes, migration notes, changelog, release readiness.
     skills:
       - release-notes-drafter

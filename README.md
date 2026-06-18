@@ -104,10 +104,14 @@ app state, cookies, or rendered web UI. Live workspace updates are separate
 operator actions after review and merge. Do not add automatic live sync or
 mutation behavior from this repository without a future explicit issue.
 
-The same document also defines the design-only future human-confirmed
-plan/apply workflow. Its first syncable fields are limited to agent
-instructions and skill content, and any future apply must require an exact
-operator confirmation string plus stale-live-state checks before writing.
+The same document also defines the human-confirmed plan/apply workflow. The
+current helper is `scripts/sync-multica-live-config.py`: use `plan` to generate
+a redacted review artifact and `apply` only after the exact confirmation string
+is provided. `apply` also requires `MULTICA_SYNC_ALLOWED=true` as an accidental
+execution guard. `plan` requires a clean worktree so the source commit SHA
+matches the content being proposed for sync. Its syncable fields are limited to
+agent instructions and skill content. It does not sync concurrency, model,
+runtime, visibility, squads, autopilots, names, secrets, or `custom_env`.
 
 Before copying prompt or skill text into Multica, make sure the local clone is
 current with remote `main`; stale clones can reintroduce old Handoff Back or
