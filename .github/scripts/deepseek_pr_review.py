@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
 import contextlib
 import io
+import importlib.util
 import json
 import os
-import re
 import sys
 import tempfile
 import urllib.error
 import urllib.request
+from pathlib import Path
 
 
 DEFAULT_API_URL = "https://api.deepseek.com/chat/completions"
@@ -21,6 +22,20 @@ OPERATIONAL_FAILURE_EXIT_CODE = 2
 # Policy: validation gaps without P0/P1 blocking findings are non-blocking.
 # The review comment still says "Review required"; the check remains green.
 VALIDATION_GAPS_WITHOUT_BLOCKING_EXIT_CODE = PASS_EXIT_CODE
+
+
+def load_review_decision_module():
+    module_path = Path(__file__).resolve().parent / "review_decision.py"
+    spec = importlib.util.spec_from_file_location("review_decision", module_path)
+    if spec is None or spec.loader is None:
+        raise RuntimeError(f"Could not load review decision module: {module_path}")
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[spec.name] = module
+    spec.loader.exec_module(module)
+    return module
+
+
+review_decision = load_review_decision_module()
 
 
 def build_payload(diff_text, prompt_text, model):
@@ -68,101 +83,46 @@ def extract_review(response):
 
 
 def markdown_section(text, heading):
-    pattern = re.compile(
-        rf"^#{{1,6}}\s+{re.escape(heading)}\s*$\n(?P<body>.*?)(?=^#{{1,6}}\s+\S|\Z)",
-        re.IGNORECASE | re.MULTILINE | re.DOTALL,
-    )
-    match = pattern.search(text)
-    if not match:
-        return ""
-    return match.group("body").strip()
+    return review_decision.markdown_section(text, heading)
 
 
 def section_is_empty(section):
-    normalized = re.sub(r"[^a-z0-9/]+", " ", section.lower()).strip()
-    return normalized in {"", "none", "n/a", "no", "not applicable"}
+    return review_decision.section_is_empty(section)
 
 
 def section_says_no_findings(section):
-    normalized = re.sub(r"[^a-z0-9/]+", " ", section.lower()).strip()
-    no_finding_phrases = {
-        "no blocking findings",
-        "no issues",
-        "nothing blocking",
-        "no findings",
-        "no blocking issues",
-    }
-    if section_is_empty(section) or normalized in no_finding_phrases:
-        return True
-    return bool(re.search(r"\bno\b.*\bp[01]\b.*\b(findings|issues)\b", section, re.IGNORECASE))
+    return review_decision.section_says_no_findings(section)
 
 
 def count_blocking_findings(review):
-    section = markdown_section(review, "Blocking findings")
-    if section_says_no_findings(section) or re.search(r"no\s+p0/p1\s+blocking\s+findings\s+found", section, re.IGNORECASE):
-        return 0
-
-    severity_lines = re.findall(
-        r"^\s*(?:[-*]\s*|\d+\.\s*)?(?:\*\*)?Severity:\s*P[01]\b",
-        section,
-        re.IGNORECASE | re.MULTILINE,
-    )
-    if severity_lines:
-        return len(severity_lines)
-
-    bullet_lines = re.findall(r"^\s*[-*]\s+\S", section, re.MULTILINE)
-    return len(bullet_lines) if bullet_lines else 1
+    return review_decision.count_blocking_findings(review)
 
 
 def count_validation_gaps(review):
-    section = markdown_section(review, "Validation gaps")
-    if section_is_empty(section):
-        return 0
-
-    bullet_lines = re.findall(r"^\s*[-*]\s+\S", section, re.MULTILINE)
-    return len(bullet_lines) if bullet_lines else 1
+    return review_decision.count_validation_gaps(review)
 
 
 def security_review_required(review):
-    section = markdown_section(review, "Security notes")
-    if section_is_empty(section):
-        return False
-    if re.search(r"\b(no|none|not)\b.*\b(security|concern|required|risk|issue)s?\b", section, re.IGNORECASE):
-        return False
-    return bool(re.search(r"\b(required|review|risk|issue|auth|secret|token|permission|vulnerab)", section, re.IGNORECASE))
+    return review_decision.security_review_required(review)
 
 
 def review_recommendation(blocking_findings, validation_gaps):
-    if blocking_findings:
-        return "Changes requested"
-    if validation_gaps:
-        return "Review required"
-    return "No P0/P1 blocking findings found"
-
-
-def review_exit_code(review):
-    if count_blocking_findings(review):
-        return BLOCKING_FINDINGS_EXIT_CODE
-    # Validation gaps are advisory unless the review also has P0/P1 blockers.
-    return VALIDATION_GAPS_WITHOUT_BLOCKING_EXIT_CODE
+    return review_decision.review_recommendation(blocking_findings, validation_gaps)
 
 
 def format_review_body(review):
     review = review.strip()
-    blocking_findings = count_blocking_findings(review)
-    validation_gaps = count_validation_gaps(review)
-    needs_security_review = security_review_required(review)
-    recommendation = review_recommendation(blocking_findings, validation_gaps)
+    decision = review_decision.decide_review(review)
 
     summary = "\n".join(
         [
             "| Field | Value |",
             "| --- | --- |",
             f"| Provider | {PROVIDER_NAME} |",
-            f"| Recommendation | {recommendation} |",
-            f"| Blocking findings | {blocking_findings} |",
-            f"| Validation gaps | {validation_gaps} |",
-            f"| Security review required | {'Yes' if needs_security_review else 'No'} |",
+            f"| Recommendation | {decision.recommendation} |",
+            f"| Blocking findings | {decision.blocking_findings} |",
+            f"| Validation gaps | {decision.validation_gaps} |",
+            f"| Security review required | {'Yes' if decision.security_review_required else 'No'} |",
         ]
     )
 
@@ -190,7 +150,7 @@ def run(diff_path, prompt_path, output_path):
     with open(output_path, "w", encoding="utf-8") as file:
         file.write(format_review_body(review))
 
-    return review_exit_code(review)
+    return review_decision.decide_review(review).exit_code
 
 
 def self_test():
