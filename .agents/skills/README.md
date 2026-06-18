@@ -26,8 +26,11 @@ a dedicated Multica issue.
 
 ## Retired transitional skills
 
-The transitional skills below were removed after confirming they were not bound
-to live Multica agents and were only retained for historical compatibility:
+The transitional skills below were removed from the repository-local skill set
+after repo-local routing checks found no agent bindings to them. Live Multica
+workspace sync and binding checks remain separate operator responsibilities;
+record live audit evidence in the PR or follow-up notes when live access is
+available.
 
 | Retired skill | Replacement path |
 | --- | --- |
@@ -36,8 +39,8 @@ to live Multica agents and were only retained for historical compatibility:
 | `ci-failure-triage` | Use `systematic-debugging` for CI failures, local test failures, build/lint/typecheck failures, flaky failures, and reproduced defects. |
 
 Do not reintroduce retired transitional skill directories unless a future issue
-or explicit human instruction explains why the six-skill kernel no longer
-covers the workflow.
+or explicitly recorded operator exception explains why the six-skill kernel no
+longer covers the workflow.
 
 ## Current-to-target migration notes
 
@@ -88,9 +91,11 @@ This routing document does not:
 - Start with the six kernel skills before proposing any new skill.
 - Prefer improving an existing kernel/manual skill or this routing guide over
   adding a specialized skill for a one-off workflow.
-- Treat each skill merge, rename, addition, or deletion as a dedicated change
-  with explicit old-to-new routing notes.
-- Use a Multica issue ID in every branch and PR that changes skills or routing.
+- Treat each skill merge, rename, addition, or deletion as a dedicated
+  Multica issue with explicit old-to-new routing notes.
+- Use a Multica issue ID in every branch and PR that changes skills or routing
+  unless a human operator explicitly authorizes and records a narrow
+  repository-maintenance exception in the PR body.
 - Keep each skill change small enough for human review, and explain the routing
   impact in the PR body.
 - Validate skill and template changes with `make verify`.

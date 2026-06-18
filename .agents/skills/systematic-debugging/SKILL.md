@@ -33,8 +33,7 @@ Do not use for:
 ## Design References
 
 - `AGENTS.md` debugging mode is the operating baseline.
-- `.agents/skills/ci-failure-triage/SKILL.md` is the transitional CI-specific
-  predecessor.
+- Former CI-specific triage responsibilities are folded into this skill.
 - `docs/agents/code-review.md` and `docs/agents/security-review.md` apply when
   the fix touches review or security-sensitive surfaces.
 

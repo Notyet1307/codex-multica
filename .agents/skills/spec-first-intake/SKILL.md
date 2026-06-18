@@ -24,7 +24,7 @@ The scoper is responsible for context stewardship before implementation begins. 
 
 ## Design References
 
-This skill adapts workflow ideas from the Multica Squad model, CCPM spec-first discipline, Open SWE manager/programmer separation, agent handoff patterns, the MUL-11 dogfood failure, mattpocock/skills `to-issues`, Superpowers planning, gstack `/spec`, and the local `multica-issue-brief` and `issue-slicing` skills.
+This skill adapts workflow ideas from the Multica Squad model, CCPM spec-first discipline, Open SWE manager/programmer separation, agent handoff patterns, the MUL-11 dogfood failure, mattpocock/skills `to-issues`, Superpowers planning, gstack `/spec`, and the former local intake and issue-slicing workflows.
 
 Adapted workflow ideas:
 

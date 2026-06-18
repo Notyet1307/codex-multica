@@ -122,8 +122,12 @@ such as `make verify`.
 
 ## Retired transitional skills
 
-The earlier transitional skills have been retired after confirming they were not
-bound to live Multica agents and no longer served the active routing model.
+The earlier transitional skills have been retired from the repository-local
+skill set. Repo-local routing checks found no agent bindings to these skills,
+and the active routing model now uses the replacement paths below. Live Multica
+workspace sync and binding checks remain separate operator responsibilities;
+record live audit evidence in the PR or follow-up notes when live access is
+available.
 
 | Retired skill | Replacement path |
 | --- | --- |
@@ -156,8 +160,10 @@ when needed, but it is not part of the default routing path for ordinary issues.
 
 - Do not add external tools such as PR-Agent or Repomix as part of the lite
   control-layer roadmap.
-- Do not add, rename, or merge skill directories beyond the six-skill kernel
-  without a dedicated issue or explicit human instruction.
+- Do not add, delete, rename, or merge skill directories beyond the six-skill
+  kernel without a dedicated Multica issue, unless a human operator explicitly
+  authorizes and records a narrow repository-maintenance exception in the PR
+  body.
 - Do not reintroduce retired transitional skill directories unless the
   replacement path is insufficient and the reason is recorded.
 - Do not update Multica agent configuration as a side effect of documenting the
