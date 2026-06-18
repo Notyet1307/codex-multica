@@ -18,6 +18,7 @@ from typing import Any, Callable, Sequence
 
 ROOT = Path(__file__).resolve().parents[1]
 AUDIT_PATH = ROOT / "scripts/audit-multica-live-config.py"
+CATALOG_PATH = ROOT / "scripts/template_catalog.py"
 MAX_INLINE_WRITE_VALUE_BYTES = 128 * 1024
 WRITE_VALUE_SENSITIVE_ASSIGNMENT_PATTERN = re.compile(
     r"\b(?:export\s+)?[\"']?"
@@ -61,7 +62,17 @@ def load_audit_module():
     return module
 
 
+def load_template_catalog_module():
+    spec = importlib.util.spec_from_file_location("template_catalog", CATALOG_PATH)
+    module = importlib.util.module_from_spec(spec)
+    assert spec.loader is not None
+    sys.modules[spec.name] = module
+    spec.loader.exec_module(module)
+    return module
+
+
 audit = load_audit_module()
+template_catalog = load_template_catalog_module()
 
 
 def sha256_text(value: str) -> str:
@@ -184,7 +195,7 @@ def build_sync_plan(
     source_repository: str,
     source_commit_sha: str,
 ) -> dict[str, Any]:
-    templates = audit.load_repo_templates(root)
+    templates = template_catalog.TemplateCatalog.load(root).legacy_dict()
     entries: list[dict[str, Any]] = []
     skipped: list[dict[str, str]] = []
     out_of_scope_drift: list[dict[str, str]] = []

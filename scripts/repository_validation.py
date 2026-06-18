@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import re
+import importlib.util
 import sys
 from pathlib import Path
 from typing import Iterable
@@ -13,50 +14,29 @@ OUTPUT_EXPECTATION_PATTERN = re.compile(r"\b(return|output|respond|response|form
 DISABLED_REASON_PATTERN = re.compile(r"\b(disabled|parked|restore|enable|re-enable|reenable)\b", re.IGNORECASE)
 
 
+def load_template_catalog_module():
+    catalog_path = Path(__file__).resolve().parent / "template_catalog.py"
+    spec = importlib.util.spec_from_file_location("template_catalog", catalog_path)
+    module = importlib.util.module_from_spec(spec)
+    assert spec.loader is not None
+    sys.modules[spec.name] = module
+    spec.loader.exec_module(module)
+    return module
+
+
+template_catalog = load_template_catalog_module()
+
+
 def relative(path: Path, root: Path) -> str:
     return path.relative_to(root).as_posix()
 
 
 def parse_frontmatter(path: Path) -> tuple[dict[str, str], list[str]]:
-    text = path.read_text(encoding="utf-8")
-    if not text.startswith("---\n"):
-        return {}, [f"{path.name} missing frontmatter block"]
-
-    lines = text.splitlines()
-    end_index = None
-    for index, line in enumerate(lines[1:], start=1):
-        if line == "---":
-            end_index = index
-            break
-
-    if end_index is None:
-        return {}, [f"{path.name} has unterminated frontmatter block"]
-
-    fields: dict[str, str] = {}
-    for line in lines[1:end_index]:
-        if not line.strip() or line.lstrip().startswith("#"):
-            continue
-        key, separator, value = line.partition(":")
-        if not separator:
-            continue
-        fields[key.strip()] = value.strip().strip('"').strip("'")
-
-    return fields, []
+    return template_catalog.parse_frontmatter(path)
 
 
 def skill_names(root: Path) -> set[str]:
-    names: set[str] = set()
-    skills_dir = root / ".agents/skills"
-    if not skills_dir.is_dir():
-        return names
-
-    for skill_dir in sorted(path for path in skills_dir.iterdir() if path.is_dir()):
-        skill_file = skill_dir / "SKILL.md"
-        if not skill_file.is_file():
-            continue
-        fields, _ = parse_frontmatter(skill_file)
-        names.add(fields.get("name") or skill_dir.name)
-    return names
+    return set(template_catalog.TemplateCatalog.load(root).skills)
 
 
 def validate_skills(root: Path) -> list[str]:
@@ -65,6 +45,8 @@ def validate_skills(root: Path) -> list[str]:
     if not skills_dir.is_dir():
         return [".agents/skills is missing"]
 
+    catalog = template_catalog.TemplateCatalog.load(root)
+    skills_by_path = {root / skill.path: skill for skill in catalog.skills.values()}
     skill_dirs = sorted(path for path in skills_dir.iterdir() if path.is_dir())
     if not skill_dirs:
         errors.append(".agents/skills has no skill directories")
@@ -75,7 +57,9 @@ def validate_skills(root: Path) -> list[str]:
             errors.append(f"{relative(skill_file, root)} is missing")
             continue
 
-        fields, frontmatter_errors = parse_frontmatter(skill_file)
+        skill_template = skills_by_path.get(skill_file)
+        fields = skill_template.frontmatter if skill_template is not None else {}
+        frontmatter_errors = skill_template.frontmatter_errors if skill_template is not None else []
         errors.extend(f"{relative(skill_file, root)} {error}" for error in frontmatter_errors)
         for field in ("name", "description"):
             if not fields.get(field):
@@ -85,44 +69,8 @@ def validate_skills(root: Path) -> list[str]:
 
 
 def parse_agents_config(path: Path) -> list[dict[str, object]]:
-    agents: list[dict[str, object]] = []
-    current: dict[str, object] | None = None
-    in_skills = False
-
-    for raw_line in path.read_text(encoding="utf-8").splitlines():
-        line = raw_line.split("#", 1)[0].rstrip()
-        if not line.strip():
-            continue
-
-        name_match = re.match(r"^\s*-\s+name:\s*(\S.*)$", line)
-        if name_match:
-            current = {"name": name_match.group(1).strip(), "skills": []}
-            agents.append(current)
-            in_skills = False
-            continue
-
-        if current is None:
-            continue
-
-        system_prompt_match = re.match(r"^\s*system_prompt_file:\s*(\S.*)$", line)
-        if system_prompt_match:
-            current["system_prompt_file"] = system_prompt_match.group(1).strip()
-            in_skills = False
-            continue
-
-        if re.match(r"^\s*skills:\s*$", line):
-            in_skills = True
-            continue
-
-        list_item_match = re.match(r"^\s*-\s*(\S.*)$", line)
-        if in_skills and list_item_match:
-            current.setdefault("skills", []).append(list_item_match.group(1).strip())
-            continue
-
-        if re.match(r"^\s*\w[\w_-]*:\s*", line):
-            in_skills = False
-
-    return agents
+    root = path.parents[1]
+    return [agent.as_dict() for agent in template_catalog.TemplateCatalog.load(root).agents]
 
 
 def validate_multica_config(root: Path) -> list[str]:
