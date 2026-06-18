@@ -76,16 +76,16 @@ Current parked and future items:
 
 ## Recommended first rollout
 
-1. Copy this whole folder into a branch in one representative repository.
+1. Create a bootstrap branch in one representative repository.
 2. Edit placeholders: project name, issue prefix, test commands, package manager, deployment target, data classification.
-3. Put `AGENTS.md`, `.agents/skills`, `.github/codex/prompts`, and `docs/agents` under version control.
-4. Import each `.agents/skills/*` folder into Multica as workspace skills, or keep them repo-scoped if you want Codex to load them directly from the repository.
-5. Create the Multica agents listed in `multica/agents.yaml` and paste the matching system prompts from `multica/agent-system-prompts/`. The prompt files intentionally keep repo-local `codex-*.md` filenames; workspace agent names come from `multica/agents.yaml`.
+3. Put repo-local governance, review, CI, and validation files under version control: `AGENTS.md`, `Makefile`, `.github/codex/prompts`, `.github/scripts`, `.github/workflows`, `.github/pull_request_template.md`, `docs/agents`, and `scripts`.
+4. Do not copy `.agents/skills`, `multica/agent-system-prompts`, `multica/agents.yaml`, `multica/squads.yaml`, or `multica/autopilots.yaml` into the target product repository. Those files describe the shared live Multica workspace runtime and are maintained from this template repository.
+5. Create or select the Multica project for the repository, connect the GitHub repository, and reuse the shared `OpenAI-*` workspace agents, workspace skills, and AppDev Squad.
 6. Enable GitHub PR linking in Multica. Make every branch, PR title, or PR body include the Multica issue ID, such as `MUL-123`.
 7. Add `DEEPSEEK_API_KEY` as a GitHub Actions secret for DeepSeek-based PR review during dogfood. Do not store API keys or production secrets in `AGENTS.md`, Skill files, Multica descriptions, or committed config.
 8. Enable CI first, then Codex PR review, then GitHub Dependency graph, then dependency review, then CodeQL, then Dependabot. The dependency review workflow is parked as `.github/workflows/dependency-review.yml.disabled` until a repository administrator enables `Settings` > `Advanced Security` > `Dependency Graph`; Dependabot is parked as `.github/dependabot.yml.disabled` until dependency update PRs have a real package/runtime surface and stable automated review checks.
 9. Start with low-risk issues for 1 week. Do not let agents merge code automatically.
-10. Every repeated agent mistake becomes a patch to `AGENTS.md`, `docs/agents/*.md`, or a Skill.
+10. Every repeated agent mistake becomes a patch to the appropriate source of truth: project-specific behavior goes into the product repository's `AGENTS.md`, roadmap, docs, or validation; shared agent, skill, squad, and live configuration behavior goes into this template repository.
 
 ## Multica live configuration drift
 
