@@ -8,6 +8,7 @@ import hashlib
 import importlib.util
 import json
 import os
+import re
 import subprocess
 import sys
 from datetime import datetime, timezone
@@ -18,6 +19,20 @@ from typing import Any, Callable, Sequence
 ROOT = Path(__file__).resolve().parents[1]
 AUDIT_PATH = ROOT / "scripts/audit-multica-live-config.py"
 MAX_INLINE_WRITE_VALUE_BYTES = 128 * 1024
+WRITE_VALUE_SENSITIVE_ASSIGNMENT_PATTERN = re.compile(
+    r"\b(?:export\s+)?[\"']?"
+    r"(api[_-]?key|auth|cookie|credential|custom[_-]?env|password|secret|session|token)"
+    r"[\"']?\s*[:=]\s*[\"']?[^\s\"',;}]+",
+    re.IGNORECASE | re.MULTILINE,
+)
+# Apply writes need a narrower check than the audit redaction pattern because
+# skill prose contains words like "terminal session". Keep prose detection for
+# high-signal secret terms, but require assignment syntax for "session".
+WRITE_VALUE_SENSITIVE_PROSE_PATTERN = re.compile(
+    r"\b(api[_-]?key|auth|cookie|credential|custom[_-]?env|password|secret|token)"
+    r"\b\s+(is|are|was|were|equals?)\s+[^\s\"',;}]+",
+    re.IGNORECASE | re.MULTILINE,
+)
 FIELDS_NOT_TOUCHED = (
     "custom_env",
     "secrets",
@@ -404,7 +419,7 @@ def validate_write_value(value: str) -> str | None:
     encoded = value.encode("utf-8")
     if len(encoded) > MAX_INLINE_WRITE_VALUE_BYTES:
         return "write value is too large for inline CLI argument; wait for file/stdin support"
-    if audit.SENSITIVE_TEXT_PATTERN.search(value):
+    if WRITE_VALUE_SENSITIVE_ASSIGNMENT_PATTERN.search(value) or WRITE_VALUE_SENSITIVE_PROSE_PATTERN.search(value):
         return "write value appears to contain secret-like text"
     return None
 
