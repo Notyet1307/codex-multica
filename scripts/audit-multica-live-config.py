@@ -138,11 +138,27 @@ def assert_read_only_multica_command(command: Sequence[str]) -> None:
     parts = tuple(command)
     if len(parts) < 3 or parts[0] != "multica":
         raise ValueError(f"not a multica command: {parts!r}")
-    if parts[2] not in ALLOWED_MULTICA_ACTIONS:
-        raise ValueError(f"multica command is not read-only: {parts!r}")
     forbidden = FORBIDDEN_MULTICA_WORDS.intersection(parts)
     if forbidden:
         raise ValueError(f"multica command contains forbidden words: {sorted(forbidden)}")
+    exact_list_commands = {
+        ("multica", "agent", "list", "--output", "json"),
+        ("multica", "skill", "list", "--output", "json"),
+        ("multica", "squad", "list", "--output", "json"),
+        ("multica", "autopilot", "list", "--output", "json"),
+    }
+    if parts in exact_list_commands:
+        return
+    if (
+        len(parts) == 6
+        and parts[1] in {"skill", "squad", "autopilot"}
+        and parts[2] == "get"
+        and parts[3]
+        and not parts[3].startswith("-")
+        and parts[4:] == ("--output", "json")
+    ):
+        return
+    raise ValueError(f"multica command is not in the read-only allowlist: {parts!r}")
 
 
 def path_is_relative_to(path: Path, parent: Path) -> bool:
@@ -177,12 +193,20 @@ def resolve_multica_binary(
     if resolved is None:
         return None, "multica CLI is not available on PATH"
 
-    candidate = Path(resolved).resolve()
+    launcher = Path(os.path.abspath(resolved))
+    try:
+        launcher_location = launcher.parent.resolve(strict=True) / launcher.name
+    except OSError as error:
+        return None, f"resolved multica launcher cannot be inspected: {error}"
+    try:
+        candidate = Path(resolved).resolve(strict=True)
+    except OSError as error:
+        return None, f"resolved multica binary cannot be inspected: {error}"
     cwd = (cwd or Path.cwd()).resolve()
     if candidate.name != "multica":
         return None, f"resolved CLI is not named multica: {candidate}"
-    if path_is_relative_to(candidate, cwd):
-        return None, f"refusing to execute repo-local multica binary: {candidate}"
+    if path_is_relative_to(launcher_location, cwd) or path_is_relative_to(candidate, cwd):
+        return None, f"refusing to execute repo-local multica binary: {launcher_location}"
     if not candidate.is_file() or not os.access(candidate, os.X_OK):
         return None, f"resolved multica binary is not executable: {candidate}"
 
@@ -191,6 +215,12 @@ def resolve_multica_binary(
     if trusted_parent is None:
         trusted_labels = ", ".join(str(directory) for directory in trusted)
         return None, f"resolved multica binary is outside trusted directories: {candidate}; trusted: {trusted_labels}"
+    launcher_trusted_parent = next((directory for directory in trusted if path_is_relative_to(launcher_location, directory)), None)
+    if launcher_location != candidate and launcher_trusted_parent is None:
+        trusted_labels = ", ".join(str(directory) for directory in trusted)
+        return None, f"multica symlink launcher is outside trusted directories: {launcher_location}; trusted: {trusted_labels}"
+    if launcher_trusted_parent is not None and has_world_writable_component(launcher_location, launcher_trusted_parent):
+        return None, f"multica symlink launcher path has a world-writable component: {launcher_location}"
     if has_world_writable_component(candidate, trusted_parent):
         return None, f"resolved multica binary path has a world-writable component: {candidate}"
     # This is a local operator safety guard, not an anti-malware boundary against
@@ -887,6 +917,9 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
 
 def main(argv: list[str] | None = None) -> int:
     args = parse_args(sys.argv[1:] if argv is None else argv)
+    if args.live and not args.no_secrets:
+        print("--live requires --no-secrets to make the redaction boundary explicit", file=sys.stderr)
+        return 2
     root = Path.cwd()
     live_enabled = bool(args.live)
     live = fetch_live_state(root, args.timeout_seconds) if live_enabled else None

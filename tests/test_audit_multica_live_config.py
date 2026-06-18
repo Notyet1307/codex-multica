@@ -1,4 +1,6 @@
 import importlib.util
+import contextlib
+import io
 import json
 import subprocess
 import sys
@@ -241,6 +243,10 @@ class MulticaLiveConfigAuditTests(unittest.TestCase):
             audit.assert_read_only_multica_command(("multica", "agent", "update", "agent-1"))
         with self.assertRaises(ValueError):
             audit.assert_read_only_multica_command(("multica", "skill", "import", "https://example.test/skill"))
+        with self.assertRaises(ValueError):
+            audit.assert_read_only_multica_command(("multica", "agent", "list", "--output", "json", "--api-key=secret"))
+        with self.assertRaises(ValueError):
+            audit.assert_read_only_multica_command(("multica", "skill", "get", "--update", "--output", "json"))
 
     def test_resolve_multica_binary_accepts_trusted_absolute_path(self) -> None:
         audit = load_audit_module()
@@ -281,6 +287,26 @@ class MulticaLiveConfigAuditTests(unittest.TestCase):
 
         self.assertIsNone(error)
         self.assertEqual(resolved, str(binary.resolve()))
+
+    def test_resolve_multica_binary_rejects_untrusted_symlink_launcher(self) -> None:
+        audit = load_audit_module()
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp) / "repo"
+            untrusted = Path(tmp) / "untrusted"
+            trusted = Path(tmp) / "trusted-bin"
+            root.mkdir()
+            untrusted.mkdir()
+            trusted.mkdir()
+            binary = trusted / "multica"
+            binary.write_text("#!/bin/sh\nexit 0\n", encoding="utf-8")
+            binary.chmod(0o755)
+            symlink = untrusted / "multica"
+            symlink.symlink_to(binary)
+
+            resolved, error = audit.resolve_multica_binary(str(symlink), cwd=root, trusted_dirs=(trusted,))
+
+        self.assertIsNone(resolved)
+        self.assertIn("symlink launcher is outside trusted directories", error)
 
     def test_resolve_multica_binary_rejects_repo_local_path(self) -> None:
         audit = load_audit_module()
@@ -327,6 +353,16 @@ squads:
 
         self.assertEqual([squad["name"] for squad in squads], ["First Squad", "Second Squad"])
         self.assertEqual(squads[1]["members"][0]["name"], "OpenAI-test")
+
+    def test_live_mode_requires_no_secrets_flag(self) -> None:
+        audit = load_audit_module()
+
+        stderr = io.StringIO()
+        with contextlib.redirect_stderr(stderr):
+            exit_code = audit.main(["--live"])
+
+        self.assertEqual(exit_code, 2)
+        self.assertIn("--live requires --no-secrets", stderr.getvalue())
 
 
 if __name__ == "__main__":
