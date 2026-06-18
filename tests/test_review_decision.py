@@ -165,6 +165,40 @@ Security review required because CI permissions changed.
         self.assertTrue(result.security_review_required)
         self.assertEqual(result.exit_code, 0)
 
+    def test_security_review_required_handles_no_content_and_mixed_content(self) -> None:
+        decision = load_review_decision_module()
+
+        self.assertFalse(
+            decision.security_review_required(
+                """## Codex PR Review
+
+### Security notes
+
+None.
+"""
+            )
+        )
+        self.assertFalse(
+            decision.security_review_required(
+                """## Codex PR Review
+
+### Security notes
+
+No security-specific concerns.
+"""
+            )
+        )
+        self.assertTrue(
+            decision.security_review_required(
+                """## Codex PR Review
+
+### Security notes
+
+Security review required because CI permissions changed.
+"""
+            )
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

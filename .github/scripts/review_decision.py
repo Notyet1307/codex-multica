@@ -112,5 +112,7 @@ def decide_review(review: str) -> ReviewDecision:
         validation_gaps=validation_gaps,
         security_review_required=needs_security_review,
         recommendation=review_recommendation(blocking_findings, validation_gaps),
-        exit_code=review_exit_code(review),
+        exit_code=BLOCKING_FINDINGS_EXIT_CODE
+        if blocking_findings
+        else VALIDATION_GAPS_WITHOUT_BLOCKING_EXIT_CODE,
     )

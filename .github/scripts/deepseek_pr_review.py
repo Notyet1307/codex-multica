@@ -109,10 +109,6 @@ def review_recommendation(blocking_findings, validation_gaps):
     return review_decision.review_recommendation(blocking_findings, validation_gaps)
 
 
-def review_exit_code(review):
-    return review_decision.decide_review(review).exit_code
-
-
 def format_review_body(review):
     review = review.strip()
     decision = review_decision.decide_review(review)
@@ -153,7 +149,7 @@ def run(diff_path, prompt_path, output_path):
     with open(output_path, "w", encoding="utf-8") as file:
         file.write(format_review_body(review))
 
-    return review_exit_code(review)
+    return review_decision.decide_review(review).exit_code
 
 
 def self_test():

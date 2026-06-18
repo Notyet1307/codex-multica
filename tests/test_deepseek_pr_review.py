@@ -1,4 +1,6 @@
 import importlib.util
+import os
+import tempfile
 import unittest
 from pathlib import Path
 
@@ -17,6 +19,14 @@ def load_deepseek_module():
 
 
 class DeepSeekReviewTests(unittest.TestCase):
+    def test_load_review_decision_module_exposes_review_policy(self) -> None:
+        deepseek = load_deepseek_module()
+        decision = deepseek.load_review_decision_module()
+
+        self.assertTrue(hasattr(decision, "decide_review"))
+        self.assertEqual(decision.BLOCKING_FINDINGS_EXIT_CODE, 1)
+        self.assertEqual(decision.VALIDATION_GAPS_WITHOUT_BLOCKING_EXIT_CODE, 0)
+
     def test_format_review_body_adds_marker_and_structured_summary(self) -> None:
         deepseek = load_deepseek_module()
         review = """## Codex PR Review
@@ -92,6 +102,70 @@ None.
 """
 
                 self.assertEqual(deepseek.markdown_section(review, "Blocking findings"), "None.")
+
+    def test_run_returns_exit_code_from_review_decision_policy(self) -> None:
+        deepseek = load_deepseek_module()
+        previous_api_key = os.environ.get("DEEPSEEK_API_KEY")
+        previous_call_deepseek = deepseek.call_deepseek
+        os.environ["DEEPSEEK_API_KEY"] = "test-key"
+
+        def run_with_review(review: str) -> tuple[int, str]:
+            def fake_call_deepseek(payload, api_key, api_url):
+                self.assertEqual(api_key, "test-key")
+                return {"choices": [{"message": {"content": review}}]}
+
+            deepseek.call_deepseek = fake_call_deepseek
+            with tempfile.TemporaryDirectory() as tmpdir:
+                diff_path = Path(tmpdir) / "pr.diff"
+                prompt_path = Path(tmpdir) / "review.md"
+                output_path = Path(tmpdir) / "deepseek-review.md"
+                diff_path.write_text("diff --git a/file b/file\n+hello\n", encoding="utf-8")
+                prompt_path.write_text("Review carefully.", encoding="utf-8")
+
+                exit_code = deepseek.run(str(diff_path), str(prompt_path), str(output_path))
+
+                return exit_code, output_path.read_text(encoding="utf-8")
+
+        try:
+            validation_gap_exit_code, validation_gap_body = run_with_review(
+                """## Codex PR Review
+
+### Blocking findings
+
+No P0/P1 blocking findings found.
+
+### Validation gaps
+
+- Add an integration test for the workflow gate.
+"""
+            )
+            blocking_exit_code, blocking_body = run_with_review(
+                """## Codex PR Review
+
+### Blocking findings
+
+- Severity: P1
+  File: .github/scripts/deepseek_pr_review.py
+  Problem: Blocking findings do not fail the check.
+
+### Validation gaps
+
+None.
+"""
+            )
+        finally:
+            deepseek.call_deepseek = previous_call_deepseek
+            if previous_api_key is None:
+                os.environ.pop("DEEPSEEK_API_KEY", None)
+            else:
+                os.environ["DEEPSEEK_API_KEY"] = previous_api_key
+
+        self.assertEqual(validation_gap_exit_code, 0)
+        self.assertIn("| Recommendation | Review required |", validation_gap_body)
+        self.assertIn("| Validation gaps | 1 |", validation_gap_body)
+        self.assertEqual(blocking_exit_code, 1)
+        self.assertIn("| Recommendation | Changes requested |", blocking_body)
+        self.assertIn("| Blocking findings | 1 |", blocking_body)
 
     def test_workflow_updates_existing_marker_comment(self) -> None:
         workflow = WORKFLOW_PATH.read_text(encoding="utf-8")
