@@ -73,6 +73,22 @@ class LiveSyncPolicyTests(unittest.TestCase):
         )
         self.assertFalse(
             policy.is_allowlisted_write_command(
+                (
+                    "multica",
+                    "agent",
+                    "update",
+                    "agent-1",
+                    "--instructions",
+                    "new prompt",
+                    "--output",
+                    "json",
+                    "--output",
+                    "json",
+                )
+            )
+        )
+        self.assertFalse(
+            policy.is_allowlisted_write_command(
                 ("multica", "agent", "update", "agent-1", "--content", "new prompt", "--output", "json")
             )
         )
@@ -133,13 +149,19 @@ class LiveSyncPolicyTests(unittest.TestCase):
             policy.validate_write_transport(
                 ("multica", "agent", "update", "agent-1", "--instructions", "new prompt", "--output", "json")
             ),
-            "inline prompt/skill writes are disabled until the Multica CLI supports file or stdin transport for instructions and skill content",
+            "inline prompt/skill writes are disabled until the Multica CLI supports file or stdin transport for instructions and skill content; set MULTICA_SYNC_ALLOW_INLINE_TRANSPORT=true only if the operator accepts process-argument exposure risk",
         )
         self.assertEqual(
             policy.validate_write_transport(
                 ("multica", "skill", "update", "skill-1", "--content", "new skill", "--output", "json")
             ),
-            "inline prompt/skill writes are disabled until the Multica CLI supports file or stdin transport for instructions and skill content",
+            "inline prompt/skill writes are disabled until the Multica CLI supports file or stdin transport for instructions and skill content; set MULTICA_SYNC_ALLOW_INLINE_TRANSPORT=true only if the operator accepts process-argument exposure risk",
+        )
+        self.assertIsNone(
+            policy.validate_write_transport(
+                ("multica", "agent", "update", "agent-1", "--instructions", "new prompt", "--output", "json"),
+                allow_inline=True,
+            )
         )
         self.assertIsNone(policy.validate_write_transport(("multica", "agent", "get", "agent-1", "--output", "json")))
 

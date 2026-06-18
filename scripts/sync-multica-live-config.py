@@ -377,7 +377,8 @@ def run_multica_write_command(command: Sequence[str], timeout_seconds: int) -> t
     value_error = validate_write_value(sync_write_value(command))
     if value_error:
         return None, value_error
-    transport_error = policy.validate_write_transport(command)
+    allow_inline_transport = os.environ.get("MULTICA_SYNC_ALLOW_INLINE_TRANSPORT") == "true"
+    transport_error = policy.validate_write_transport(command, allow_inline=allow_inline_transport)
     if transport_error:
         return None, transport_error
     binary, binary_error = audit.resolve_multica_binary(command[0])

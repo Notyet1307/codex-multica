@@ -87,7 +87,7 @@ Current command shape:
 
 ```bash
 python3 scripts/sync-multica-live-config.py plan --output /tmp/multica-sync-plan.json
-MULTICA_SYNC_ALLOWED=true python3 scripts/sync-multica-live-config.py apply --plan /tmp/multica-sync-plan.json --confirm "APPLY <workspace-id> <source-commit-sha>"
+MULTICA_SYNC_ALLOWED=true MULTICA_SYNC_ALLOW_INLINE_TRANSPORT=true python3 scripts/sync-multica-live-config.py apply --plan /tmp/multica-sync-plan.json --confirm "APPLY <workspace-id> <source-commit-sha>"
 ```
 
 The helper is intentionally narrow. It can plan and apply only the first
@@ -108,10 +108,13 @@ module and its tests before changing apply behavior.
 addition to the exact confirmation string. This environment variable is not a
 substitute for human review; it is an extra guard against accidental agent or
 terminal execution. Because the current Multica CLI accepts agent instructions
-and skill content only as command arguments, actual inline prompt/skill writes
-are disabled by policy until the CLI supports file or stdin transport for those
-fields. The helper still rejects empty, oversized, and secret-like values before
-any write runner is allowed. Do not put secrets in prompt or skill templates.
+and skill content only as command arguments, inline prompt/skill writes also
+require `MULTICA_SYNC_ALLOW_INLINE_TRANSPORT=true`. That second guard is an
+explicit operator acknowledgement that prompt and skill content can be visible
+in process arguments while the CLI process runs. Remove that guard after the
+CLI supports file or stdin transport for these fields. The helper still rejects
+empty, oversized, and secret-like values before any write runner is allowed. Do
+not put secrets in prompt or skill templates.
 
 ## Sync Plan Contract
 

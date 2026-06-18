@@ -280,8 +280,32 @@ class MulticaLiveConfigSyncPlanTests(unittest.TestCase):
 
         self.assertEqual(
             error,
-            "inline prompt/skill writes are disabled until the Multica CLI supports file or stdin transport for instructions and skill content",
+            "inline prompt/skill writes are disabled until the Multica CLI supports file or stdin transport for instructions and skill content; set MULTICA_SYNC_ALLOW_INLINE_TRANSPORT=true only if the operator accepts process-argument exposure risk",
         )
+
+    def test_write_runner_allows_inline_transport_only_with_operator_guard(self) -> None:
+        sync = load_sync_module()
+        calls = []
+
+        def fake_run(command, **kwargs):
+            calls.append((command, kwargs))
+
+            class Completed:
+                stdout = "{}"
+
+            return Completed()
+
+        with mock.patch.dict(os.environ, {"MULTICA_SYNC_ALLOW_INLINE_TRANSPORT": "true"}), mock.patch.object(
+            sync.audit, "resolve_multica_binary", return_value=("/opt/homebrew/bin/multica", None)
+        ), mock.patch.object(sync.subprocess, "run", side_effect=fake_run):
+            data, error = sync.run_multica_write_command(
+                ("multica", "agent", "update", "agent-1", "--instructions", "new prompt", "--output", "json"),
+                timeout_seconds=1,
+            )
+
+        self.assertEqual(data, {})
+        self.assertIsNone(error)
+        self.assertEqual(calls[0][0][1:], ("agent", "update", "agent-1", "--instructions", "new prompt", "--output", "json"))
 
     def test_hashes_are_normalized(self) -> None:
         sync = load_sync_module()

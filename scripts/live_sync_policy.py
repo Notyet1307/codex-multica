@@ -81,28 +81,32 @@ def is_allowlisted_write_command(command: Sequence[str]) -> bool:
     if resource not in {"agent", "skill"}:
         return False
 
-    flags: dict[str, str] = {}
+    field_flags: list[str] = []
+    output_format = None
+    seen_flags: set[str] = set()
     index = 4
     while index < len(command):
         flag = command[index]
         if index + 1 >= len(command):
             return False
         value = command[index + 1]
-        if flag in flags:
+        if flag in seen_flags:
             return False
         if flag in {"--instructions", "--content"}:
             if not value:
                 return False
+            field_flags.append(flag)
         elif flag == "--output":
             if value != "json":
                 return False
+            output_format = value
         else:
             return False
-        flags[flag] = value
+        seen_flags.add(flag)
         index += 2
 
-    expected_content_flag = "--instructions" if resource == "agent" else "--content"
-    return set(flags) == {expected_content_flag, "--output"}
+    expected_flag = "--instructions" if resource == "agent" else "--content"
+    return output_format == "json" and field_flags == [expected_flag]
 
 
 def sync_write_value(command: Sequence[str]) -> str:
@@ -122,10 +126,14 @@ def validate_write_value(value: str) -> str | None:
     return None
 
 
-def validate_write_transport(command: Sequence[str]) -> str | None:
+def validate_write_transport(command: Sequence[str], *, allow_inline: bool = False) -> str | None:
+    if allow_inline:
+        return None
     if any(flag in command for flag in ("--instructions", "--content")):
         return (
             "inline prompt/skill writes are disabled until the Multica CLI supports "
-            "file or stdin transport for instructions and skill content"
+            "file or stdin transport for instructions and skill content; set "
+            "MULTICA_SYNC_ALLOW_INLINE_TRANSPORT=true only if the operator accepts "
+            "process-argument exposure risk"
         )
     return None
