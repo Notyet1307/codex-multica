@@ -1,4 +1,4 @@
-# Multica Live Configuration Sync Audit
+# Multica Live Configuration Sync Audit and Design
 
 This repository stores source templates for Multica agents, skills, squads, and
 autopilots. A repository PR does not update already-created Multica workspace
@@ -27,6 +27,143 @@ Treat these repository paths as desired-state templates:
 The live workspace is authoritative for what agents actually run today. The
 repository is authoritative for reviewed template changes after they merge.
 Drift exists whenever those two states differ.
+
+## Design Boundary
+
+The current repository includes only read-only audit behavior. The
+human-confirmed sync workflow below is a design for a future tool. This issue
+does not approve or implement live writes, imports, automatic sync, browser
+automation, or session capture.
+
+The first syncable fields are intentionally narrow:
+
+| Repository source | Live object | Syncable field |
+| --- | --- | --- |
+| `multica/agent-system-prompts/<agent-prompt>.md` | Multica agent | agent instructions |
+| `.agents/skills/<skill-name>/SKILL.md` | Multica skill | skill content |
+
+All other fields and resources remain manual or future work. The first version
+must not update `custom_env`, secrets, tokens, credentials, cookies, API keys,
+runtime config, model, visibility, concurrency, status, agent names, skill
+names, create/delete/archive/restore state, squad membership, squad routing,
+autopilot triggers, autopilot schedules, autopilot assignees, autopilot modes,
+autopilot titles, or autopilot prompts.
+
+## Human-Confirmed Sync Workflow
+
+A future sync helper must keep `plan` and `apply` separate:
+
+1. **Audit**: run the existing read-only drift audit to identify stale, missing,
+   extra, unavailable, or unknown live objects. Audit output is evidence only;
+   it does not authorize writes.
+2. **Plan**: create a read-only sync plan from the reviewed repository commit
+   and current live state. The plan may inspect repo files and live Multica
+   objects through allowlisted read commands, then write a local plan artifact
+   such as `/tmp/multica-sync-plan.json`. It must not write to the live
+   workspace.
+3. **Human confirm**: require an operator to inspect the plan and provide an
+   exact confirmation string before any apply attempt:
+
+   ```text
+   APPLY <workspace-id> <source-commit-sha>
+   ```
+
+   A yes/no prompt, default flag, environment variable, saved preference, or
+   PR approval is not enough. The confirmation string must match the workspace
+   id and source commit SHA embedded in the plan.
+4. **Apply**: immediately re-read the live object before each proposed update,
+   verify that the live object still matches the plan, and update only the
+   allowlisted field explicitly present in the approved plan. If any stale-state
+   or scope check fails during preflight, abort the apply before writing any
+   object and report the blocker.
+5. **Evidence**: emit redacted sync evidence suitable for a Multica issue or PR
+   comment. Evidence must say exactly what changed, what did not change, and
+   how to validate or roll back.
+
+Suggested future command shape:
+
+```bash
+python3 scripts/sync-multica-live-config.py plan --output /tmp/multica-sync-plan.json
+python3 scripts/sync-multica-live-config.py apply --plan /tmp/multica-sync-plan.json --confirm "APPLY <workspace-id> <source-commit-sha>"
+```
+
+Do not add the apply command until a future issue explicitly scopes live write
+behavior and security review for that implementation.
+
+## Sync Plan Contract
+
+The plan must include one entry per proposed field update. Each entry must be
+reviewable without exposing secrets or full live prompt bodies in shared issue
+or PR comments.
+
+Each plan entry must include:
+
+- workspace id
+- source repository
+- source commit SHA
+- repo file path
+- live object type
+- live object name
+- live object id
+- field proposed for update
+- old live hash
+- new repo hash
+- redacted diff summary
+- marker changes when the change affects Handoff Back, Context pack, audit,
+  sync, or safety wording
+- exact future CLI command class that would be used, such as `multica agent
+  update` for agent instructions or `multica skill update` for skill content
+- rollback note
+- fields explicitly not touched
+
+The plan must not include shell-ready write commands, raw secrets, live
+`custom_env`, credentials, browser session data, cookies, or unredacted live
+workspace payloads. Hashes should be computed over normalized field content so
+apply can detect stale live state precisely.
+
+## Apply Safety Checks
+
+Before any future apply writes, the helper must verify:
+
+- the `multica` CLI is authenticated for the intended workspace
+- the workspace id matches the plan
+- the local source commit still matches the plan
+- the live object id still matches the plan
+- the old live hash still matches the plan
+- the target field is allowlisted for the first sync scope
+- the approved plan contains no `custom_env`, secrets, runtime config, model,
+  visibility, concurrency, status, name, squad, or autopilot fields
+- the write command class is allowlisted for the first sync scope
+- all output is redacted before it is printed, saved, or posted
+
+Apply must preflight every approved plan entry before writing. It must update
+only fields explicitly present in the approved plan and abort on stale live
+state instead of overwriting a live object that changed after the plan was
+generated. It must not broaden scope based on detected drift; new drift requires
+a new plan and confirmation.
+
+## Evidence and Rollback
+
+Every future apply attempt must produce evidence with:
+
+- workspace id
+- source commit SHA
+- operator
+- UTC timestamp
+- objects updated
+- fields updated
+- old hash -> new hash
+- validation after sync
+- rollback note
+- confirmation that no `custom_env`, secrets, runtime config, model,
+  visibility, concurrency, names, squads, or autopilots were changed
+
+Rollback is a human-confirmed operator action, not an automatic background
+sync. Prefer rolling forward with a reviewed repository commit and a new plan.
+If the previous live value was not represented by a reviewed repository commit,
+the operator must use a separately retained private backup or manual live
+workspace history; shared issue or PR evidence should contain hashes and
+redacted summaries, not sensitive full live content.
 
 ## Manual Sync Checklist
 
