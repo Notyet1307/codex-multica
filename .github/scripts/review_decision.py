@@ -91,9 +91,22 @@ def security_review_required(review: str) -> bool:
     section = markdown_section(review, "Security notes")
     if section_is_empty(section):
         return False
-    if re.search(r"\b(no|none|not)\b.*\b(security|concern|required|risk|issue)s?\b", section, re.IGNORECASE):
-        return False
-    return bool(re.search(r"\b(required|review|risk|issue|auth|secret|token|permission|vulnerab)", section, re.IGNORECASE))
+    positive_pattern = re.compile(
+        r"\b(security\s+review|required|risk|issue|auth|authentication|secret|token|permission|vulnerab)",
+        re.IGNORECASE,
+    )
+    negative_pattern = re.compile(r"\b(no|none|not|doesn['’]?t|does\s+not|without)\b", re.IGNORECASE)
+
+    for line in section.splitlines():
+        if not positive_pattern.search(line):
+            continue
+        positive_match = positive_pattern.search(line)
+        assert positive_match is not None
+        prefix = line[: positive_match.start()]
+        if negative_pattern.search(prefix):
+            continue
+        return True
+    return False
 
 
 def review_recommendation(blocking_findings: int, validation_gaps: int) -> str:
