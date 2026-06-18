@@ -219,32 +219,57 @@ Stop and ask a human or route to the right owner if:
 - the task requires changing skill names, deleting transitional skills, or
   renaming existing skill directories without explicit issue scope
 
+These stop conditions are agent decision gates, not a complete automated
+enforcement mechanism. Programmatically checkable conditions should be validated
+by task-specific commands when an issue scopes that work. Scope, validation,
+privacy, and security decisions still require the acting agent to record
+evidence in Handoff Back or stop for a human when evidence is unavailable.
+
 ## Output contract
 
+### Compact index form (default)
+
 Default to this compact index form when a Context pack is useful and Handoff
-Back or PR evidence exists:
+Back or PR evidence exists. This default form must stay short: use 6-8 bullets maximum.
+Its job is to point to full evidence and preserve the next action, not to repeat
+the evidence report.
 
 ## Context pack
 
-- Issue:
-- PR:
-- Branch:
-- Current status:
-- Scope:
-- Key decision:
+- Issue/PR:
+- State:
 - Full evidence:
-- Validation status:
-- Constraints:
-- Open questions:
+- Key decision:
 - Next action:
+- Open questions:
+- Do not change:
 
-Use `Full evidence` to point to the Handoff Back comment, PR, or decisive
+Use `Full evidence` to point to the Handoff Back comment, PR checks, or decisive
 artifact containing detailed validation, changed-file, scope, security, and risk
 evidence.
 
-Do not repeat Handoff Back's full validation logs, changed-file evidence, scope
-check, security check, or risk detail unless those details changed after Handoff
-Back, are stale, are ambiguous, or are unavailable elsewhere.
+In this compact index form, do not include separate bullets for `Changed files`,
+`Validation already run`, `Validation results`, `Scope check`,
+`Security-sensitive surfaces`, `Risks`, `Constraints and non-goals`, or full
+`Do not change` lists. Those belong in Handoff Back. Reference them through the
+`Full evidence` bullet unless they changed after Handoff Back, are stale, are
+ambiguous, or are unavailable elsewhere.
+
+Example compact index:
+
+## Context pack
+
+- Issue/PR: MUL-123 / PR #45, branch `agent/MUL-123-example`.
+- State: implementation complete; all current checks pass; awaiting security
+  review.
+- Full evidence: see Handoff Back above and PR #45 checks for changed files,
+  validation, scope, risk, and rollback.
+- Key decision: keep the change design-only; no live apply/write behavior.
+- Next action: OpenAI-security-reviewer reviews PR #45.
+- Do not change: live workspace config, secrets, runtime config, or files
+  outside the issue scope.
+
+### Full resume form
 
 Use this full resume form only when no Handoff Back or PR evidence exists and
 the next agent would otherwise lack required state:
