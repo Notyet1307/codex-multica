@@ -120,16 +120,20 @@ blocks in issue templates and delegation comments because they have already
 caused copied issue text to truncate during dogfood. Prefer inline commands
 such as `make verify`.
 
-## Current transitional skills
+## Retired transitional skills
 
-The current repository has useful skills that predate the final lightweight
-kernel. Keep them unchanged until a dedicated issue approves consolidation.
+The earlier transitional skills have been retired from the repository-local
+skill set. Repo-local routing checks found no agent bindings to these skills,
+and the active routing model now uses the replacement paths below. Live Multica
+workspace sync and binding checks remain separate operator responsibilities;
+record live audit evidence in the PR or follow-up notes when live access is
+available.
 
-| Current skill | Target direction |
+| Retired skill | Replacement path |
 | --- | --- |
-| `multica-issue-brief` | Transitional/deprecated. New intake should route to `spec-first-intake`; keep this directory for compatibility until a dedicated cleanup issue. |
-| `issue-slicing` | Transitional/deprecated. New intake should route to `spec-first-intake`; keep this directory for compatibility until a dedicated cleanup issue. |
-| `ci-failure-triage` | Transitional/deprecated. New debugging should route to `systematic-debugging`; keep this directory for compatibility until a dedicated cleanup issue. |
+| `multica-issue-brief` | New vague request intake and Multica-ready brief work routes to `spec-first-intake`. |
+| `issue-slicing` | New issue slicing and oversized work breakdown routes to `spec-first-intake`. |
+| `ci-failure-triage` | New CI, local test, build, lint, typecheck, flaky, environment-dependent, and reproduced defect debugging routes to `systematic-debugging`. |
 | `tdd-vertical-slice` | Keep as a core kernel skill. |
 | `security-pr-review` | Keep as a core kernel skill. |
 | `architecture-review` | Keep optional/manual, or fold selected planning checks into `spec-first-intake`. |
@@ -156,8 +160,12 @@ when needed, but it is not part of the default routing path for ordinary issues.
 
 - Do not add external tools such as PR-Agent or Repomix as part of the lite
   control-layer roadmap.
-- Do not add, delete, rename, or merge skill directories beyond the approved
-  `context-pack` addition without a dedicated Multica issue.
+- Do not add, delete, rename, or merge skill directories beyond the six-skill
+  kernel without a dedicated Multica issue, unless a human operator explicitly
+  authorizes and records a narrow repository-maintenance exception in the PR
+  body.
+- Do not reintroduce retired transitional skill directories unless the
+  replacement path is insufficient and the reason is recorded.
 - Do not update Multica agent configuration as a side effect of documenting the
   roadmap.
 - Do not change GitHub workflows for this roadmap unless a future issue scopes
@@ -170,8 +178,8 @@ when needed, but it is not part of the default routing path for ordinary issues.
 Future issues should be small and reversible. The remaining migration order is:
 
 1. Dogfood `context-pack` on handoffs, review readiness, and resume scenarios.
-2. Retire or park transitional skills only after references and agent routing
-   are updated.
+2. Keep the six-skill kernel stable; route new intake through
+   `spec-first-intake` and new debugging through `systematic-debugging`.
 
 Each slice should update routing documentation, run `make verify`, and keep
 skill directory changes separate from external tooling or Multica config
