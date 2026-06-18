@@ -30,10 +30,12 @@ Drift exists whenever those two states differ.
 
 ## Design Boundary
 
-The current repository includes only read-only audit behavior. The
-human-confirmed sync workflow below is a design for a future tool. This issue
-does not approve or implement live writes, imports, automatic sync, browser
-automation, or session capture.
+The repository includes read-only audit behavior and a human-confirmed sync
+helper. The sync helper is not automatic live sync: `plan` is read-only, and
+`apply` is a separate operator action guarded by exact confirmation and
+`MULTICA_SYNC_ALLOWED=true`. This workflow does not approve imports, automatic
+sync, browser automation, session capture, or writes beyond the allowlisted
+first-version fields below.
 
 The first syncable fields are intentionally narrow:
 
@@ -85,7 +87,7 @@ Current command shape:
 
 ```bash
 python3 scripts/sync-multica-live-config.py plan --output /tmp/multica-sync-plan.json
-MULTICA_SYNC_ALLOWED=true python3 scripts/sync-multica-live-config.py apply --plan /tmp/multica-sync-plan.json --confirm "APPLY <workspace-id> <source-commit-sha>"
+MULTICA_SYNC_ALLOWED=true MULTICA_SYNC_ALLOW_INLINE_TRANSPORT=true python3 scripts/sync-multica-live-config.py apply --plan /tmp/multica-sync-plan.json --confirm "APPLY <workspace-id> <source-commit-sha>"
 ```
 
 The helper is intentionally narrow. It can plan and apply only the first
@@ -97,13 +99,22 @@ If the plan detects concurrency or another out-of-scope drift, it must report an
 `out_of_scope_drift` warning so the operator can decide whether a separate
 manual action or follow-up is required.
 
+The code-level source of truth for syncable fields, forbidden fields, exact
+confirmation, write-command allowlisting, and inline write-value validation is
+`scripts/live_sync_policy.py`. Future sync expansion must update that policy
+module and its tests before changing apply behavior.
+
 `apply` is a live operator action and requires `MULTICA_SYNC_ALLOWED=true` in
 addition to the exact confirmation string. This environment variable is not a
 substitute for human review; it is an extra guard against accidental agent or
-terminal execution. Because the current Multica CLI accepts instructions and
-skill content as command arguments, the helper rejects oversized values and
-secret-like text before invoking the CLI. Do not put secrets in prompt or skill
-templates.
+terminal execution. Because the current Multica CLI accepts agent instructions
+and skill content only as command arguments, inline prompt/skill writes also
+require `MULTICA_SYNC_ALLOW_INLINE_TRANSPORT=true`. That second guard is an
+explicit operator acknowledgement that prompt and skill content can be visible
+in process arguments while the CLI process runs. Remove that guard after the
+CLI supports file or stdin transport for these fields. The helper still rejects
+empty, oversized, and secret-like values before any write runner is allowed. Do
+not put secrets in prompt or skill templates.
 
 ## Sync Plan Contract
 
