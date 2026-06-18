@@ -14,9 +14,9 @@ The target kernel is exactly these six core skills:
 
 | Target skill | Core responsibility | Current state |
 | --- | --- | --- |
-| `spec-first-intake` | Convert ambiguous work into a scoped, testable, agent-ready spec before implementation. | Exists as `.agents/skills/spec-first-intake/`. Current `multica-issue-brief` and `issue-slicing` are transitional skills that should route to it for new intake. |
+| `spec-first-intake` | Convert ambiguous work into a scoped, testable, agent-ready spec before implementation. | Exists as `.agents/skills/spec-first-intake/`. Former `multica-issue-brief` and `issue-slicing` responsibilities now route here. |
 | `tdd-vertical-slice` | Implement one thin behavior slice with tests, validation, and minimal drift from the spec. | Exists as `.agents/skills/tdd-vertical-slice/`. |
-| `systematic-debugging` | Reproduce failures, form hypotheses, isolate root cause, and fix with evidence. | Present as `.agents/skills/systematic-debugging/`. Current `ci-failure-triage` remains transitional/deprecated for compatibility. |
+| `systematic-debugging` | Reproduce failures, form hypotheses, isolate root cause, and fix with evidence. | Present as `.agents/skills/systematic-debugging/`. Former `ci-failure-triage` responsibilities now route here. |
 | `verification-before-completion` | Require fresh verification evidence before claiming work is complete, passing, or ready. | Present as `.agents/skills/verification-before-completion/`. |
 | `security-pr-review` | Review changes that touch trust boundaries, secrets, PII, permissions, dependencies, CI tokens, or similar security-sensitive surfaces. | Exists as `.agents/skills/security-pr-review/`. |
 | `context-pack` | Package the minimum durable context future agents need: decisions, constraints, evidence, links, and unresolved questions. | Present as `.agents/skills/context-pack/`. |
@@ -24,13 +24,23 @@ The target kernel is exactly these six core skills:
 The six-skill kernel is now present. Do not create new skill directories without
 a dedicated Multica issue.
 
+## Retired transitional skills
+
+The transitional skills below were removed after confirming they were not bound
+to live Multica agents and were only retained for historical compatibility:
+
+| Retired skill | Replacement path |
+| --- | --- |
+| `multica-issue-brief` | Use `spec-first-intake` for vague request intake, Multica-ready briefs, risk classification, routing, and stop-condition decisions. |
+| `issue-slicing` | Use `spec-first-intake` for ambiguous, oversized, risky, or multi-step intake and issue slicing. |
+| `ci-failure-triage` | Use `systematic-debugging` for CI failures, local test failures, build/lint/typecheck failures, flaky failures, and reproduced defects. |
+
+Do not reintroduce retired transitional skill directories unless a future issue
+or explicit human instruction explains why the six-skill kernel no longer
+covers the workflow.
+
 ## Current-to-target migration notes
 
-- `multica-issue-brief` and `issue-slicing` are transitional intake skills.
-  Their responsibilities should merge into `spec-first-intake`.
-- `ci-failure-triage` is a transitional/deprecated CI-focused skill kept for
-  compatibility. New debugging work should route to `systematic-debugging`,
-  which covers CI failures, local test failures, and reproduced product defects.
 - `architecture-review` is not a core kernel responsibility. Use it only as an
   optional manual planning review, or fold its useful checks into
   `spec-first-intake` when shaping high-risk work.
@@ -39,8 +49,6 @@ a dedicated Multica issue.
 - `tdd-vertical-slice` and `security-pr-review` are already aligned with target
   kernel responsibilities and should stay small.
 - `context-pack` now owns compact durable handoff and resume context.
-- Preserve existing skill directories until a dedicated Multica issue explicitly
-  approves a rename, merge, addition, or deletion.
 - Keep Multica agent configuration aligned with the kernel only through
   dedicated issues and review.
 
@@ -67,7 +75,6 @@ the small company-specific workflow that this repository needs.
 
 This routing document does not:
 
-- delete, rename, or merge skills
 - change Multica agents, squads, autopilots, or workspace skill bindings
 - add PR-Agent, Repomix, or another external tool
 - change GitHub Actions, CodeQL, dependency review, Dependabot, or branch
@@ -79,10 +86,10 @@ This routing document does not:
 ## Dogfood guidance for future skill changes
 
 - Start with the six kernel skills before proposing any new skill.
-- Prefer improving an existing transitional skill or this routing guide over
+- Prefer improving an existing kernel/manual skill or this routing guide over
   adding a specialized skill for a one-off workflow.
-- Treat each merge or rename as a dedicated Multica issue with explicit old-to-new
-  routing notes.
+- Treat each skill merge, rename, addition, or deletion as a dedicated change
+  with explicit old-to-new routing notes.
 - Use a Multica issue ID in every branch and PR that changes skills or routing.
 - Keep each skill change small enough for human review, and explain the routing
   impact in the PR body.
