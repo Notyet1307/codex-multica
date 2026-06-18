@@ -8,7 +8,6 @@ import hashlib
 import importlib.util
 import json
 import os
-import re
 import subprocess
 import sys
 from datetime import datetime, timezone
@@ -19,38 +18,7 @@ from typing import Any, Callable, Sequence
 ROOT = Path(__file__).resolve().parents[1]
 AUDIT_PATH = ROOT / "scripts/audit-multica-live-config.py"
 CATALOG_PATH = ROOT / "scripts/template_catalog.py"
-MAX_INLINE_WRITE_VALUE_BYTES = 128 * 1024
-WRITE_VALUE_SENSITIVE_ASSIGNMENT_PATTERN = re.compile(
-    r"\b(?:export\s+)?[\"']?"
-    r"(api[_-]?key|auth|cookie|credential|custom[_-]?env|password|secret|session|token)"
-    r"[\"']?\s*[:=]\s*[\"']?[^\s\"',;}]+",
-    re.IGNORECASE | re.MULTILINE,
-)
-# Apply writes need a narrower check than the audit redaction pattern because
-# skill prose contains words like "terminal session". Keep prose detection for
-# high-signal secret terms, but require assignment syntax for "session".
-WRITE_VALUE_SENSITIVE_PROSE_PATTERN = re.compile(
-    r"\b(api[_-]?key|auth|cookie|credential|custom[_-]?env|password|secret|token)"
-    r"\b\s+(is|are|was|were|equals?)\s+[^\s\"',;}]+",
-    re.IGNORECASE | re.MULTILINE,
-)
-FIELDS_NOT_TOUCHED = (
-    "custom_env",
-    "secrets",
-    "tokens",
-    "credentials",
-    "cookies",
-    "api_keys",
-    "runtime_config",
-    "model",
-    "visibility",
-    "concurrency",
-    "status",
-    "agent_name",
-    "skill_name",
-    "squads",
-    "autopilots",
-)
+POLICY_PATH = ROOT / "scripts/live_sync_policy.py"
 
 
 def load_audit_module():
@@ -71,8 +39,18 @@ def load_template_catalog_module():
     return module
 
 
+def load_live_sync_policy_module():
+    spec = importlib.util.spec_from_file_location("live_sync_policy", POLICY_PATH)
+    module = importlib.util.module_from_spec(spec)
+    assert spec.loader is not None
+    sys.modules[spec.name] = module
+    spec.loader.exec_module(module)
+    return module
+
+
 audit = load_audit_module()
 template_catalog = load_template_catalog_module()
+policy = load_live_sync_policy_module()
 
 
 def sha256_text(value: str) -> str:
@@ -183,7 +161,7 @@ def plan_entry(
         "redacted_diff_summary": redacted_diff_summary(old_live_value, new_repo_value),
         "command_class": command_class,
         "rollback_note": "Re-run plan from a reviewed commit containing the desired previous value, then apply with human confirmation.",
-        "fields_explicitly_not_touched": list(FIELDS_NOT_TOUCHED),
+        "fields_explicitly_not_touched": list(policy.FIELDS_NOT_TOUCHED),
     }
 
 
@@ -289,14 +267,8 @@ def build_sync_plan(
         "entries": entries,
         "skipped": skipped,
         "out_of_scope_drift": out_of_scope_drift,
-        "apply_confirmation": f"APPLY {workspace_id} {source_commit_sha}",
-        "safety": {
-            "plan_is_read_only": True,
-            "apply_requires_exact_confirmation": True,
-            "apply_rechecks_old_live_hash": True,
-            "syncable_fields": ["agent.instructions", "skill.content"],
-            "out_of_scope": list(FIELDS_NOT_TOUCHED),
-        },
+        "apply_confirmation": policy.apply_confirmation(workspace_id, source_commit_sha),
+        "safety": policy.safety_metadata(),
     }
 
 
@@ -305,19 +277,17 @@ def load_plan(path: Path) -> dict[str, Any]:
 
 
 def validate_plan_for_apply(plan: dict[str, Any], root: Path, confirm: str, current_workspace_id: str) -> None:
-    expected_confirm = f"APPLY {plan.get('workspace_id')} {plan.get('source_commit_sha')}"
-    if confirm != expected_confirm:
-        raise ValueError("confirmation string does not match the plan")
+    confirmation_error = policy.validate_confirmation(plan, confirm)
+    if confirmation_error:
+        raise ValueError(confirmation_error)
     if current_workspace_id != plan.get("workspace_id"):
         raise ValueError("current workspace id does not match the plan")
     if source_commit_sha(root) != plan.get("source_commit_sha"):
         raise ValueError("current source commit does not match the plan")
     for entry in plan.get("entries", []):
-        if entry.get("live_object_type") == "agent" and entry.get("field") == "instructions":
-            continue
-        if entry.get("live_object_type") == "skill" and entry.get("field") == "content":
-            continue
-        raise ValueError(f"plan contains out-of-scope update: {entry!r}")
+        entry_error = policy.validate_plan_entry(entry)
+        if entry_error:
+            raise ValueError(entry_error)
 
 
 def repo_value_for_entry(root: Path, entry: dict[str, Any]) -> str:
@@ -384,55 +354,21 @@ def apply_plan(
         "operator": "local multica CLI user",
         "applied_at_utc": datetime.now(timezone.utc).replace(microsecond=0).isoformat(),
         "objects_updated": updated,
-        "fields_explicitly_not_touched": list(FIELDS_NOT_TOUCHED),
+        "fields_explicitly_not_touched": list(policy.FIELDS_NOT_TOUCHED),
         "rollback_note": "Prefer rolling forward with a reviewed repository commit and a new confirmed plan.",
     }
 
 
 def is_allowlisted_write_command(command: Sequence[str]) -> bool:
-    if len(command) < 6:
-        return False
-    executable, resource, action, object_id = command[:4]
-    if executable != "multica" or resource not in {"agent", "skill"} or action != "update" or not object_id:
-        return False
-
-    field_flags: list[str] = []
-    output_format = None
-    index = 4
-    while index < len(command):
-        flag = command[index]
-        if index + 1 >= len(command):
-            return False
-        value = command[index + 1]
-        if flag in {"--instructions", "--content"}:
-            if not value:
-                return False
-            field_flags.append(flag)
-        elif flag == "--output":
-            output_format = value
-        else:
-            return False
-        index += 2
-
-    return output_format == "json" and field_flags == [
-        "--instructions" if resource == "agent" else "--content"
-    ]
+    return policy.is_allowlisted_write_command(command)
 
 
 def sync_write_value(command: Sequence[str]) -> str:
-    for index, item in enumerate(command[:-1]):
-        if item in {"--instructions", "--content"}:
-            return str(command[index + 1])
-    return ""
+    return policy.sync_write_value(command)
 
 
 def validate_write_value(value: str) -> str | None:
-    encoded = value.encode("utf-8")
-    if len(encoded) > MAX_INLINE_WRITE_VALUE_BYTES:
-        return "write value is too large for inline CLI argument; wait for file/stdin support"
-    if WRITE_VALUE_SENSITIVE_ASSIGNMENT_PATTERN.search(value) or WRITE_VALUE_SENSITIVE_PROSE_PATTERN.search(value):
-        return "write value appears to contain secret-like text"
-    return None
+    return policy.validate_write_value(value)
 
 
 def run_multica_write_command(command: Sequence[str], timeout_seconds: int) -> tuple[Any | None, str | None]:

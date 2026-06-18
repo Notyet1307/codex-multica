@@ -30,10 +30,12 @@ Drift exists whenever those two states differ.
 
 ## Design Boundary
 
-The current repository includes only read-only audit behavior. The
-human-confirmed sync workflow below is a design for a future tool. This issue
-does not approve or implement live writes, imports, automatic sync, browser
-automation, or session capture.
+The repository includes read-only audit behavior and a human-confirmed sync
+helper. The sync helper is not automatic live sync: `plan` is read-only, and
+`apply` is a separate operator action guarded by exact confirmation and
+`MULTICA_SYNC_ALLOWED=true`. This workflow does not approve imports, automatic
+sync, browser automation, session capture, or writes beyond the allowlisted
+first-version fields below.
 
 The first syncable fields are intentionally narrow:
 
@@ -96,6 +98,11 @@ workspace, `multica/agents.yaml` records the desired live concurrency limit of
 If the plan detects concurrency or another out-of-scope drift, it must report an
 `out_of_scope_drift` warning so the operator can decide whether a separate
 manual action or follow-up is required.
+
+The code-level source of truth for syncable fields, forbidden fields, exact
+confirmation, write-command allowlisting, and inline write-value validation is
+`scripts/live_sync_policy.py`. Future sync expansion must update that policy
+module and its tests before changing apply behavior.
 
 `apply` is a live operator action and requires `MULTICA_SYNC_ALLOWED=true` in
 addition to the exact confirmation string. This environment variable is not a
