@@ -57,6 +57,7 @@ class RepositoryReadinessTests(unittest.TestCase):
 
         self.assertFalse(result.errors)
         self.assertIn("OK: AGENTS.md", result.messages)
+        self.assertIn("OK: docs/agents/new-project-bootstrap-boundary.md", result.messages)
         self.assertIn("OK: .github/workflows/deepseek-pr-review.yml contains pull-requests: write", result.messages)
         self.assertIn(".agents/skills/context-pack/SKILL.md", result.messages)
 

@@ -33,12 +33,10 @@ explicitly needs product code changes.
 
 ## 2. Copy Governance Files
 
+Mandatory baseline for the shared-workspace profile:
+
 - [ ] Copy `AGENTS.md`.
 - [ ] Copy `Makefile`.
-- [ ] Copy `.codex/config.example.toml` only if the target repository wants a
-      repo-local Codex config example.
-- [ ] Copy `.github/ISSUE_TEMPLATE/` only if the target repository mirrors work
-      into GitHub issues.
 - [ ] Copy `.github/codex/prompts/`.
 - [ ] Copy `.github/scripts/deepseek_pr_review.py`.
 - [ ] Copy `.github/scripts/review_decision.py` if using DeepSeek PR review.
@@ -51,13 +49,23 @@ explicitly needs product code changes.
 - [ ] Copy selected `scripts/` helpers.
 - [ ] Keep only target repo validation helpers under `scripts/`; do not copy
       template-only Multica live audit/sync helpers by default.
+
+Optional baseline additions:
+
+- [ ] Copy `.codex/config.example.toml` only if the target repository wants a
+      repo-local Codex config example.
+- [ ] Copy `.github/ISSUE_TEMPLATE/` only if the target repository mirrors work
+      into GitHub issues.
+- [ ] Copy or create `multica/issue-template.md` only if the target repository
+      needs a repo-local issue brief template.
+
+Default exclusions for the shared-workspace profile:
+
 - [ ] Do not copy `.agents/skills/`; live workspace skills are maintained from
       this template repository.
 - [ ] Do not copy `multica/agent-system-prompts/`, `multica/agents.yaml`,
       `multica/squads.yaml`, or `multica/autopilots.yaml`; those files describe
       the shared live Multica runtime, not a single product repository.
-- [ ] Copy or create `multica/issue-template.md` only if the target repository
-      needs a repo-local issue brief template.
 
 Repo-local prompt filenames under `.github/codex/prompts/` may still use
 `codex-*.md` names. Those filenames are prompt template names, not Multica
@@ -145,8 +153,12 @@ workspace agent names.
 - [ ] Use `docs/agents/new-project-bootstrap-boundary.md` to confirm the final
       copied file set.
 - [ ] Run `make verify` locally.
-- [ ] Run the repo-local drift audit:
-      `rg -n "new project|bootstrap|template|shared workspace|live Multica|workspace skills|Handoff Back|Context pack|manual sync|stale local" README.md AGENTS.md docs scripts tests`
+- [ ] Run the repo-local drift audit against paths that exist in the target
+      repository. Include `scripts` only when the target repository copied
+      repo-local validation helpers:
+      `rg -n "new project|bootstrap|template|shared workspace|live Multica|workspace skills|Handoff Back|Context pack|manual sync|stale local" README.md AGENTS.md docs .github Makefile`
+- [ ] If `scripts` or `tests` exist in the target repository, rerun the same
+      search against those paths.
 - [ ] Confirm the target repository does not include copied shared runtime
       source paths such as `.agents/skills/`, `multica/agent-system-prompts/`,
       `multica/agents.yaml`, `multica/squads.yaml`, or
