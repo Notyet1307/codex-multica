@@ -63,7 +63,9 @@ That decision must be recorded before copying any of these paths:
 - `multica/agents.yaml`
 - `multica/squads.yaml`
 - `multica/autopilots.yaml`
-- live sync audit or apply scripts
+- `scripts/audit-multica-live-config.py`
+- `scripts/sync-multica-live-config.py`
+- `scripts/live_sync_policy.py`
 
 The fork decision must state:
 
