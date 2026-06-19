@@ -25,6 +25,7 @@ Use this profile for normal product repositories in the same Multica workspace.
 | `.github/workflows/ci.yml` | Copy and adapt | The readiness job must run the product repo's real `make verify`. |
 | `.github/workflows/deepseek-pr-review.yml` | Copy and adapt if using DeepSeek PR review | The product repo needs its own GitHub review check and `DEEPSEEK_API_KEY` secret. |
 | `.github/workflows/codeql.yml` | Copy and adapt | The languages must match the product repo's real stack. |
+| `.github/dependabot.yml.disabled` and `.github/workflows/dependency-review.yml.disabled` | Optional parked copy | Copy only when the product repo wants reviewed placeholders for future dependency automation. Keep them disabled until the repo has a real dependency surface, GitHub Dependency Graph is enabled, and automated review checks are stable. |
 | `.github/ISSUE_TEMPLATE/` | Optional | Use only if the product repo mirrors work into GitHub issues. Multica remains the source of truth for intake. |
 | `docs/agents/` | Copy the general policy docs and adapt project-specific language | Review, security, issue tracker, PR, domain, and ADR rules are useful in product repos, but template-only live sync docs may not apply. |
 | `scripts/` | Copy only repo-local validation helpers needed by the product repo | Do not copy template-only live sync, audit, or template-catalog scripts unless the product repo intentionally forks live workspace configuration. |

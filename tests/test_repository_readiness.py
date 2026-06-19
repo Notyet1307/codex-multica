@@ -110,7 +110,7 @@ class RepositoryReadinessTests(unittest.TestCase):
     def test_product_bootstrap_profile_rejects_shared_runtime_paths(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
-            write(root, ".agents/skills/context-pack/SKILL.md")
+            (root / ".agents/skills").mkdir(parents=True)
             write(root, "multica/agents.yaml")
             write(root, "scripts/sync-multica-live-config.py")
 
