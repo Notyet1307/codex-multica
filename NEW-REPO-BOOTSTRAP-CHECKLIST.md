@@ -153,17 +153,22 @@ workspace agent names.
 - [ ] Use `docs/agents/new-project-bootstrap-boundary.md` to confirm the final
       copied file set.
 - [ ] Run `make verify` locally.
-- [ ] Run the repo-local drift audit against paths that exist in the target
-      repository. Include `scripts` only when the target repository copied
-      repo-local validation helpers:
-      `rg -n "new project|bootstrap|template|shared workspace|live Multica|workspace skills|Handoff Back|Context pack|manual sync|stale local" README.md AGENTS.md docs .github Makefile`
-- [ ] If `scripts` or `tests` exist in the target repository, rerun the same
-      search against those paths.
-- [ ] Confirm the target repository does not include copied shared runtime
-      source paths such as `.agents/skills/`, `multica/agent-system-prompts/`,
-      `multica/agents.yaml`, `multica/squads.yaml`, or
-      `multica/autopilots.yaml` unless a separate issue explicitly creates
+- [ ] From this template repository, run the product bootstrap boundary check
+      against the target repository:
+      `python3 scripts/repository_readiness.py --profile product-bootstrap --root <target-repo>`.
+      This must pass unless a separate issue explicitly creates
       project-specific Multica configuration.
+- [ ] Run the repo-local drift audit against target repository paths that
+      exist. Always check the copied governance paths, and also check `scripts`
+      or `tests` when those directories exist:
+      `rg -n "new project|bootstrap|template|shared workspace|live Multica|workspace skills|Handoff Back|Context pack|manual sync|stale local" README.md AGENTS.md docs .github Makefile`
+      and, when present,
+      `rg -n "new project|bootstrap|template|shared workspace|live Multica|workspace skills|Handoff Back|Context pack|manual sync|stale local" scripts tests`.
+- [ ] Confirm the PR evidence records that the target repository does not
+      include copied shared runtime source paths such as `.agents/skills/`,
+      `multica/agent-system-prompts/`, `multica/agents.yaml`,
+      `multica/squads.yaml`, or `multica/autopilots.yaml` unless a separate
+      issue explicitly creates project-specific Multica configuration.
 - [ ] Open the PR.
 - [ ] Confirm the PR links to the Multica issue through the branch, title, or
       body.

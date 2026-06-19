@@ -93,6 +93,42 @@ class RepositoryReadinessTests(unittest.TestCase):
 
         self.assertIn("ERROR: unknown readiness profile unknown", result.errors)
 
+    def test_product_bootstrap_profile_passes_when_shared_runtime_paths_are_absent(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            write(root, "AGENTS.md")
+            write(root, "README.md")
+
+            result = readiness.check_repository(root, profile="product-bootstrap", runner=lambda command, cwd: 0)
+
+        self.assertFalse(result.errors)
+        self.assertIn(
+            "OK: product bootstrap repository does not contain .agents/skills",
+            result.messages,
+        )
+
+    def test_product_bootstrap_profile_rejects_shared_runtime_paths(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            write(root, ".agents/skills/context-pack/SKILL.md")
+            write(root, "multica/agents.yaml")
+            write(root, "scripts/sync-multica-live-config.py")
+
+            result = readiness.check_repository(root, profile="product-bootstrap", runner=lambda command, cwd: 0)
+
+        self.assertIn(
+            "UNEXPECTED: product bootstrap repository contains shared runtime path .agents/skills",
+            result.errors,
+        )
+        self.assertIn(
+            "UNEXPECTED: product bootstrap repository contains shared runtime path multica/agents.yaml",
+            result.errors,
+        )
+        self.assertIn(
+            "UNEXPECTED: product bootstrap repository contains shared runtime path scripts/sync-multica-live-config.py",
+            result.errors,
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

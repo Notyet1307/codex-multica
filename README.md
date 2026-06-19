@@ -8,7 +8,7 @@ This starter kit gives you a concrete operating model for using Multica as the t
 .
 ├── AGENTS.md                                  # Repo-wide durable instructions for Codex and other agents
 ├── .codex/config.example.toml                 # Safe Codex local/project config starter
-├── .agents/skills/                            # Repo-scoped reusable agent skills
+├── .agents/skills/                            # Shared workspace skill source; not copied to product repos by default
 ├── .github/
 │   ├── ISSUE_TEMPLATE/                        # GitHub issue forms if you mirror work to GitHub
 │   ├── codex/prompts/                         # Prompts consumed by Codex GitHub Action

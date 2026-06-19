@@ -90,7 +90,37 @@ For the first product repository PR:
 7. Run `make verify` in the target repo.
 8. Confirm the product repo does not contain default-excluded shared runtime
    paths unless the optional fork profile was explicitly approved.
-9. Open a bootstrap PR and wait for readiness, review, CodeQL, and human review.
+9. From this template repository, run the product bootstrap boundary check
+   against the target repo:
+
+   ```bash
+   python3 scripts/repository_readiness.py --profile product-bootstrap --root <target-repo>
+   ```
+
+10. Open a bootstrap PR and wait for readiness, review, CodeQL, and human
+    review.
+
+## Boundary Validation
+
+The template readiness checker has two profiles:
+
+- `template` validates this template repository's own required files, workflow
+  markers, and bundled shared workspace skills.
+- `product-bootstrap` validates that a target product repository does not carry
+  default-excluded shared Multica runtime paths.
+
+Use the product bootstrap profile from this template repository before opening
+or reviewing a target product repository bootstrap PR:
+
+```bash
+python3 scripts/repository_readiness.py --profile product-bootstrap --root <target-repo>
+```
+
+This check fails if the target repository contains shared live workspace source
+paths such as `.agents/skills/`, `multica/agent-system-prompts/`,
+`multica/agents.yaml`, `multica/squads.yaml`, `multica/autopilots.yaml`, or the
+template-only live audit/sync helpers. It does not replace the target repo's own
+`make verify`; it is an export-boundary guard.
 
 ## Drift Handling
 

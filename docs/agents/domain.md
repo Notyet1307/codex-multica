@@ -24,7 +24,7 @@ Use this file to keep product and engineering language consistent.
 | Agent operating rules | Durable instructions and review policy | Product runtime code | `AGENTS.md`, `docs/agents/` |
 | Multica configuration | Agents, squads, autopilots, issue templates | GitHub Actions execution | `multica/` |
 | GitHub automation | CI, Codex review, security review, dependency review | Multica routing policy | `.github/` |
-| Repo-scoped skills | Reusable agent workflows bundled with this template | Third-party skill source of truth | `.agents/skills/` |
+| Shared workspace skills | Reusable agent workflows maintained by this template for the shared Multica workspace | Product repo-local runtime or per-project skill copies | `.agents/skills/` in this template only; see `docs/agents/new-project-bootstrap-boundary.md`. |
 | Readiness scripts | Local validation helpers | Full CI simulation | `scripts/` |
 | Future product starter | Planned frontend, backend, database, auth, deployment, and tests | Current dogfood scope | `docs/product-starter-roadmap.md` |
 

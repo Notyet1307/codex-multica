@@ -44,6 +44,18 @@ TEMPLATE_FORBIDDEN_TEXT = (
     (".github/workflows/deepseek-pr-review.yml", "hashFiles('deepseek-review.md')"),
 )
 
+PRODUCT_BOOTSTRAP_FORBIDDEN_PATHS = (
+    ".agents/skills",
+    "multica/agent-system-prompts",
+    "multica/agents.yaml",
+    "multica/squads.yaml",
+    "multica/autopilots.yaml",
+    "scripts/audit-multica-live-config.py",
+    "scripts/sync-multica-live-config.py",
+    "scripts/live_sync_policy.py",
+    "scripts/template_catalog.py",
+)
+
 
 CommandRunner = Callable[[Sequence[str], Path], int]
 
@@ -126,15 +138,29 @@ def _check_template_profile(root: Path, runner: CommandRunner) -> ReadinessResul
     return ReadinessResult(messages=messages, errors=errors)
 
 
+def _check_product_bootstrap_profile(root: Path) -> ReadinessResult:
+    messages: list[str] = []
+    errors: list[str] = []
+    for relative_path in PRODUCT_BOOTSTRAP_FORBIDDEN_PATHS:
+        path = root / relative_path
+        if path.exists():
+            errors.append(f"UNEXPECTED: product bootstrap repository contains shared runtime path {relative_path}")
+        else:
+            messages.append(f"OK: product bootstrap repository does not contain {relative_path}")
+    return ReadinessResult(messages=messages, errors=errors)
+
+
 def check_repository(
     root: Path,
     *,
     profile: str = "template",
     runner: CommandRunner = default_runner,
 ) -> ReadinessResult:
-    if profile != "template":
-        return ReadinessResult(messages=[], errors=[f"ERROR: unknown readiness profile {profile}"])
-    return _check_template_profile(root, runner)
+    if profile == "template":
+        return _check_template_profile(root, runner)
+    if profile == "product-bootstrap":
+        return _check_product_bootstrap_profile(root)
+    return ReadinessResult(messages=[], errors=[f"ERROR: unknown readiness profile {profile}"])
 
 
 def main(argv: Sequence[str] | None = None) -> int:
