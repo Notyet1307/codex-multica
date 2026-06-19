@@ -49,6 +49,11 @@ def write_template_repo(root: Path, *, deepseek_workflow: str | None = None) -> 
     )
 
 
+def write_product_bootstrap_repo(root: Path) -> None:
+    for path in readiness.PRODUCT_BOOTSTRAP_REQUIRED_FILES:
+        write(root, path)
+
+
 class RepositoryReadinessTests(unittest.TestCase):
     def test_template_profile_passes_for_current_required_files_and_policy(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -98,20 +103,37 @@ class RepositoryReadinessTests(unittest.TestCase):
     def test_product_bootstrap_profile_passes_when_shared_runtime_paths_are_absent(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
-            write(root, "AGENTS.md")
-            write(root, "README.md")
+            write_product_bootstrap_repo(root)
 
             result = readiness.check_repository(root, profile="product-bootstrap", runner=lambda command, cwd: 0)
 
         self.assertFalse(result.errors)
         self.assertIn(
+            "OK: product bootstrap repository contains docs/agents/new-project-bootstrap-boundary.md",
+            result.messages,
+        )
+        self.assertIn(
             "OK: product bootstrap repository does not contain .agents/skills",
             result.messages,
+        )
+
+    def test_product_bootstrap_profile_reports_missing_required_boundary_doc(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            write(root, "AGENTS.md")
+            write(root, "README.md")
+
+            result = readiness.check_repository(root, profile="product-bootstrap", runner=lambda command, cwd: 0)
+
+        self.assertIn(
+            "MISSING: product bootstrap repository missing required file docs/agents/new-project-bootstrap-boundary.md",
+            result.errors,
         )
 
     def test_product_bootstrap_profile_rejects_shared_runtime_paths(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
+            write_product_bootstrap_repo(root)
             (root / ".agents/skills").mkdir(parents=True)
             write(root, "multica/agents.yaml")
             write(root, "scripts/sync-multica-live-config.py")
@@ -134,6 +156,7 @@ class RepositoryReadinessTests(unittest.TestCase):
     def test_product_bootstrap_cli_reports_mock_product_repo_boundary_failure(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
+            write_product_bootstrap_repo(root)
             (root / ".agents/skills").mkdir(parents=True)
             stdout = io.StringIO()
 

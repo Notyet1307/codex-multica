@@ -44,6 +44,7 @@ Mandatory baseline for the shared-workspace profile:
 - [ ] Copy `.github/workflows/codeql.yml`.
 - [ ] Copy `.github/workflows/deepseek-pr-review.yml`.
 - [ ] Copy `.github/pull_request_template.md`.
+- [ ] Copy and adapt `docs/agents/new-project-bootstrap-boundary.md`.
 - [ ] Copy selected `docs/agents/` policy docs and adapt project-specific
       language.
 - [ ] Copy selected `scripts/` helpers.
@@ -159,11 +160,10 @@ workspace agent names.
       This must pass unless a separate issue explicitly creates
       project-specific Multica configuration.
 - [ ] Run the repo-local drift audit against target repository paths that
-      exist. Always check the copied governance paths, and also check `scripts`
-      or `tests` when those directories exist:
-      `rg -n "new project|bootstrap|template|shared workspace|live Multica|workspace skills|Handoff Back|Context pack|manual sync|stale local" README.md AGENTS.md docs .github Makefile`
-      and, when present,
-      `rg -n "new project|bootstrap|template|shared workspace|live Multica|workspace skills|Handoff Back|Context pack|manual sync|stale local" scripts tests`.
+      exist. Always check the copied governance paths:
+      `rg -n "new project|bootstrap|template|shared workspace|live Multica|live configuration|workspace skills|Handoff Back|Context pack|compact resume|manual sync|stale local" README.md AGENTS.md docs .github Makefile`.
+      Also run the same search against any of these paths that exist in the
+      target repository: `scripts`, `tests`, and `multica`.
 - [ ] Confirm the PR evidence records that the target repository does not
       include copied shared runtime source paths such as `.agents/skills/`,
       `multica/agent-system-prompts/`, `multica/agents.yaml`,

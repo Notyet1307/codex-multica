@@ -82,7 +82,7 @@ owned by the shared Multica workspace.
 
 1. Create a bootstrap branch in one representative repository.
 2. Edit placeholders: project name, issue prefix, test commands, package manager, deployment target, data classification.
-3. Put repo-local governance, review, CI, and validation files under version control: `AGENTS.md`, `Makefile`, `.github/codex/prompts`, `.github/scripts`, `.github/workflows`, `.github/pull_request_template.md`, selected `docs/agents` per `docs/agents/new-project-bootstrap-boundary.md`, and the product repo's own validation scripts.
+3. Put repo-local governance, review, CI, and validation files under version control: `AGENTS.md`, `Makefile`, `.github/codex/prompts`, `.github/scripts`, `.github/workflows`, `.github/pull_request_template.md`, an adapted `docs/agents/new-project-bootstrap-boundary.md`, selected additional `docs/agents` per that boundary guide, and the product repo's own validation scripts.
 4. Do not copy `.agents/skills`, `multica/agent-system-prompts`, `multica/agents.yaml`, `multica/squads.yaml`, or `multica/autopilots.yaml` into the target product repository. Those files describe the shared live Multica workspace runtime and are maintained from this template repository.
 5. Create or select the Multica project for the repository, connect the GitHub repository, and reuse the shared `OpenAI-*` workspace agents, workspace skills, and AppDev Squad.
 6. Enable GitHub PR linking in Multica. Make every branch, PR title, or PR body include the Multica issue ID, such as `MUL-123`.

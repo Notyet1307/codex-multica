@@ -27,6 +27,7 @@ Use this profile for normal product repositories in the same Multica workspace.
 | `.github/workflows/codeql.yml` | Copy and adapt | The languages must match the product repo's real stack. |
 | `.github/dependabot.yml.disabled` and `.github/workflows/dependency-review.yml.disabled` | Optional parked copy | Copy only when the product repo wants reviewed placeholders for future dependency automation. Keep them disabled until the repo has a real dependency surface, GitHub Dependency Graph is enabled, and automated review checks are stable. |
 | `.github/ISSUE_TEMPLATE/` | Optional | Use only if the product repo mirrors work into GitHub issues. Multica remains the source of truth for intake. |
+| `docs/agents/new-project-bootstrap-boundary.md` | Copy and adapt | The product repo needs a durable record of what stayed shared-workspace-owned and what became repo-local. |
 | `docs/agents/` | Copy the general policy docs and adapt project-specific language | Review, security, issue tracker, PR, domain, and ADR rules are useful in product repos, but template-only live sync docs may not apply. |
 | `scripts/` | Copy only repo-local validation helpers needed by the product repo | Do not copy template-only live sync, audit, or template-catalog scripts unless the product repo intentionally forks live workspace configuration. |
 | `docs/roadmap.md` or equivalent | Create in the target repo | The product repo needs its own roadmap and phase boundaries. Do not copy this template repo's dogfood roadmap as product truth. |
@@ -110,7 +111,8 @@ The template readiness checker has two profiles:
 - `template` validates this template repository's own required files, workflow
   markers, and bundled shared workspace skills.
 - `product-bootstrap` validates that a target product repository does not carry
-  default-excluded shared Multica runtime paths.
+  default-excluded shared Multica runtime paths and does contain the required
+  adapted bootstrap boundary guide.
 
 Use the product bootstrap profile from a local clone of this template repository
 before opening or reviewing a target product repository bootstrap PR. Run the
@@ -120,11 +122,13 @@ command from the template repository root:
 python3 scripts/repository_readiness.py --profile product-bootstrap --root <target-repo>
 ```
 
-This check fails if the target repository contains shared live workspace source
-paths such as `.agents/skills/`, `multica/agent-system-prompts/`,
-`multica/agents.yaml`, `multica/squads.yaml`, `multica/autopilots.yaml`, or the
-template-only live audit/sync helpers. It does not replace the target repo's own
-`make verify`; it is an export-boundary guard.
+This check fails if the target repository is missing
+`docs/agents/new-project-bootstrap-boundary.md` or if it contains shared live
+workspace source paths such as `.agents/skills/`,
+`multica/agent-system-prompts/`, `multica/agents.yaml`,
+`multica/squads.yaml`, `multica/autopilots.yaml`, or the template-only live
+audit/sync helpers. It does not replace the target repo's own `make verify`; it
+is an export-boundary guard.
 
 ## Drift Handling
 

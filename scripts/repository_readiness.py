@@ -56,6 +56,12 @@ PRODUCT_BOOTSTRAP_FORBIDDEN_PATHS = (
     "scripts/template_catalog.py",
 )
 
+PRODUCT_BOOTSTRAP_REQUIRED_FILES = (
+    "AGENTS.md",
+    "README.md",
+    "docs/agents/new-project-bootstrap-boundary.md",
+)
+
 
 CommandRunner = Callable[[Sequence[str], Path], int]
 
@@ -141,6 +147,12 @@ def _check_template_profile(root: Path, runner: CommandRunner) -> ReadinessResul
 def _check_product_bootstrap_profile(root: Path) -> ReadinessResult:
     messages: list[str] = []
     errors: list[str] = []
+    for relative_path in PRODUCT_BOOTSTRAP_REQUIRED_FILES:
+        path = root / relative_path
+        if path.is_file():
+            messages.append(f"OK: product bootstrap repository contains {relative_path}")
+        else:
+            errors.append(f"MISSING: product bootstrap repository missing required file {relative_path}")
     for relative_path in PRODUCT_BOOTSTRAP_FORBIDDEN_PATHS:
         path = root / relative_path
         if path.exists():
