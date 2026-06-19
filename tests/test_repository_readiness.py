@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import contextlib
+import io
 import tempfile
 import unittest
 from pathlib import Path
@@ -128,6 +130,22 @@ class RepositoryReadinessTests(unittest.TestCase):
             "UNEXPECTED: product bootstrap repository contains shared runtime path scripts/sync-multica-live-config.py",
             result.errors,
         )
+
+    def test_product_bootstrap_cli_reports_mock_product_repo_boundary_failure(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / ".agents/skills").mkdir(parents=True)
+            stdout = io.StringIO()
+
+            with contextlib.redirect_stdout(stdout):
+                exit_code = readiness.main(["--profile", "product-bootstrap", "--root", str(root)])
+
+        self.assertEqual(exit_code, 1)
+        self.assertIn(
+            "UNEXPECTED: product bootstrap repository contains shared runtime path .agents/skills",
+            stdout.getvalue(),
+        )
+        self.assertIn("Agent readiness check failed.", stdout.getvalue())
 
 
 if __name__ == "__main__":

@@ -93,8 +93,8 @@ For the first product repository PR:
 7. Run `make verify` in the target repo.
 8. Confirm the product repo does not contain default-excluded shared runtime
    paths unless the optional fork profile was explicitly approved.
-9. From this template repository, run the product bootstrap boundary check
-   against the target repo:
+9. From a local clone of this template repository, run the product bootstrap
+   boundary check from the template repo root against the target repo:
 
    ```bash
    python3 scripts/repository_readiness.py --profile product-bootstrap --root <target-repo>
@@ -112,8 +112,9 @@ The template readiness checker has two profiles:
 - `product-bootstrap` validates that a target product repository does not carry
   default-excluded shared Multica runtime paths.
 
-Use the product bootstrap profile from this template repository before opening
-or reviewing a target product repository bootstrap PR:
+Use the product bootstrap profile from a local clone of this template repository
+before opening or reviewing a target product repository bootstrap PR. Run the
+command from the template repository root:
 
 ```bash
 python3 scripts/repository_readiness.py --profile product-bootstrap --root <target-repo>

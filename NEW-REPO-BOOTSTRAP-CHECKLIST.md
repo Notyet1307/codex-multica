@@ -153,8 +153,8 @@ workspace agent names.
 - [ ] Use `docs/agents/new-project-bootstrap-boundary.md` to confirm the final
       copied file set.
 - [ ] Run `make verify` locally.
-- [ ] From this template repository, run the product bootstrap boundary check
-      against the target repository:
+- [ ] From a local clone of this template repository, run the product bootstrap
+      boundary check from the template repo root against the target repository:
       `python3 scripts/repository_readiness.py --profile product-bootstrap --root <target-repo>`.
       This must pass unless a separate issue explicitly creates
       project-specific Multica configuration.
