@@ -15,6 +15,7 @@ TEMPLATE_REQUIRED_FILES = (
     "AGENTS.md",
     "docs/agents/code-review.md",
     "docs/agents/new-project-bootstrap-boundary.md",
+    "docs/agents/project-intake-spec.md",
     "docs/agents/security-review.md",
     "docs/agents/issue-tracker.md",
     ".github/pull_request_template.md",
