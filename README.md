@@ -60,6 +60,24 @@ Use this checklist for the current issue -> PR -> checks -> merge -> close issue
 10. Close the Multica issue after the merged PR has satisfied the issue acceptance criteria.
 11. Patch `AGENTS.md`, `docs/agents/*.md`, or `.agents/skills/*` when an agent repeats a mistake.
 
+## Intake spec to issue drafts
+
+Use `docs/agents/project-intake-spec.md` when discussing a larger project,
+feature, or architecture direction with GPT Pro before creating Multica issues.
+That document is a source spec, not an implementation order.
+
+First-version conversion is local and read-only against Multica:
+
+1. Save the GPT Pro output as a Markdown intake spec.
+2. Ask Codex to review it with `ask-matt` / `spec-first-intake`.
+3. Generate draft issue files:
+   `python3 scripts/intake_to_issue_drafts.py --spec <spec.md> --output-dir artifacts/issues/<topic>`.
+4. Review and edit the generated drafts before copying them into Multica.
+
+The generator writes local Markdown drafts and a `manifest.json`. It does not
+create Multica issues, call Multica write APIs, or assign agents. Live issue
+creation remains a separate human-confirmed workflow.
+
 Current parked and future items:
 
 - Dependabot remains disabled during dogfood. Restore it by renaming `.github/dependabot.yml.disabled` back to `.github/dependabot.yml` after this repository has a real dependency surface to update, GitHub Dependency Graph / Dependency Review are ready, and automated review checks are no longer known-noisy on Dependabot PRs.
