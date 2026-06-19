@@ -23,6 +23,7 @@ TEMPLATE_REQUIRED_FILES = (
     ".github/scripts/deepseek_pr_review.py",
     ".github/workflows/deepseek-pr-review.yml",
     ".github/workflows/codeql.yml",
+    "scripts/validate_intake_spec.py",
 )
 
 TEMPLATE_REQUIRED_TEXT = (
@@ -43,6 +44,10 @@ TEMPLATE_FORBIDDEN_TEXT = (
     (".github/workflows/codeql.yml", "language: ['javascript-typescript']"),
     (".github/workflows/deepseek-pr-review.yml", "continue-on-error: true"),
     (".github/workflows/deepseek-pr-review.yml", "hashFiles('deepseek-review.md')"),
+)
+
+TEMPLATE_FORBIDDEN_PATHS = (
+    "scripts/intake_to_issue_drafts.py",
 )
 
 PRODUCT_BOOTSTRAP_FORBIDDEN_PATHS = (
@@ -115,6 +120,15 @@ def _check_forbidden_text(root: Path, messages: list[str], errors: list[str]) ->
             messages.append(f"OK: {relative_path} does not contain {forbidden_text}")
 
 
+def _check_forbidden_paths(root: Path, messages: list[str], errors: list[str]) -> None:
+    for relative_path in TEMPLATE_FORBIDDEN_PATHS:
+        path = root / relative_path
+        if path.exists():
+            errors.append(f"UNEXPECTED: template repository contains removed path {relative_path}")
+        else:
+            messages.append(f"OK: template repository does not contain {relative_path}")
+
+
 def _check_deepseek_self_test(root: Path, runner: CommandRunner, messages: list[str], errors: list[str]) -> None:
     command = [sys.executable, ".github/scripts/deepseek_pr_review.py", "--self-test"]
     exit_code = runner(command, root)
@@ -140,6 +154,7 @@ def _check_template_profile(root: Path, runner: CommandRunner) -> ReadinessResul
     _check_required_files(root, messages, errors)
     _check_required_text(root, messages, errors)
     _check_forbidden_text(root, messages, errors)
+    _check_forbidden_paths(root, messages, errors)
     _check_deepseek_self_test(root, runner, messages, errors)
     _check_template_skills(root, messages, errors)
     return ReadinessResult(messages=messages, errors=errors)

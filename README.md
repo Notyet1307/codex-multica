@@ -60,23 +60,27 @@ Use this checklist for the current issue -> PR -> checks -> merge -> close issue
 10. Close the Multica issue after the merged PR has satisfied the issue acceptance criteria.
 11. Patch `AGENTS.md`, `docs/agents/*.md`, or `.agents/skills/*` when an agent repeats a mistake.
 
-## Intake spec to issue drafts
+## Intake spec quality gate
 
 Use `docs/agents/project-intake-spec.md` when discussing a larger project,
 feature, or architecture direction with GPT Pro before creating Multica issues.
 That document is a source spec, not an implementation order.
 
-First-version conversion is local and read-only against Multica:
+First-version intake handling keeps the human/Codex reasoning loop in charge:
 
 1. Save the GPT Pro output as a Markdown intake spec.
-2. Ask Codex to review it with `ask-matt` / `spec-first-intake`.
-3. Generate draft issue files:
-   `python3 scripts/intake_to_issue_drafts.py --spec <spec.md> --output-dir artifacts/issues/<topic>`.
-4. Review and edit the generated drafts before copying them into Multica.
+2. Ask Codex to refine it with `ask-matt` / `spec-first-intake`.
+3. Run the local structural validator:
+   `python3 scripts/validate_intake_spec.py --spec <spec.md>`.
+4. If validation passes, let Codex produce the Multica issue text from the
+   refined spec and human-review it before copying into Multica.
+5. If validation fails, fix the reported missing fields, empty fields, `TODO`
+   markers, or placeholder text, then re-run the validator before continuing.
 
-The generator writes local Markdown drafts and a `manifest.json`. It does not
-create Multica issues, call Multica write APIs, or assign agents. Live issue
-creation remains a separate human-confirmed workflow.
+The validator only checks that required planning fields are present and free of
+obvious placeholders. It does not split work, generate issue drafts, create
+Multica issues, call Multica write APIs, or assign agents. Live issue creation
+remains a separate human-confirmed workflow.
 
 Current parked and future items:
 

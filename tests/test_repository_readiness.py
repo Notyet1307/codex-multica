@@ -66,6 +66,8 @@ class RepositoryReadinessTests(unittest.TestCase):
         self.assertIn("OK: AGENTS.md", result.messages)
         self.assertIn("OK: docs/agents/new-project-bootstrap-boundary.md", result.messages)
         self.assertIn("OK: docs/agents/project-intake-spec.md", result.messages)
+        self.assertIn("OK: scripts/validate_intake_spec.py", result.messages)
+        self.assertIn("OK: template repository does not contain scripts/intake_to_issue_drafts.py", result.messages)
         self.assertIn("OK: .github/workflows/deepseek-pr-review.yml contains pull-requests: write", result.messages)
         self.assertIn(".agents/skills/context-pack/SKILL.md", result.messages)
 
@@ -94,6 +96,19 @@ class RepositoryReadinessTests(unittest.TestCase):
             result = readiness.check_repository(root, runner=lambda command, cwd: 7)
 
         self.assertIn("ERROR: DeepSeek review self-test failed with exit code 7", result.errors)
+
+    def test_template_profile_rejects_removed_intake_draft_generator(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            write_template_repo(root)
+            write(root, "scripts/intake_to_issue_drafts.py")
+
+            result = readiness.check_repository(root, runner=lambda command, cwd: 0)
+
+        self.assertIn(
+            "UNEXPECTED: template repository contains removed path scripts/intake_to_issue_drafts.py",
+            result.errors,
+        )
 
     def test_unknown_profile_is_rejected(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:

@@ -1,36 +1,41 @@
 # Project Intake Spec
 
 Use this template when discussing a new project, feature, or larger change with
-GPT Pro before asking Codex to turn the result into Multica issues.
+GPT Pro before asking Codex to refine the result into Multica-ready issues.
 
 The output from GPT Pro is a planning artifact, not an implementation order.
 Codex must still verify repository state, separate facts from assumptions, add
-scope boundaries, and produce Multica-ready issue drafts before any agent starts
+scope boundaries, and produce Multica-ready issue text before any agent starts
 implementation.
 
 ## How To Use
 
 1. Ask GPT Pro to fill this template.
 2. Save the result as a Markdown file.
-3. Ask Codex to review and convert it:
+3. Ask Codex to refine it:
 
    ```text
    Use ask-matt / spec-first-intake on this intake spec. Do not implement.
-   Generate Multica issue drafts with scope, non-goals, acceptance criteria,
-   allowed files or areas, validation, risk/HITL classification, stop
-   conditions, and suggested assignee.
+   Refine it into Multica-ready issue text with scope, non-goals, acceptance
+   criteria, allowed files or areas, validation, risk/HITL classification, stop
+   conditions, and suggested assignee. Keep the actual splitting and wording
+   judgment in Codex; do not rely on a script to generate final issues.
    ```
 
-4. Run the local draft generator:
+4. Run the local structural validator:
 
    ```bash
-   python3 scripts/intake_to_issue_drafts.py --spec <spec.md> --output-dir artifacts/issues/<topic>
+   python3 scripts/validate_intake_spec.py --spec <spec.md>
    ```
 
-5. Review the generated draft issues before copying them into Multica.
+5. Review the Codex-refined issue text before copying it into Multica.
+6. If validation fails, fix the reported missing fields, empty fields, `TODO`
+   markers, or placeholder text, then re-run validation before creating or
+   copying any Multica issue.
 
-This first-version flow does not create Multica issues or call a Multica write
-API. Live issue creation must remain a separate human-confirmed workflow.
+The validator only checks required fields and obvious placeholders. It does not
+split work, generate issue drafts, create Multica issues, or call a Multica
+write API. Live issue creation must remain a separate human-confirmed workflow.
 
 ## Template
 
@@ -87,7 +92,7 @@ them.
 - Scope:
 - Acceptance criteria:
 - Validation:
-- Dependencies:
+- Stop conditions:
 
 ### Slice 2: <Short outcome-oriented title>
 
@@ -95,9 +100,8 @@ them.
 - Scope:
 - Acceptance criteria:
 - Validation:
-- Dependencies:
+- Stop conditions:
 
 ## Links / Evidence
 
 - 
-
