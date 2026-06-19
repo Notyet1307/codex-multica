@@ -15,6 +15,7 @@ Use this file to keep product and engineering language consistent.
 | Squad | A Multica routing group led by `OpenAI-scoper` | team | The squad routes issues to the narrowest competent owner. |
 | Autopilot | A Multica automation that creates or updates issues | cron job only | Prefer create-issue mode for auditability. |
 | Readiness check | `scripts/repository_readiness.py` with `scripts/check-agent-ready.sh` as the Bash adapter | test suite | Verifies required template files, workflow policy markers, and bundled skills exist and are usable. |
+| Bootstrap boundary | The copy/adapt/do-not-copy decision for applying this template to a product repository | copying the whole template | See `docs/agents/new-project-bootstrap-boundary.md`. |
 
 ## Bounded contexts
 
