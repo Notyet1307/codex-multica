@@ -142,6 +142,34 @@ class IntakeToIssueDraftTests(unittest.TestCase):
         self.assertIn("source spec title contains placeholder text", draft_issue.warnings)
         self.assertIn("source spec title contains placeholder text", draft_issue.body)
 
+    def test_risk_inference_uses_word_boundaries(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            original_risk = "Runtime scope could expand into live API ingestion."
+            low_spec_path = write(
+                root,
+                "low.md",
+                COMPLETE_SPEC.replace(original_risk, "The author suggests a documentation-only update."),
+            )
+            medium_spec_path = write(
+                root,
+                "medium.md",
+                COMPLETE_SPEC.replace(original_risk, "This touches CI workflow documentation."),
+            )
+            high_spec_path = write(
+                root,
+                "high.md",
+                COMPLETE_SPEC.replace(original_risk, "This requires authentication and production migration review."),
+            )
+
+            low_spec = drafts.parse_intake_spec(low_spec_path)
+            medium_spec = drafts.parse_intake_spec(medium_spec_path)
+            high_spec = drafts.parse_intake_spec(high_spec_path)
+
+        self.assertEqual(drafts.infer_risk(low_spec), "risk:low")
+        self.assertEqual(drafts.infer_risk(medium_spec), "risk:medium")
+        self.assertEqual(drafts.infer_risk(high_spec), "risk:high")
+
 
 if __name__ == "__main__":
     unittest.main()

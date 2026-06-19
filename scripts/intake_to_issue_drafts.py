@@ -38,6 +38,25 @@ SLICE_HEADING_PATTERN = re.compile(r"^###\s+(.+?)\s*$", re.MULTILINE)
 HEADING_PATTERN = re.compile(r"^(#{1,6})\s+(.+?)\s*$", re.MULTILINE)
 SAFE_SLUG_PATTERN = re.compile(r"[^a-z0-9]+")
 PLACEHOLDER_PATTERN = re.compile(r"<[^>\n]+>")
+HIGH_RISK_PATTERNS = (
+    re.compile(r"\bsecret(?:s)?\b"),
+    re.compile(r"\bcredential(?:s)?\b"),
+    re.compile(r"\b(?:auth|authentication|authorization|authz)\b"),
+    re.compile(r"\bproduction\b"),
+    re.compile(r"\bmigration(?:s)?\b"),
+    re.compile(r"\bpii\b"),
+    re.compile(r"\bpayment(?:s)?\b"),
+    re.compile(r"\blive\s+write(?:s)?\b"),
+)
+MEDIUM_RISK_PATTERNS = (
+    re.compile(r"\bapi(?:s)?\b"),
+    re.compile(r"\bworkflow(?:s)?\b"),
+    re.compile(r"\b(?:dependency|dependencies)\b"),
+    re.compile(r"\bci\b"),
+    re.compile(r"\bsecurity\b"),
+    re.compile(r"\bruntime\b"),
+    re.compile(r"\bdatabase(?:s)?\b"),
+)
 
 
 @dataclass(frozen=True)
@@ -152,11 +171,9 @@ def infer_risk(spec: IntakeSpec) -> str:
             section(spec, "Proposed Approach"),
         ]
     ).lower()
-    high_markers = ("secret", "credential", "auth", "production", "migration", "pii", "payment", "live write")
-    medium_markers = ("api", "workflow", "dependency", "ci", "security", "runtime", "database")
-    if any(marker in risk_text for marker in high_markers):
+    if any(pattern.search(risk_text) for pattern in HIGH_RISK_PATTERNS):
         return "risk:high"
-    if any(marker in risk_text for marker in medium_markers):
+    if any(pattern.search(risk_text) for pattern in MEDIUM_RISK_PATTERNS):
         return "risk:medium"
     return "risk:low"
 
