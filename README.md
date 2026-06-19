@@ -74,6 +74,8 @@ First-version intake handling keeps the human/Codex reasoning loop in charge:
    `python3 scripts/validate_intake_spec.py --spec <spec.md>`.
 4. If validation passes, let Codex produce the Multica issue text from the
    refined spec and human-review it before copying into Multica.
+5. If validation fails, fix the reported missing fields, empty fields, `TODO`
+   markers, or placeholder text, then re-run the validator before continuing.
 
 The validator only checks that required planning fields are present and free of
 obvious placeholders. It does not split work, generate issue drafts, create

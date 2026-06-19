@@ -29,6 +29,9 @@ implementation.
    ```
 
 5. Review the Codex-refined issue text before copying it into Multica.
+6. If validation fails, fix the reported missing fields, empty fields, `TODO`
+   markers, or placeholder text, then re-run validation before creating or
+   copying any Multica issue.
 
 The validator only checks required fields and obvious placeholders. It does not
 split work, generate issue drafts, create Multica issues, or call a Multica
