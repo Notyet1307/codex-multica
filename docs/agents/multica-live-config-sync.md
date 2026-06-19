@@ -15,7 +15,7 @@ Treat these repository paths as desired-state templates:
 
 - `multica/agent-system-prompts/` contains agent system prompt text to paste or
   import into live Multica agents.
-- `.agents/skills/` contains repo-scoped skill templates that may also be
+- `.agents/skills/` contains shared workspace skill templates that may also be
   imported into Multica workspace skills.
 - `multica/agents.yaml` maps live workspace agent names to repo-local prompt
   files and skill bindings.

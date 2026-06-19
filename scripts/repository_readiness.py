@@ -14,6 +14,7 @@ from typing import Callable, Sequence
 TEMPLATE_REQUIRED_FILES = (
     "AGENTS.md",
     "docs/agents/code-review.md",
+    "docs/agents/new-project-bootstrap-boundary.md",
     "docs/agents/security-review.md",
     "docs/agents/issue-tracker.md",
     ".github/pull_request_template.md",
@@ -41,6 +42,24 @@ TEMPLATE_FORBIDDEN_TEXT = (
     (".github/workflows/codeql.yml", "language: ['javascript-typescript']"),
     (".github/workflows/deepseek-pr-review.yml", "continue-on-error: true"),
     (".github/workflows/deepseek-pr-review.yml", "hashFiles('deepseek-review.md')"),
+)
+
+PRODUCT_BOOTSTRAP_FORBIDDEN_PATHS = (
+    ".agents/skills",
+    "multica/agent-system-prompts",
+    "multica/agents.yaml",
+    "multica/squads.yaml",
+    "multica/autopilots.yaml",
+    "scripts/audit-multica-live-config.py",
+    "scripts/sync-multica-live-config.py",
+    "scripts/live_sync_policy.py",
+    "scripts/template_catalog.py",
+)
+
+PRODUCT_BOOTSTRAP_REQUIRED_FILES = (
+    "AGENTS.md",
+    "README.md",
+    "docs/agents/new-project-bootstrap-boundary.md",
 )
 
 
@@ -125,15 +144,35 @@ def _check_template_profile(root: Path, runner: CommandRunner) -> ReadinessResul
     return ReadinessResult(messages=messages, errors=errors)
 
 
+def _check_product_bootstrap_profile(root: Path) -> ReadinessResult:
+    messages: list[str] = []
+    errors: list[str] = []
+    for relative_path in PRODUCT_BOOTSTRAP_REQUIRED_FILES:
+        path = root / relative_path
+        if path.is_file():
+            messages.append(f"OK: product bootstrap repository contains {relative_path}")
+        else:
+            errors.append(f"MISSING: product bootstrap repository missing required file {relative_path}")
+    for relative_path in PRODUCT_BOOTSTRAP_FORBIDDEN_PATHS:
+        path = root / relative_path
+        if path.exists():
+            errors.append(f"UNEXPECTED: product bootstrap repository contains shared runtime path {relative_path}")
+        else:
+            messages.append(f"OK: product bootstrap repository does not contain {relative_path}")
+    return ReadinessResult(messages=messages, errors=errors)
+
+
 def check_repository(
     root: Path,
     *,
     profile: str = "template",
     runner: CommandRunner = default_runner,
 ) -> ReadinessResult:
-    if profile != "template":
-        return ReadinessResult(messages=[], errors=[f"ERROR: unknown readiness profile {profile}"])
-    return _check_template_profile(root, runner)
+    if profile == "template":
+        return _check_template_profile(root, runner)
+    if profile == "product-bootstrap":
+        return _check_product_bootstrap_profile(root)
+    return ReadinessResult(messages=[], errors=[f"ERROR: unknown readiness profile {profile}"])
 
 
 def main(argv: Sequence[str] | None = None) -> int:

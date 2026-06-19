@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import contextlib
+import io
 import tempfile
 import unittest
 from pathlib import Path
@@ -47,6 +49,11 @@ def write_template_repo(root: Path, *, deepseek_workflow: str | None = None) -> 
     )
 
 
+def write_product_bootstrap_repo(root: Path) -> None:
+    for path in readiness.PRODUCT_BOOTSTRAP_REQUIRED_FILES:
+        write(root, path)
+
+
 class RepositoryReadinessTests(unittest.TestCase):
     def test_template_profile_passes_for_current_required_files_and_policy(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -57,6 +64,7 @@ class RepositoryReadinessTests(unittest.TestCase):
 
         self.assertFalse(result.errors)
         self.assertIn("OK: AGENTS.md", result.messages)
+        self.assertIn("OK: docs/agents/new-project-bootstrap-boundary.md", result.messages)
         self.assertIn("OK: .github/workflows/deepseek-pr-review.yml contains pull-requests: write", result.messages)
         self.assertIn(".agents/skills/context-pack/SKILL.md", result.messages)
 
@@ -91,6 +99,76 @@ class RepositoryReadinessTests(unittest.TestCase):
             result = readiness.check_repository(Path(tmp), profile="unknown", runner=lambda command, cwd: 0)
 
         self.assertIn("ERROR: unknown readiness profile unknown", result.errors)
+
+    def test_product_bootstrap_profile_passes_when_shared_runtime_paths_are_absent(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            write_product_bootstrap_repo(root)
+
+            result = readiness.check_repository(root, profile="product-bootstrap", runner=lambda command, cwd: 0)
+
+        self.assertFalse(result.errors)
+        self.assertIn(
+            "OK: product bootstrap repository contains docs/agents/new-project-bootstrap-boundary.md",
+            result.messages,
+        )
+        self.assertIn(
+            "OK: product bootstrap repository does not contain .agents/skills",
+            result.messages,
+        )
+
+    def test_product_bootstrap_profile_reports_missing_required_boundary_doc(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            write(root, "AGENTS.md")
+            write(root, "README.md")
+
+            result = readiness.check_repository(root, profile="product-bootstrap", runner=lambda command, cwd: 0)
+
+        self.assertIn(
+            "MISSING: product bootstrap repository missing required file docs/agents/new-project-bootstrap-boundary.md",
+            result.errors,
+        )
+
+    def test_product_bootstrap_profile_rejects_shared_runtime_paths(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            write_product_bootstrap_repo(root)
+            (root / ".agents/skills").mkdir(parents=True)
+            write(root, "multica/agents.yaml")
+            write(root, "scripts/sync-multica-live-config.py")
+
+            result = readiness.check_repository(root, profile="product-bootstrap", runner=lambda command, cwd: 0)
+
+        self.assertIn(
+            "UNEXPECTED: product bootstrap repository contains shared runtime path .agents/skills",
+            result.errors,
+        )
+        self.assertIn(
+            "UNEXPECTED: product bootstrap repository contains shared runtime path multica/agents.yaml",
+            result.errors,
+        )
+        self.assertIn(
+            "UNEXPECTED: product bootstrap repository contains shared runtime path scripts/sync-multica-live-config.py",
+            result.errors,
+        )
+
+    def test_product_bootstrap_cli_reports_mock_product_repo_boundary_failure(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            write_product_bootstrap_repo(root)
+            (root / ".agents/skills").mkdir(parents=True)
+            stdout = io.StringIO()
+
+            with contextlib.redirect_stdout(stdout):
+                exit_code = readiness.main(["--profile", "product-bootstrap", "--root", str(root)])
+
+        self.assertEqual(exit_code, 1)
+        self.assertIn(
+            "UNEXPECTED: product bootstrap repository contains shared runtime path .agents/skills",
+            stdout.getvalue(),
+        )
+        self.assertIn("Agent readiness check failed.", stdout.getvalue())
 
 
 if __name__ == "__main__":
